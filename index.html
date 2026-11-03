@@ -1,1297 +1,1182 @@
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAGA Workout</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <title>SAGA | Workout System</title>
 
-<style>
+  <style>
+    /* =========================
+       CONFIGURAÇÕES GERAIS
+    ========================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* =====================================
-   1. CONFIGURAÇÃO GERAL DO SITE
-   ===================================== */
+    body {
+      background: #080808;
+      color: #f5f5f5;
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 50px;
+    }
 
-/* Define o tamanho dos elementos e evita problemas de largura */
-* {
-  box-sizing: border-box;
-}
+    button, input {
+      font: inherit;
+    }
 
-/* Define o fundo, a cor dos textos e a fonte principal */
-body {
-  margin: 0;
-  padding: 20px;
-  background: #090909;
-  color: white;
-  font-family: Arial, sans-serif;
-}
+    button {
+      cursor: pointer;
+    }
 
-/* Espaçamento da identidade SAGA */
-header {
-  margin-bottom: 25px;
-}
+    .container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
 
-/* Nome principal do site */
-header h1 {
-  font-size: 35px;
-  letter-spacing: 5px;
-  margin: 0;
-}
+    /* =========================
+       CABEÇALHO
+    ========================= */
+    header {
+      margin-bottom: 30px;
+    }
 
-/* Subtítulo abaixo do nome */
-header p {
-  color: #888;
-  font-size: 11px;
-  letter-spacing: 3px;
-}
+    .logo {
+      font-size: 35px;
+      font-weight: 900;
+      letter-spacing: 5px;
+    }
 
-/* Títulos das seções */
-.section-title {
-  color: #aaa;
-  font-size: 11px;
-  letter-spacing: 2px;
-  margin: 25px 0 12px;
-}
+    .subtitle {
+      color: #777;
+      font-size: 10px;
+      letter-spacing: 4px;
+      margin-top: 5px;
+    }
 
-/* Painel padrão utilizado no cronômetro */
-.panel {
-  background: #171717;
-  padding: 17px;
-  border-radius: 12px;
-  margin-bottom: 18px;
-}
+    .section-label {
+      color: #777;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 13px;
+    }
 
+    /* =========================
+       CALENDÁRIO
+    ========================= */
+    .calendar-section {
+      margin-bottom: 27px;
+    }
 
-/* =====================================
-   2. CALENDÁRIO SEMANAL HORIZONTAL
-   ===================================== */
+    .calendar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
 
-/* Caixa principal do calendário */
-.calendar-panel {
-  background: #171717;
-  padding: 16px 12px;
-  border-radius: 12px;
-  margin-bottom: 25px;
-  overflow: hidden;
-}
+    .month-title {
+      font-size: 19px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
 
-/* Nome do mês exibido acima dos dias */
-.calendar-month {
-  font-size: 22px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin-bottom: 6px;
-}
+    .calendar-hint {
+      color: #555;
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
 
-/* Instrução para deslizar o calendário */
-.calendar-instruction {
-  color: #888;
-  font-size: 11px;
-  margin-bottom: 22px;
-}
+    .calendar-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding-bottom: 8px;
+    }
 
-/* Nomes dos dias da semana */
-.week-labels,
-.week-days {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
-  text-align: center;
-}
+    .calendar-scroll::-webkit-scrollbar {
+      display: none;
+    }
 
-/* Espaçamento dos nomes dos dias */
-.week-labels {
-  margin-bottom: 12px;
-}
+    .week {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
 
-/* Aparência de SEG, TER, QUA etc. */
-.week-labels span {
-  color: #999;
-  font-size: 10px;
-  font-weight: bold;
-}
+    .day {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      color: #777;
+      font-size: 10px;
+    }
 
-/* Área que permite deslizar de uma semana para outra */
-.week-scroll {
-  display: flex;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
+    .day-name {
+      font-size: 9px;
+      color: #666;
+      font-weight: bold;
+    }
 
-/* Esconde a barra de rolagem */
-.week-scroll::-webkit-scrollbar {
-  display: none;
-}
+    .day-number {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #292929;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 11px;
+      color: #aaa;
+      background: #111;
+      transition: .2s;
+    }
 
-/* Cada página representa uma semana completa */
-.week-page {
-  flex: 0 0 100%;
-  width: 100%;
-  scroll-snap-align: start;
-}
+    .day.completed .day-number {
+      background: #a8f05a;
+      border-color: #a8f05a;
+      color: #080808;
+      font-weight: 900;
+    }
 
-/* Organiza os sete dias da semana */
-.week-days {
-  align-items: center;
-}
+    .day.outside {
+      visibility: hidden;
+    }
 
-/* Caixa individual de cada dia */
-.week-day {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .day:not(.outside) {
+      cursor: pointer;
+    }
 
-/* Bolinha de cada dia */
-.calendar-day {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  margin: 0;
-  border-radius: 50%;
-  background: #414141;
-  border: 2px solid #555;
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-}
+    /* =========================
+       CRONÔMETRO
+    ========================= */
+    .timer-section {
+      background: #101010;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 19px;
+      margin-bottom: 35px;
+    }
 
-/* Cor verde quando o treino foi confirmado */
-.calendar-day.done {
-  background: #20b85a;
-  border-color: #20b85a;
-  color: #07190d;
-}
+    .timer-display {
+      font-size: 38px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-align: center;
+      margin: 8px 0 17px;
+      font-variant-numeric: tabular-nums;
+    }
 
-/* Dias fora de novembro e dezembro ficam invisíveis */
-.calendar-day.hidden-day {
-  visibility: hidden;
-  pointer-events: none;
-}
+    .timer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+    }
 
-/* Indica a semana atual da navegação */
-.week-position {
-  text-align: center;
-  color: #777;
-  font-size: 10px;
-  margin-top: 18px;
-}
+    .timer-button {
+      background: #202020;
+      color: white;
+      border: 1px solid #333;
+      border-radius: 7px;
+      padding: 10px 18px;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
 
+    .timer-button.primary {
+      background: #a8f05a;
+      border-color: #a8f05a;
+      color: #080808;
+    }
 
-/* =====================================
-   3. CRONÔMETRO
-   ===================================== */
+    /* =========================
+       FICHAS DE TREINO
+    ========================= */
+    .workout-section {
+      margin-bottom: 25px;
+    }
 
-/* Tamanho e aparência dos números */
-.timer {
-  font-size: 38px;
-  text-align: center;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin: 12px 0 18px;
-}
+    .workout-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
 
-/* Organiza os três botões */
-.timer-buttons {
-  display: flex;
-  gap: 8px;
-}
+    .workout-box {
+      min-height: 115px;
+      background: #111;
+      border: 1px solid #292929;
+      border-radius: 12px;
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      color: white;
+      transition: .2s;
+    }
 
-/* Aparência padrão dos botões */
-button {
-  background: #eee;
-  color: #111;
-  border: none;
-  padding: 13px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
+    .workout-box:active {
+      transform: scale(.98);
+      border-color: #a8f05a;
+    }
 
-/* Divide o espaço entre os botões do cronômetro */
-.timer-buttons button {
-  flex: 1;
-}
+    .workout-name {
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
 
-/* Botões secundários do cronômetro */
-button.secondary {
-  background: #303030;
-  color: white;
-}
+    .workout-count {
+      color: #777;
+      font-size: 10px;
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
 
+    .workout-arrow {
+      color: #a8f05a;
+      font-size: 18px;
+      align-self: flex-end;
+    }
 
-/* =====================================
-   4. CARTÕES DE EXERCÍCIOS
-   ===================================== */
+    .workout-box:last-child {
+      grid-column: 1 / -1;
+      min-height: 90px;
+    }
 
-/* Estrutura de cada exercício */
-.exercise {
-  display: flex;
-  gap: 12px;
-  background: #171717;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  align-items: center;
-}
+    /* =========================
+       TELA INTERNA DA FICHA
+    ========================= */
+    .workout-detail {
+      display: none;
+      margin-top: 5px;
+    }
 
-/* Área da foto do exercício */
-.photo {
-  width: 105px;
-  height: 105px;
-  flex-shrink: 0;
-  background: #292929;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  font-size: 11px;
-  text-align: center;
-  cursor: pointer;
-}
+    .workout-detail.active {
+      display: block;
+    }
 
-/* Faz a foto ocupar todo o espaço disponível */
-.photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .workout-grid.hidden,
+    .workout-section.hidden {
+      display: none;
+    }
 
-/* Área das informações do exercício */
-.info {
-  flex: 1;
-  min-width: 0;
-}
+    .back-button {
+      background: transparent;
+      color: #aaa;
+      border: 1px solid #333;
+      border-radius: 7px;
+      padding: 10px 14px;
+      font-size: 10px;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
 
-/* Campo para editar o nome do exercício */
-.name {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  outline: none;
-}
+    .detail-title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
 
-/* Organiza séries, repetições e peso */
-.fields {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
+    .detail-subtitle {
+      color: #666;
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-bottom: 22px;
+    }
 
-/* Caixa individual de cada informação */
-.field {
-  background: #292929;
-  padding: 8px 3px;
-  border-radius: 6px;
-  text-align: center;
-  min-width: 0;
-}
+    /* =========================
+       CARTÕES DE EXERCÍCIO
+    ========================= */
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
 
-/* Nome de cada campo */
-.field label {
-  display: block;
-  color: #999;
-  font-size: 9px;
-  margin-bottom: 5px;
-}
+    .exercise {
+      background: #111;
+      border: 1px solid #292929;
+      border-radius: 12px;
+      padding: 13px;
+    }
 
-/* Números editáveis dos exercícios */
-.field input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: white;
-  text-align: center;
-  font-size: 17px;
-  font-weight: bold;
-}
+    .exercise-main {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+    }
 
-/* Botão para adicionar novos exercícios */
-.add-button {
-  width: 100%;
-  margin-top: 8px;
-}
+    .photo-area {
+      width: 105px;
+      height: 115px;
+      flex-shrink: 0;
+      background: #1c1c1c;
+      border: 1px dashed #444;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
 
+    .photo-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-/* =====================================
-   5. AJUSTES PARA CELULARES PEQUENOS
-   ===================================== */
+    .photo-placeholder {
+      color: #777;
+      font-size: 9px;
+      text-align: center;
+      line-height: 1.6;
+      padding: 5px;
+    }
 
-@media(max-width: 360px) {
+    .photo-input {
+      display: none;
+    }
 
-  body {
-    padding: 12px;
-  }
+    .photo-button {
+      display: block;
+      background: #222;
+      border: 1px solid #3a3a3a;
+      color: #aaa;
+      border-radius: 5px;
+      padding: 7px 5px;
+      margin-top: 7px;
+      text-align: center;
+      font-size: 8px;
+      letter-spacing: .5px;
+    }
 
-  .photo {
-    width: 85px;
-    height: 85px;
-  }
+    .exercise-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-  .timer {
-    font-size: 32px;
-  }
+    .exercise-name {
+      width: 100%;
+      color: white;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #333;
+      padding: 7px 0;
+      font-size: 14px;
+      font-weight: bold;
+      outline: none;
+    }
 
-  .calendar-day {
-    width: 31px;
-    height: 31px;
-  }
+    .exercise-name:focus {
+      border-color: #a8f05a;
+    }
 
-  .week-labels span {
-    font-size: 9px;
-  }
+    .exercise-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 13px;
+    }
 
-}
+    .field label {
+      display: block;
+      color: #777;
+      font-size: 8px;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
 
-</style>
+    .field input {
+      width: 100%;
+      min-width: 0;
+      background: #202020;
+      border: 1px solid #333;
+      border-radius: 5px;
+      padding: 9px 4px;
+      color: white;
+      text-align: center;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #a8f05a;
+    }
+
+    .exercise-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .delete-exercise {
+      background: transparent;
+      color: #a66b6b;
+      border: none;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 5px;
+    }
+
+    .add-exercise-button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 15px;
+      background: #a8f05a;
+      color: #080808;
+      border: none;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .empty-message {
+      color: #666;
+      text-align: center;
+      font-size: 11px;
+      padding: 30px 10px;
+      border: 1px dashed #292929;
+      border-radius: 10px;
+    }
+
+    /* =========================
+       RODAPÉ
+    ========================= */
+    footer {
+      text-align: center;
+      color: #444;
+      font-size: 9px;
+      letter-spacing: 3px;
+      margin-top: 45px;
+    }
+
+    @media (max-width: 380px) {
+      .day-number {
+        width: 30px;
+        height: 30px;
+      }
+
+      .photo-area {
+        width: 88px;
+        height: 105px;
+      }
+
+      .workout-name {
+        font-size: 17px;
+      }
+    }
+  </style>
 </head>
 
-
 <body>
+  <div class="container">
 
-<!-- =====================================
-     6. CABEÇALHO DO SAGA
-     ===================================== -->
+    <!-- CABEÇALHO -->
+    <header>
+      <div class="logo">SAGA</div>
+      <div class="subtitle">WORKOUT SYSTEM</div>
+    </header>
 
-<header>
-  <h1>SAGA</h1>
-  <p>WORKOUT SYSTEM</p>
-</header>
+    <!-- CALENDÁRIO -->
+    <section class="calendar-section">
+      <div class="calendar-top">
+        <div>
+          <div class="section-label">CONSISTÊNCIA</div>
+          <div class="month-title" id="monthTitle">NOVEMBRO 2026</div>
+        </div>
+        <div class="calendar-hint">DESLIZE →</div>
+      </div>
 
+      <div class="calendar-scroll" id="calendarScroll"></div>
+    </section>
 
-<!-- =====================================
-     7. CALENDÁRIO DE FREQUÊNCIA
-     Fica no topo do site.
-     ===================================== -->
+    <!-- CRONÔMETRO -->
+    <section class="timer-section">
+      <div class="section-label">TEMPO DE DESCANSO</div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
 
-<div class="section-title">MINHA FREQUÊNCIA</div>
+      <div class="timer-buttons">
+        <button class="timer-button primary" id="timerStart">INICIAR</button>
+        <button class="timer-button" id="timerReset">ZERAR</button>
+      </div>
+    </section>
 
-<div class="calendar-panel">
+    <!-- CINCO FICHAS FIXAS -->
+    <section class="workout-section" id="workoutSection">
+      <div class="section-label">MINHAS FICHAS</div>
+      <div class="workout-grid" id="workoutGrid"></div>
+    </section>
 
-  <!-- Mostra o mês da semana selecionada -->
-  <div class="calendar-month" id="calendarMonth">
-    NOVEMBRO 2026
+    <!-- DETALHES DO TREINO -->
+    <section class="workout-detail" id="workoutDetail">
+      <button class="back-button" onclick="closeWorkout()">← VOLTAR</button>
+
+      <div class="detail-title" id="detailTitle">UPPER</div>
+      <div class="detail-subtitle">EXERCÍCIOS DO TREINO</div>
+
+      <div class="exercise-list" id="exerciseList"></div>
+
+      <button class="add-exercise-button" onclick="addExercise()">
+        + ADICIONAR EXERCÍCIO
+      </button>
+    </section>
+
+    <footer>SAGA WORKOUT SYSTEM</footer>
   </div>
 
-  <!-- Orienta o usuário a deslizar para os lados -->
-  <div class="calendar-instruction">
-    Deslize para os lados para mudar de semana.
-  </div>
-
-  <!-- Nomes dos dias de segunda a domingo -->
-  <div class="week-labels">
-    <span>SEG</span>
-    <span>TER</span>
-    <span>QUA</span>
-    <span>QUI</span>
-    <span>SEX</span>
-    <span>SÁB</span>
-    <span>DOM</span>
-  </div>
-
-  <!-- Aqui o JavaScript cria todas as semanas -->
-  <div class="week-scroll" id="weekScroll"></div>
-
-  <!-- Mostra a posição da semana no calendário -->
-  <div class="week-position" id="weekPosition"></div>
-
-</div>
-
-
-<!-- =====================================
-     8. CRONÔMETRO DE TREINO
-     ===================================== -->
-
-<div class="section-title">TEMPO DE TREINO</div>
-
-<div class="panel">
-
-  <!-- Mostra o tempo decorrido -->
-  <div class="timer" id="timer">00:00:00</div>
-
-  <!-- Botões para controlar o cronômetro -->
-  <div class="timer-buttons">
-
-    <button onclick="startTimer()">
-      INICIAR
-    </button>
-
-    <button class="secondary" onclick="pauseTimer()">
-      PAUSAR
-    </button>
-
-    <button class="secondary" onclick="resetTimer()">
-      ZERAR
-    </button>
-
-  </div>
-</div>
-
-
-<!-- =====================================
-     9. ÁREA DOS EXERCÍCIOS
-     ===================================== -->
-
-<div class="section-title">MEUS EXERCÍCIOS</div>
-
-<!-- O JavaScript coloca os cartões aqui -->
-<div id="exercises"></div>
-
-<!-- Adiciona um novo cartão de exercício -->
-<button class="add-button" onclick="addExercise()">
-  + ADICIONAR EXERCÍCIO
-</button>
-
-
-<script>
-
-/* =====================================
-   10. CARREGAMENTO E ARMAZENAMENTO
-   ===================================== */
-
-// Busca uma informação salva no navegador.
-// Se não existir, utiliza o valor padrão informado.
-function getData(key, fallback) {
-
-  try {
-
-    const value = localStorage.getItem(key);
-
-    return value ? JSON.parse(value) : fallback;
-
-  } catch (error) {
-
-    return fallback;
-
-  }
-
-}
-
-
-// Carrega os exercícios que já estavam salvos.
-let exercises = getData("saga", []);
-
-// Garante que a lista de exercícios seja válida.
-if (!Array.isArray(exercises)) {
-  exercises = [];
-}
-
-
-// Carrega os dias em que o usuário confirmou presença.
-// Mantém as marcações antigas da semana anterior.
-let workoutDays = getData("sagaDays", []);
-
-// Garante que a lista de presenças seja válida.
-if (!Array.isArray(workoutDays)) {
-  workoutDays = [];
-}
-
-
-// Carrega os dados anteriores do cronômetro.
-let timerData = getData("sagaTimer", {
-  elapsed: 0,
-  startedAt: null
-});
-
-
-// Salva os exercícios no navegador.
-function save() {
-
-  localStorage.setItem(
-    "saga",
-    JSON.stringify(exercises)
-  );
-
-}
-
-
-/* =====================================
-   11. FUNÇÕES DO CRONÔMETRO
-   ===================================== */
-
-// Calcula o tempo total de treino.
-// Considera também o tempo desde que o cronômetro foi iniciado.
-function getElapsed() {
-
-  return timerData.elapsed +
-    (timerData.startedAt
-      ? Math.floor(
-          (Date.now() - timerData.startedAt) / 1000
-        )
-      : 0);
-
-}
-
-
-// Atualiza os números do cronômetro na tela.
-// Também salva os dados para não perder o tempo ao atualizar o site.
-function updateTimer() {
-
-  const seconds = getElapsed();
-
-  const h = String(
-    Math.floor(seconds / 3600)
-  ).padStart(2, "0");
-
-  const m = String(
-    Math.floor((seconds % 3600) / 60)
-  ).padStart(2, "0");
-
-  const s = String(
-    seconds % 60
-  ).padStart(2, "0");
-
-  document.getElementById("timer").textContent =
-    `${h}:${m}:${s}`;
-
-  localStorage.setItem(
-    "sagaTimer",
-    JSON.stringify(timerData)
-  );
-
-}
-
-
-// Inicia o cronômetro se ele estiver parado.
-function startTimer() {
-
-  if (!timerData.startedAt) {
-
-    timerData.startedAt = Date.now();
-
-    updateTimer();
-
-  }
-
-}
-
-
-// Pausa o cronômetro e guarda o tempo acumulado.
-function pauseTimer() {
-
-  if (timerData.startedAt) {
-
-    timerData.elapsed = getElapsed();
-
-    timerData.startedAt = null;
-
-    updateTimer();
-
-  }
-
-}
-
-
-// Zera o cronômetro depois de pedir confirmação.
-function resetTimer() {
-
-  if (confirm("Deseja zerar o cronômetro?")) {
-
-    timerData = {
-      elapsed: 0,
-      startedAt: null
-    };
-
-    updateTimer();
-
-  }
-
-}
-
-
-// Atualiza o cronômetro a cada segundo.
-setInterval(updateTimer, 1000);
-
-// Mostra o tempo salvo assim que o site abre.
-updateTimer();
-
-
-/* =====================================
-   12. CALENDÁRIO SEMANAL
-   NOVEMBRO E DEZEMBRO DE 2026
-   ===================================== */
-
-// Define a primeira segunda-feira do calendário.
-// A semana começa em 26 de outubro para incluir domingo, dia 1º de novembro.
-const calendarStart = new Date(2026, 9, 26);
-
-// Define a última segunda-feira do calendário.
-// A última semana vai de 28 de dezembro até 3 de janeiro.
-// Os dias de janeiro ficam escondidos.
-const calendarEnd = new Date(2026, 11, 28);
-
-// Encontra a área onde as semanas serão criadas.
-const weekScroll = document.getElementById("weekScroll");
-
-// Nomes dos meses utilizados no título.
-const monthNames = [
-  "JANEIRO",
-  "FEVEREIRO",
-  "MARÇO",
-  "ABRIL",
-  "MAIO",
-  "JUNHO",
-  "JULHO",
-  "AGOSTO",
-  "SETEMBRO",
-  "OUTUBRO",
-  "NOVEMBRO",
-  "DEZEMBRO"
-];
-
-
-// Transforma uma data em uma identificação única.
-// Exemplo: 2026-11-03.
-// Essa identificação é utilizada para salvar as presenças.
-function dateKey(date) {
-
-  const year = date.getFullYear();
-
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
-
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-
-}
-
-
-// Salva todas as presenças confirmadas no navegador.
-function saveDays() {
-
-  localStorage.setItem(
-    "sagaDays",
-    JSON.stringify(workoutDays)
-  );
-
-}
-
-
-// Cria todas as semanas de novembro e dezembro.
-// Cada semana ocupa uma tela inteira do calendário.
-function renderCalendar() {
-
-  weekScroll.innerHTML = "";
-
-  // Começa pela segunda-feira de 26 de outubro.
-  let monday = new Date(calendarStart);
-
-  // Conta quantas semanas foram criadas.
-  let weekIndex = 0;
-
-  // Continua criando semanas até chegar ao final de dezembro.
-  while (monday <= calendarEnd) {
-
-    // Cria uma página para a semana.
-    const page = document.createElement("div");
-
-    page.className = "week-page";
-
-    // Cria a grade dos sete dias.
-    const daysContainer = document.createElement("div");
-
-    daysContainer.className = "week-days";
-
-
-    // Cria os sete dias, começando pela segunda-feira.
-    for (let i = 0; i < 7; i++) {
-
-      // Calcula a data correspondente ao dia da semana.
-      const date = new Date(monday);
-
-      date.setDate(monday.getDate() + i);
-
-      // Cria a caixa individual do dia.
-      const dayBox = document.createElement("div");
-
-      dayBox.className = "week-day";
-
-
-      // Verifica se a data pertence a novembro ou dezembro de 2026.
-      const isValid =
-        date.getFullYear() === 2026 &&
-        date.getMonth() >= 10 &&
-        date.getMonth() <= 11;
-
-
-      // Cria a bolinha que pode ser marcada.
-      const button = document.createElement("button");
-
-      button.type = "button";
-
-      button.className = "calendar-day";
-
-
-      // Se a data estiver fora dos meses permitidos,
-      // esconde a bolinha, mas mantém seu espaço na grade.
-      if (!isValid) {
-
-        button.classList.add("hidden-day");
-
-        button.disabled = true;
-
-      } else {
-
-        // Identifica a data para salvar a presença.
-        const key = dateKey(date);
-
-        // Coloca o número do dia dentro da bolinha.
-        button.textContent = date.getDate();
-
-        // Mostra a bolinha verde se o dia já foi marcado.
-        if (workoutDays.includes(key)) {
-
-          button.classList.add("done");
-
-        }
-
-        // Informa se o dia está marcado ou não.
-        button.setAttribute(
-          "aria-pressed",
-          workoutDays.includes(key) ? "true" : "false"
-        );
-
-
-        // Quando o usuário toca na bolinha, alterna a presença.
-        button.addEventListener("click", function() {
-
-          // Se já estiver verde, desmarca e volta para cinza.
-          if (workoutDays.includes(key)) {
-
-            workoutDays = workoutDays.filter(
-              date => date !== key
-            );
-
-            button.classList.remove("done");
-
-          } else {
-
-            // Se estiver cinza, confirma a presença e fica verde.
-            workoutDays.push(key);
-
-            button.classList.add("done");
-
-          }
-
-          // Atualiza o estado da bolinha.
-          button.setAttribute(
-            "aria-pressed",
-            workoutDays.includes(key) ? "true" : "false"
-          );
-
-          // Salva a alteração no navegador.
-          saveDays();
-
-        });
-
-      }
-
-
-      // Coloca o dia dentro da semana.
-      dayBox.appendChild(button);
-
-      daysContainer.appendChild(dayBox);
-
-    }
-
-
-    // Coloca os sete dias dentro da página semanal.
-    page.appendChild(daysContainer);
-
-    // Adiciona a semana ao calendário.
-    weekScroll.appendChild(page);
-
-    // Avança sete dias para criar a próxima semana.
-    monday.setDate(monday.getDate() + 7);
-
-    weekIndex++;
-
-  }
-
-
-  // Depois de criar as semanas, atualiza o título.
-  updateCalendarTitle();
-
-
-  // Descobre em qual semana estamos hoje.
-  const today = new Date();
-
-  const isInsideCalendar =
-    today.getFullYear() === 2026 &&
-    today.getMonth() >= 10 &&
-    today.getMonth() <= 11;
-
-
-  // Calcula a posição inicial da rolagem.
-  let initialIndex = 0;
-
-  if (isInsideCalendar) {
-
-    const difference =
-      today.getTime() - calendarStart.getTime();
-
-    initialIndex = Math.floor(
-      difference / (7 * 24 * 60 * 60 * 1000)
-    );
-
-  }
-
-
-  // Abre o calendário diretamente na semana atual,
-  // quando a data atual estiver dentro de novembro ou dezembro.
-  requestAnimationFrame(() => {
-
-    weekScroll.scrollLeft =
-      initialIndex * weekScroll.clientWidth;
-
-    updateCalendarTitle();
-
-  });
-
-}
-
-
-// Atualiza o nome do mês e o número da semana.
-// É chamada quando o usuário desliza para os lados.
-function updateCalendarTitle() {
-
-  // Descobre qual página está mais próxima do centro da tela.
-  const width = weekScroll.clientWidth;
-
-  if (!width) return;
-
-  const index = Math.round(
-    weekScroll.scrollLeft / width
-  );
-
-  // Calcula a segunda-feira daquela semana.
-  const monday = new Date(calendarStart);
-
-  monday.setDate(
-    monday.getDate() + index * 7
-  );
-
-  // Calcula o domingo daquela semana.
-  const sunday = new Date(monday);
-
-  sunday.setDate(
-    monday.getDate() + 6
-  );
-
-
-  // Descobre o primeiro dia válido dentro da semana.
-  let firstValid = null;
-
-  let lastValid = null;
-
-  for (let i = 0; i < 7; i++) {
-
-    const date = new Date(monday);
-
-    date.setDate(monday.getDate() + i);
-
-    const valid =
-      date.getFullYear() === 2026 &&
-      date.getMonth() >= 10 &&
-      date.getMonth() <= 11;
-
-    if (valid) {
-
-      if (!firstValid) {
-        firstValid = date;
-      }
-
-      lastValid = date;
-
-    }
-
-  }
-
-
-  // Atualiza o título com o mês correspondente.
-  if (firstValid && lastValid) {
-
-    const firstMonth = monthNames[firstValid.getMonth()];
-
-    const lastMonth = monthNames[lastValid.getMonth()];
-
-    document.getElementById("calendarMonth").textContent =
-
-      firstMonth === lastMonth
-        ? firstMonth + " 2026"
-        : firstMonth + " / " + lastMonth + " 2026";
-
-  }
-
-
-  // Mostra a posição da semana entre as dez disponíveis.
-  document.getElementById("weekPosition").textContent =
-    "SEMANA " + (index + 1) + " DE 10";
-
-}
-
-
-// Detecta quando o usuário desliza o calendário.
-weekScroll.addEventListener(
-  "scroll",
-  updateCalendarTitle
-);
-
-
-// Cria o calendário assim que o site carrega.
-renderCalendar();
-
-
-/* =====================================
-   13. ÁREA DE EXERCÍCIOS
-   ===================================== */
-
-// Cria e atualiza todos os cartões de exercícios.
-// Também recupera os dados salvos anteriormente.
-function render() {
-
-  const container = document.getElementById("exercises");
-
-  // Limpa a área antes de desenhar os cartões novamente.
-  container.innerHTML = "";
-
-
-  // Percorre todos os exercícios cadastrados.
-  exercises.forEach((ex, index) => {
-
-    // Cria o cartão individual.
-    const card = document.createElement("div");
-
-    card.className = "exercise";
-
-
-    // Cria a área da fotografia.
-    const photo = document.createElement("label");
-
-    photo.className = "photo";
-
-
-    // Se existir uma foto salva, mostra a imagem.
-    if (ex.image) {
-
-      const img = document.createElement("img");
-
-      img.src = ex.image;
-
-      photo.appendChild(img);
-
-    } else {
-
-      // Se não existir foto, mostra a instrução.
-      photo.textContent = "ADICIONAR FOTO";
-
-    }
-
-
-    // Cria o campo para escolher uma foto do celular.
-    const fileInput = document.createElement("input");
-
-    fileInput.type = "file";
-
-    fileInput.accept = "image/*";
-
-    fileInput.hidden = true;
-
-
-    // Detecta quando uma nova foto é escolhida.
-    fileInput.onchange = e => {
-
-      const file = e.target.files[0];
-
-      if (!file) return;
-
-
-      // Impede o envio de fotos maiores que 3 MB.
-      if (file.size > 3 * 1024 * 1024) {
-
-        alert("Escolha uma foto de até 3 MB.");
-
-        return;
-
-      }
-
-
-      // Lê a imagem para armazená-la no navegador.
-      const reader = new FileReader();
-
-      reader.onload = () => {
-
-        // Guarda a foto no exercício.
-        ex.image = reader.result;
-
-        // Salva a alteração.
-        save();
-
-        // Atualiza os cartões na tela.
-        render();
-
-      };
-
-      reader.readAsDataURL(file);
-
-    };
-
-
-    // Coloca o seletor de fotos dentro da área da imagem.
-    photo.appendChild(fileInput);
-
-
-    // Cria a área de informações.
-    const info = document.createElement("div");
-
-    info.className = "info";
-
-
-    // Campo para escrever ou editar o nome do exercício.
-    const name = document.createElement("input");
-
-    name.className = "name";
-
-    name.placeholder = "Nome do exercício";
-
-    name.value = ex.name || "";
-
-
-    // Salva automaticamente cada alteração no nome.
-    name.oninput = e => {
-
-      ex.name = e.target.value;
-
-      save();
-
-    };
-
-
-    // Cria a área das três informações numéricas.
-    const fields = document.createElement("div");
-
-    fields.className = "fields";
-
-
-    // Define os campos de séries, repetições e peso.
-    const fieldSettings = [
-      ["SÉRIES", "series"],
-      ["REPS", "reps"],
-      ["PESO KG", "weight"]
+  <script>
+    /* =========================
+       FICHAS FIXAS E DADOS
+    ========================= */
+
+    const defaultWorkouts = [
+      { id: "upper", name: "UPPER", exercises: [] },
+      { id: "lower", name: "LOWER", exercises: [] },
+      { id: "push", name: "PUSH", exercises: [] },
+      { id: "pull", name: "PULL", exercises: [] },
+      { id: "legs", name: "LEGS", exercises: [] }
     ];
 
+    let workouts = loadWorkouts();
+    let selectedWorkoutId = null;
 
-    // Cria cada campo numérico.
-    fieldSettings.forEach(([label, key]) => {
+    function loadWorkouts() {
+      const saved = localStorage.getItem("sagaWorkouts");
 
-      const field = document.createElement("div");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
 
-      field.className = "field";
+          // Mantém somente as cinco fichas oficiais.
+          return defaultWorkouts.map(defaultWorkout => {
+            const existing = parsed.find(item => item.id === defaultWorkout.id);
 
+            return existing
+              ? {
+                  ...defaultWorkout,
+                  exercises: Array.isArray(existing.exercises)
+                    ? existing.exercises
+                    : []
+                }
+              : defaultWorkout;
+          });
+        } catch (error) {
+          console.error("Erro ao carregar fichas:", error);
+        }
+      }
 
-      // Nome do campo.
-      const title = document.createElement("label");
+      // Migração dos exercícios antigos para a ficha UPPER.
+      const oldExercises = localStorage.getItem("saga");
 
-      title.textContent = label;
+      if (oldExercises) {
+        try {
+          const parsedOld = JSON.parse(oldExercises);
 
+          if (Array.isArray(parsedOld)) {
+            defaultWorkouts[0].exercises = parsedOld.map((exercise, index) => ({
+              id: exercise.id || Date.now() + index,
+              name: exercise.name || "",
+              series: exercise.series || "",
+              reps: exercise.reps || "",
+              weight: exercise.weight || "",
+              photo: exercise.photo || ""
+            }));
+          }
+        } catch (error) {
+          console.error("Erro ao migrar exercícios antigos:", error);
+        }
+      }
 
-      // Entrada numérica editável.
-      const input = document.createElement("input");
+      return defaultWorkouts;
+    }
 
-      input.type = "number";
+    function saveWorkouts() {
+      try {
+        localStorage.setItem("sagaWorkouts", JSON.stringify(workouts));
+      } catch (error) {
+        alert("O armazenamento do navegador está cheio. Tente usar fotos menores.");
+      }
+    }
 
-      input.min = "0";
+    function getSelectedWorkout() {
+      return workouts.find(workout => workout.id === selectedWorkoutId);
+    }
 
-      input.step = key === "weight" ? "0.5" : "1";
+    /* =========================
+       MOSTRAR AS CINCO FICHAS
+    ========================= */
 
-      input.value = ex[key] ?? 0;
+    function renderWorkouts() {
+      const grid = document.getElementById("workoutGrid");
+      grid.innerHTML = "";
 
+      workouts.forEach(workout => {
+        const box = document.createElement("button");
+        box.className = "workout-box";
+        box.type = "button";
 
-      // Salva automaticamente o valor digitado.
-      input.oninput = e => {
+        const name = document.createElement("div");
+        name.className = "workout-name";
+        name.textContent = workout.name;
 
-        ex[key] = e.target.value;
+        const count = document.createElement("div");
+        count.className = "workout-count";
+        count.textContent =
+          workout.exercises.length +
+          (workout.exercises.length === 1 ? " EXERCÍCIO" : " EXERCÍCIOS");
 
-        save();
+        const arrow = document.createElement("div");
+        arrow.className = "workout-arrow";
+        arrow.textContent = "↗";
 
-      };
+        box.append(name, count, arrow);
+        box.addEventListener("click", () => openWorkout(workout.id));
 
+        grid.appendChild(box);
+      });
+    }
 
-      // Junta o nome e o campo numérico.
-      field.append(title, input);
+    /* =========================
+       ABRIR E FECHAR UMA FICHA
+    ========================= */
 
-      fields.appendChild(field);
+    function openWorkout(id) {
+      selectedWorkoutId = id;
 
-    });
+      const workout = getSelectedWorkout();
+      if (!workout) return;
 
+      document.getElementById("workoutSection").classList.add("hidden");
+      document.getElementById("workoutDetail").classList.add("active");
 
-    // Junta o nome e os campos numéricos.
-    info.append(name, fields);
+      document.getElementById("detailTitle").textContent = workout.name;
 
+      renderExercises();
 
-    // Junta a foto e as informações no cartão.
-    card.append(photo, info);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
+    function closeWorkout() {
+      selectedWorkoutId = null;
 
-    // Adiciona o cartão à página.
-    container.appendChild(card);
+      document.getElementById("workoutDetail").classList.remove("active");
+      document.getElementById("workoutSection").classList.remove("hidden");
 
-  });
+      renderWorkouts();
 
-}
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
+    /* =========================
+       ADICIONAR EXERCÍCIOS
+    ========================= */
 
-/* =====================================
-   14. ADICIONAR NOVOS EXERCÍCIOS
-   ===================================== */
+    function addExercise() {
+      const workout = getSelectedWorkout();
+      if (!workout) return;
 
-// Cria um exercício vazio com valores iniciais.
-// Depois salva e atualiza a lista na tela.
-function addExercise() {
+      workout.exercises.push({
+        id: Date.now() + Math.random(),
+        name: "",
+        series: "",
+        reps: "",
+        weight: "",
+        photo: ""
+      });
 
-  exercises.push({
+      saveWorkouts();
+      renderExercises();
+    }
 
-    name: "",
+    /* =========================
+       MOSTRAR EXERCÍCIOS
+    ========================= */
 
-    series: 3,
+    function renderExercises() {
+      const workout = getSelectedWorkout();
+      const list = document.getElementById("exerciseList");
 
-    reps: 8,
+      if (!workout) return;
 
-    weight: 0,
+      list.innerHTML = "";
 
-    image: ""
+      if (workout.exercises.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-message";
+        empty.textContent = "AINDA NÃO HÁ EXERCÍCIOS NESTA FICHA.";
+        list.appendChild(empty);
+        return;
+      }
 
-  });
+      workout.exercises.forEach(exercise => {
+        const card = document.createElement("article");
+        card.className = "exercise";
 
-  // Guarda o novo exercício.
-  save();
+        const main = document.createElement("div");
+        main.className = "exercise-main";
 
-  // Mostra o novo cartão.
-  render();
-  
-/* =====================================
-   5. CAIXAS DE TREINOS SAGA
-   ===================================== */
+        // Área da foto.
+        const photoColumn = document.createElement("div");
 
-.workout-section {
-  margin-top: 30px;
-}
+        const photoArea = document.createElement("div");
+        photoArea.className = "photo-area";
 
-.workout-section h2 {
-  font-size: 19px;
-  letter-spacing: 2px;
-  margin-bottom: 15px;
-}
+        if (exercise.photo) {
+          const image = document.createElement("img");
+          image.src = exercise.photo;
+          image.alt = "Foto do exercício";
+          photoArea.appendChild(image);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "photo-placeholder";
+          placeholder.textContent = "FOTO DO EXERCÍCIO";
+          photoArea.appendChild(placeholder);
+        }
 
-.workout-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
+        const photoInput = document.createElement("input");
+        photoInput.type = "file";
+        photoInput.accept = "image/*";
+        photoInput.className = "photo-input";
 
-.workout-box {
-  background: #171717;
-  border: 1px solid #303030;
-  border-radius: 12px;
-  padding: 18px;
-  color: white;
-  text-align: left;
-  cursor: pointer;
-  min-width: 0;
-}
+        const photoButton = document.createElement("label");
+        photoButton.className = "photo-button";
+        photoButton.textContent = exercise.photo ? "TROCAR FOTO" : "+ ADICIONAR FOTO";
 
-.workout-box h3 {
-  font-size: 17px;
-  margin: 0 0 8px;
-  letter-spacing: 1px;
-}
+        photoButton.addEventListener("click", () => photoInput.click());
 
-.workout-box p {
-  color: #888;
-  font-size: 11px;
-  margin: 0;
-}
+        photoInput.addEventListener("change", event => {
+          const file = event.target.files[0];
+          if (!file) return;
 
-.workout-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 12px;
-}
+          if (!file.type.startsWith("image/")) {
+            alert("Selecione um arquivo de imagem.");
+            return;
+          }
 
-.workout-actions button {
-  background: #292929;
-  border: 1px solid #444;
-  color: white;
-  padding: 7px;
-  border-radius: 6px;
-  font-size: 10px;
-}
+          // Reduz a imagem para economizar espaço no navegador.
+          const reader = new FileReader();
 
-.add-workout-button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px;
-  background: #222;
-  color: white;
-  border: 1px solid #444;
-  border-radius: 8px;
-}
+          reader.onload = loadEvent => {
+            const image = new Image();
 
-.workout-detail {
-  display: none;
-  margin-top: 20px;
-}
+            image.onload = () => {
+              const canvas = document.createElement("canvas");
+              const maxSize = 1000;
 
-.workout-detail.active {
-  display: block;
-}
+              let width = image.width;
+              let height = image.height;
 
-.workout-detail-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
+              if (width > height && width > maxSize) {
+                height = Math.round(height * maxSize / width);
+                width = maxSize;
+              } else if (height > maxSize) {
+                width = Math.round(width * maxSize / height);
+                height = maxSize;
+              }
 
-.workout-detail-header h2 {
-  flex: 1;
-  color: white;
-}
+              canvas.width = width;
+              canvas.height = height;
 
-.back-button {
-  background: #292929;
-  color: white;
-  border: 1px solid #444;
-  padding: 10px;
-  border-radius: 8px;
-}
+              const context = canvas.getContext("2d");
+              context.drawImage(image, 0, 0, width, height);
 
+              exercise.photo = canvas.toDataURL("image/jpeg", 0.75);
 
-}
+              saveWorkouts();
+              renderExercises();
+            };
 
+            image.src = loadEvent.target.result;
+          };
 
-// Carrega todos os exercícios quando o site abre.
-render();
+          reader.readAsDataURL(file);
+        });
 
-</script>
+        photoColumn.append(photoArea, photoInput, photoButton);
 
+        // Informações e nome.
+        const info = document.createElement("div");
+        info.className = "exercise-info";
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "exercise-name";
+        nameInput.type = "text";
+        nameInput.placeholder = "Nome do exercício";
+        nameInput.value = exercise.name;
+
+        nameInput.addEventListener("input", () => {
+          exercise.name = nameInput.value;
+          saveWorkouts();
+        });
+
+        const fields = document.createElement("div");
+        fields.className = "exercise-fields";
+
+        const fieldDefinitions = [
+          { key: "series", label: "SÉRIES", placeholder: "4" },
+          { key: "reps", label: "REPS", placeholder: "10" },
+          { key: "weight", label: "CARGA", placeholder: "20kg" }
+        ];
+
+        fieldDefinitions.forEach(definition => {
+          const field = document.createElement("div");
+          field.className = "field";
+
+          const label = document.createElement("label");
+          label.textContent = definition.label;
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = definition.placeholder;
+          input.value = exercise[definition.key] || "";
+
+          input.addEventListener("input", () => {
+            exercise[definition.key] = input.value;
+            saveWorkouts();
+          });
+
+          field.append(label, input);
+          fields.appendChild(field);
+        });
+
+        info.append(nameInput, fields);
+        main.append(photoColumn, info);
+
+        // Botão para excluir apenas o exercício.
+        const footer = document.createElement("div");
+        footer.className = "exercise-footer";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-exercise";
+        deleteButton.textContent = "EXCLUIR EXERCÍCIO";
+
+        deleteButton.addEventListener("click", () => {
+          deleteExercise(exercise.id);
+        });
+
+        footer.appendChild(deleteButton);
+        card.append(main, footer);
+        list.appendChild(card);
+      });
+    }
+
+    /* =========================
+       EXCLUIR UM EXERCÍCIO
+    ========================= */
+
+    function deleteExercise(exerciseId) {
+      const workout = getSelectedWorkout();
+      if (!workout) return;
+
+      const confirmed = confirm("Deseja excluir este exercício?");
+      if (!confirmed) return;
+
+      workout.exercises = workout.exercises.filter(
+        exercise => exercise.id !== exerciseId
+      );
+
+      saveWorkouts();
+      renderExercises();
+      renderWorkouts();
+    }
+
+    /* =========================
+       CRONÔMETRO
+    ========================= */
+
+    const timerDisplay = document.getElementById("timerDisplay");
+    const timerStartButton = document.getElementById("timerStart");
+    const timerResetButton = document.getElementById("timerReset");
+
+    let timerElapsed = 0;
+    let timerRunning = false;
+    let timerStartedAt = null;
+    let timerInterval = null;
+
+    function loadTimer() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("sagaTimer"));
+
+        if (!saved) return;
+
+        timerElapsed = saved.elapsed || 0;
+        timerRunning = saved.running || false;
+
+        if (timerRunning && saved.startedAt) {
+          timerStartedAt = saved.startedAt;
+          timerElapsed += Math.floor((Date.now() - timerStartedAt) / 1000);
+          timerStartedAt = Date.now();
+        } else {
+          timerRunning = false;
+        }
+      } catch (error) {
+        timerElapsed = 0;
+        timerRunning = false;
+      }
+
+      updateTimerDisplay();
+
+      if (timerRunning) {
+        startTimerInterval();
+      }
+    }
+
+    function saveTimer() {
+      localStorage.setItem("sagaTimer", JSON.stringify({
+        elapsed: timerElapsed,
+        running: timerRunning,
+        startedAt: timerStartedAt
+      }));
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+
+      return String(minutes).padStart(2, "0") +
+        ":" +
+        String(remainingSeconds).padStart(2, "0");
+    }
+
+    function updateTimerDisplay() {
+      let current = timerElapsed;
+
+      if (timerRunning && timerStartedAt) {
+        current += Math.floor((Date.now() - timerStartedAt) / 1000);
+      }
+
+      timerDisplay.textContent = formatTime(current);
+    }
+
+    function startTimerInterval() {
+      clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        updateTimerDisplay();
+        saveTimer();
+      }, 500);
+    }
+
+    function startOrPauseTimer() {
+      if (!timerRunning) {
+        timerRunning = true;
+        timerStartedAt = Date.now();
+        timerStartButton.textContent = "PAUSAR";
+        timerStartButton.classList.remove("primary");
+        startTimerInterval();
+      } else {
+        timerElapsed += Math.floor((Date.now() - timerStartedAt) / 1000);
+        timerRunning = false;
+        timerStartedAt = null;
+        clearInterval(timerInterval);
+        timerStartButton.textContent = "INICIAR";
+        timerStartButton.classList.add("primary");
+      }
+
+      updateTimerDisplay();
+      saveTimer();
+    }
+
+    function resetTimer() {
+      timerElapsed = 0;
+      timerRunning = false;
+      timerStartedAt = null;
+
+      clearInterval(timerInterval);
+
+      timerStartButton.textContent = "INICIAR";
+      timerStartButton.classList.add("primary");
+
+      updateTimerDisplay();
+      saveTimer();
+    }
+
+    timerStartButton.addEventListener("click", startOrPauseTimer);
+    timerResetButton.addEventListener("click", resetTimer);
+
+    /* =========================
+       CALENDÁRIO NOVEMBRO/DEZEMBRO 2026
+    ========================= */
+
+    const calendarScroll = document.getElementById("calendarScroll");
+    const monthTitle = document.getElementById("monthTitle");
+
+    const dayNames = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+    const monthNames = [
+      "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL",
+      "MAIO", "JUNHO", "JULHO", "AGOSTO",
+      "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
+    ];
+
+    let completedDays = {};
+
+    try {
+      completedDays = JSON.parse(localStorage.getItem("sagaDays")) || {};
+    } catch (error) {
+      completedDays = {};
+    }
+
+    function dateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function renderCalendar() {
+      calendarScroll.innerHTML = "";
+
+      // Começa na segunda-feira da semana que contém 1º de novembro.
+      const firstDate = new Date(2026, 9, 26);
+
+      for (let weekIndex = 0; weekIndex < 10; weekIndex++) {
+        const week = document.createElement("div");
+        week.className = "week";
+
+        const monday = new Date(firstDate);
+        monday.setDate(firstDate.getDate() + weekIndex * 7);
+
+        let visibleMonth = 10;
+
+        for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+          const date = new Date(monday);
+          date.setDate(monday.getDate() + dayIndex);
+
+          const day = document.createElement("div");
+          day.className = "day";
+
+          const isInPeriod =
+            date >= new Date(2026, 10, 1) &&
+            date <= new Date(2026, 11, 31);
+
+          if (!isInPeriod) {
+            day.classList.add("outside");
+          } else {
+            visibleMonth = date.getMonth();
+
+            const key = dateKey(date);
+
+            if (completedDays[key]) {
+              day.classList.add("completed");
+            }
+
+            day.addEventListener("click", () => {
+              completedDays[key] = !completedDays[key];
+
+              if (!completedDays[key]) {
+                delete completedDays[key];
+              }
+
+              localStorage.setItem(
+                "sagaDays",
+                JSON.stringify(completedDays)
+              );
+
+              renderCalendar();
+            });
+          }
+
+          const name = document.createElement("div");
+          name.className = "day-name";
+          name.textContent = dayNames[dayIndex];
+
+          const number = document.createElement("div");
+          number.className = "day-number";
+          number.textContent = date.getDate();
+
+          day.append(name, number);
+          week.appendChild(day);
+        }
+
+        week.dataset.month = visibleMonth;
+        calendarScroll.appendChild(week);
+      }
+
+      updateCalendarMonth();
+    }
+
+    function updateCalendarMonth() {
+      const weeks = [...calendarScroll.children];
+
+      if (!weeks.length) return;
+
+      const scrollCenter =
+        calendarScroll.scrollLeft + calendarScroll.clientWidth / 2;
+
+      let closestWeek = weeks[0];
+      let closestDistance = Infinity;
+
+      weeks.forEach(week => {
+        const center = week.offsetLeft + week.offsetWidth / 2;
+        const distance = Math.abs(center - scrollCenter);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestWeek = week;
+        }
+      });
+
+      const month = Number(closestWeek.dataset.month);
+      monthTitle.textContent = `${monthNames[month]} 2026`;
+    }
+
+    calendarScroll.addEventListener("scroll", updateCalendarMonth);
+
+    function goToCurrentWeek() {
+      const today = new Date();
+
+      if (today.getFullYear() !== 2026 ||
+          today.getMonth() < 10 ||
+          today.getMonth() > 11) {
+        return;
+      }
+
+      const target = new Date(today);
+      const dayOfWeek = (target.getDay() + 6) % 7;
+      target.setDate(target.getDate() - dayOfWeek);
+
+      const firstDate = new Date(2026, 9, 26);
+      const weekIndex = Math.floor(
+        (target - firstDate) / (7 * 24 * 60 * 60 * 1000)
+      );
+
+      const week = calendarScroll.children[weekIndex];
+
+      if (week) {
+        calendarScroll.scrollLeft = week.offsetLeft;
+        updateCalendarMonth();
+      }
+    }
+
+    /* =========================
+       INICIALIZAÇÃO
+    ========================= */
+
+    renderWorkouts();
+    renderCalendar();
+    loadTimer();
+
+    // Abre a semana atual quando a página carregar.
+    setTimeout(goToCurrentWeek, 100);
+  </script>
 </body>
 </html>
