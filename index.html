@@ -1,429 +1,27 @@
+
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SAGA Workout</title>
 
 <style>
-
 * {
-
   box-sizing: border-box;
-
 }
 
 body {
-
   margin: 0;
-
   padding: 20px;
-
   background: #090909;
-
   color: white;
-
   font-family: Arial, sans-serif;
-
 }
 
 header {
-
-  margin-bottom: 30px;
-
+  margin-bottom: 25px;
 }
-
-header h1 {
-
-  font-size: 35px;
-
-  letter-spacing: 5px;
-
-  margin: 0;
-
-}
-
-header p {
-
-  color: #888;
-
-  font-size: 11px;
-
-  letter-spacing: 3px;
-
-}
-
-.exercise {
-
-  display: flex;
-
-  gap: 12px;
-
-  background: #171717;
-
-  padding: 12px;
-
-  border-radius: 12px;
-
-  margin-bottom: 15px;
-
-  align-items: center;
-
-}
-
-.photo {
-
-  width: 105px;
-
-  height: 105px;
-
-  flex-shrink: 0;
-
-  background: #292929;
-
-  border-radius: 8px;
-
-  overflow: hidden;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  color: #888;
-
-  font-size: 12px;
-
-  text-align: center;
-
-  cursor: pointer;
-
-}
-
-.photo img {
-
-  width: 100%;
-
-  height: 100%;
-
-  object-fit: cover;
-
-}
-
-.info {
-
-  flex: 1;
-
-  min-width: 0;
-
-}
-
-.name {
-
-  width: 100%;
-
-  background: transparent;
-
-  border: none;
-
-  color: white;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-  margin-bottom: 12px;
-
-  outline: none;
-
-}
-
-.fields {
-
-  display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
-  gap: 5px;
-
-}
-
-.field {
-
-  background: #292929;
-
-  padding: 8px 3px;
-
-  border-radius: 6px;
-
-  text-align: center;
-
-  min-width: 0;
-
-}
-
-.field label {
-
-  display: block;
-
-  color: #999;
-
-  font-size: 9px;
-
-  margin-bottom: 5px;
-
-}
-
-.field input {
-
-  width: 100%;
-
-  background: transparent;
-
-  border: none;
-
-  outline: none;
-
-  color: white;
-
-  text-align: center;
-
-  font-size: 17px;
-
-  font-weight: bold;
-
-}
-
-button {
-
-  background: #eeeeee;
-
-  color: black;
-
-  border: none;
-
-  padding: 14px;
-
-  width: 100%;
-
-  border-radius: 8px;
-
-  font-weight: bold;
-
-  margin-top: 10px;
-
-  cursor: pointer;
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<header>
-
-  <h1>SAGA</h1>
-
-  <p>WORKOUT SYSTEM</p>
-
-</header>
-
-<div id="exercises"></div>
-
-<button onclick="addExercise()">+ ADICIONAR EXERCÍCIO</button>
-
-<script>
-
-let exercises = JSON.parse(localStorage.getItem("saga")) || [];
-
-function save() {
-
-  localStorage.setItem("saga", JSON.stringify(exercises));
-
-}
-
-function render() {
-
-  const container = document.getElementById("exercises");
-
-  container.innerHTML = "";
-
-  exercises.forEach((ex, index) => {
-
-    const card = document.createElement("div");
-
-    card.className = "exercise";
-
-    card.innerHTML = `
-
-      <label class="photo">
-
-        ${ex.image
-
-          ? `<img src="${ex.image}">`
-
-          : "ADICIONAR FOTO"}
-
-        <input type="file" accept="image/*" hidden>
-
-      </label>
-
-      <div class="info">
-
-        <input class="name" value="${escapeHTML(ex.name)}" placeholder="Nome do exercício">
-
-        <div class="fields">
-
-          <div class="field">
-
-            <label>SÉRIES</label>
-
-            <input type="number" min="0" value="${ex.series}">
-
-          </div>
-
-          <div class="field">
-
-            <label>REPS</label>
-
-            <input type="number" min="0" value="${ex.reps}">
-
-          </div>
-
-          <div class="field">
-
-            <label>PESO KG</label>
-
-            <input type="number" min="0" step="0.5" value="${ex.weight}">
-
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-    const inputs = card.querySelectorAll("input");
-
-    inputs[1].addEventListener("input", e => {
-
-      ex.name = e.target.value;
-
-      save();
-
-    });
-
-    [2, 3, 4].forEach((n, i) => {
-
-      inputs[n].addEventListener("input", e => {
-
-        ex[["series", "reps", "weight"][i]] = e.target.value;
-
-        save();
-
-      });
-
-    });
-
-    inputs[0].addEventListener("change", e => {
-
-      const file = e.target.files[0];
-
-      if (!file) return;
-
-      const reader = new FileReader();
-
-      reader.onload = () => {
-
-        ex.image = reader.result;
-
-        save();
-
-        render();
-
-      };
-
-      reader.readAsDataURL(file);
-
-    });
-
-    container.appendChild(card);
-
-  });
-
-}
-
-function escapeHTML(value) {
-
-  return String(value).replace(/[&<>"']/g, c => ({
-
-    "&": "&amp;", "<": "&lt;", ">": "&gt;",
-
-    '"': "&quot;", "'": "&#39;"
-
-  })[c]);
-
-}
-
-function addExercise() {
-
-  exercises.push({
-
-    name: "",
-
-    series: 3,
-
-    reps: 8,
-
-    weight: 0,
-
-    image: ""
-
-  });
-
-  save();
-
-  render();
-
-}
-
-render();
-
-</script>
-
-</body>
-
-</html>
-
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAGA Workout</title>
-
-<style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  padding: 20px;
-  background: #090909;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-
-header { margin-bottom: 25px; }
 
 header h1 {
   font-size: 35px;
@@ -441,7 +39,7 @@ header p {
   color: #aaa;
   font-size: 11px;
   letter-spacing: 2px;
-  margin: 25px 0 12px;
+  margin: 30px 0 12px;
 }
 
 .panel {
@@ -450,6 +48,8 @@ header p {
   border-radius: 12px;
   margin-bottom: 18px;
 }
+
+/* CRONÔMETRO */
 
 .timer {
   font-size: 38px;
@@ -474,44 +74,118 @@ button {
   cursor: pointer;
 }
 
-.timer-buttons button { flex: 1; }
+.timer-buttons button {
+  flex: 1;
+}
 
 button.secondary {
   background: #303030;
   color: white;
 }
 
-.week {
-  display: flex;
-  justify-content: space-between;
-  gap: 5px;
+/* CALENDÁRIO ANUAL */
+
+.calendar-year {
+  margin-bottom: 35px;
 }
 
-.day {
+.year-title {
+  font-size: 26px;
+  letter-spacing: 3px;
+  font-weight: bold;
+  margin: 25px 0 15px;
+}
+
+.calendar-legend {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  flex: 1;
-  cursor: pointer;
-  font-size: 11px;
+  gap: 16px;
+  flex-wrap: wrap;
   color: #aaa;
+  font-size: 11px;
+  margin: 15px 0 20px;
 }
 
-.circle {
-  width: 32px;
-  height: 32px;
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-circle {
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: #414141;
-  border: 2px solid #555;
 }
 
-.day.done .circle {
-  background: #26b56b;
-  border-color: #26b56b;
+.legend-circle.green {
+  background: #20b85a;
 }
 
-.day.today span { color: white; font-weight: bold; }
+.months-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.month {
+  background: #171717;
+  border: 1px solid #292929;
+  border-radius: 12px;
+  padding: 10px 6px;
+  min-width: 0;
+}
+
+.month-title {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.weekdays,
+.month-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  text-align: center;
+}
+
+.weekdays span {
+  color: #999;
+  font-size: 8px;
+  font-weight: bold;
+  padding-bottom: 7px;
+}
+
+.calendar-day {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #414141;
+  color: white;
+  font-size: 10px;
+  border: 1px solid #505050;
+}
+
+.calendar-day.done {
+  background: #20b85a;
+  border-color: #20b85a;
+  color: #061b0d;
+  font-weight: bold;
+}
+
+.calendar-empty {
+  visibility: hidden;
+  aspect-ratio: 1;
+}
+
+/* EXERCÍCIOS */
 
 .exercise {
   display: flex;
@@ -545,7 +219,10 @@ button.secondary {
   object-fit: cover;
 }
 
-.info { flex: 1; min-width: 0; }
+.info {
+  flex: 1;
+  min-width: 0;
+}
 
 .name {
   width: 100%;
@@ -596,9 +273,30 @@ button.secondary {
 }
 
 @media(max-width: 360px) {
-  body { padding: 12px; }
-  .photo { width: 85px; height: 85px; }
-  .timer { font-size: 32px; }
+  body {
+    padding: 12px;
+  }
+
+  .photo {
+    width: 85px;
+    height: 85px;
+  }
+
+  .timer {
+    font-size: 32px;
+  }
+
+  .month {
+    padding: 8px 4px;
+  }
+
+  .weekdays span {
+    font-size: 7px;
+  }
+
+  .calendar-day {
+    font-size: 9px;
+  }
 }
 </style>
 </head>
@@ -610,10 +308,13 @@ button.secondary {
   <p>WORKOUT SYSTEM</p>
 </header>
 
+<!-- CRONÔMETRO -->
+
 <div class="section-title">TEMPO DE TREINO</div>
 
 <div class="panel">
   <div class="timer" id="timer">00:00:00</div>
+
   <div class="timer-buttons">
     <button onclick="startTimer()">INICIAR</button>
     <button class="secondary" onclick="pauseTimer()">PAUSAR</button>
@@ -621,14 +322,33 @@ button.secondary {
   </div>
 </div>
 
-<div class="section-title">MINHA SEMANA</div>
+<!-- CALENDÁRIO ANUAL -->
 
-<div class="panel">
-  <div class="week" id="week"></div>
-  <p style="font-size:10px;color:#888;margin:15px 0 0">
-    Toque no dia para confirmar ou desmarcar seu treino.
-  </p>
+<div class="section-title">MEU HISTÓRICO DE TREINOS</div>
+
+<div class="calendar-legend">
+  <div class="legend-item">
+    <span class="legend-circle"></span>
+    NÃO TREINOU
+  </div>
+
+  <div class="legend-item">
+    <span class="legend-circle green"></span>
+    TREINO CONFIRMADO
+  </div>
 </div>
+
+<div id="calendar-2026" class="calendar-year">
+  <div class="year-title">2026</div>
+  <div class="months-grid" id="months-2026"></div>
+</div>
+
+<div id="calendar-2027" class="calendar-year">
+  <div class="year-title">2027</div>
+  <div class="months-grid" id="months-2027"></div>
+</div>
+
+<!-- EXERCÍCIOS -->
 
 <div class="section-title">MEUS EXERCÍCIOS</div>
 
@@ -639,17 +359,26 @@ button.secondary {
 </button>
 
 <script>
-const getData = (key, fallback) => {
+
+/* ARMAZENAMENTO */
+
+function getData(key, fallback) {
   try {
     const value = localStorage.getItem(key);
     return value ? JSON.parse(value) : fallback;
-  } catch {
+  } catch (error) {
     return fallback;
   }
-};
+}
 
 let exercises = getData("saga", []);
+
+/* PRESERVA AS MARCAÇÕES DA SEMANA ANTIGA */
+
 let workoutDays = getData("sagaDays", []);
+
+/* CRONÔMETRO */
+
 let timerData = getData("sagaTimer", {
   elapsed: 0,
   startedAt: null
@@ -659,21 +388,7 @@ function save() {
   localStorage.setItem("saga", JSON.stringify(exercises));
 }
 
-function saveDays() {
-  localStorage.setItem("sagaDays", JSON.stringify(workoutDays));
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[c]);
-}
-
-// CRONÔMETRO
+/* CRONÔMETRO */
 
 function getElapsed() {
   return timerData.elapsed +
@@ -684,14 +399,26 @@ function getElapsed() {
 
 function updateTimer() {
   const seconds = getElapsed();
-  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
-  const m = String(Math.floor(seconds % 3600 / 60)).padStart(2, "0");
-  const s = String(seconds % 60).padStart(2, "0");
+
+  const h = String(
+    Math.floor(seconds / 3600)
+  ).padStart(2, "0");
+
+  const m = String(
+    Math.floor((seconds % 3600) / 60)
+  ).padStart(2, "0");
+
+  const s = String(
+    seconds % 60
+  ).padStart(2, "0");
 
   document.getElementById("timer").textContent =
     `${h}:${m}:${s}`;
 
-  localStorage.setItem("sagaTimer", JSON.stringify(timerData));
+  localStorage.setItem(
+    "sagaTimer",
+    JSON.stringify(timerData)
+  );
 }
 
 function startTimer() {
@@ -711,7 +438,11 @@ function pauseTimer() {
 
 function resetTimer() {
   if (confirm("Deseja zerar o cronômetro?")) {
-    timerData = { elapsed: 0, startedAt: null };
+    timerData = {
+      elapsed: 0,
+      startedAt: null
+    };
+
     updateTimer();
   }
 }
@@ -719,81 +450,184 @@ function resetTimer() {
 setInterval(updateTimer, 1000);
 updateTimer();
 
-// CALENDÁRIO SEMANAL
+/* CALENDÁRIO 2026 E 2027 */
 
-function dateKey(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+const monthNames = [
+  "Janeiro", "Fevereiro", "Março",
+  "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro",
+  "Outubro", "Novembro", "Dezembro"
+];
+
+const weekdayNames = [
+  "SEG", "TER", "QUA", "QUI",
+  "SEX", "SÁB", "DOM"
+];
+
+function dateKey(year, month, day) {
+  return (
+    year + "-" +
+    String(month + 1).padStart(2, "0") + "-" +
+    String(day).padStart(2, "0")
+  );
 }
 
-function renderWeek() {
-  const container = document.getElementById("week");
+function saveDays() {
+  localStorage.setItem(
+    "sagaDays",
+    JSON.stringify(workoutDays)
+  );
+}
+
+function renderYear(year) {
+  const container = document.getElementById(
+    "months-" + year
+  );
+
   container.innerHTML = "";
 
-  const today = new Date();
-  const monday = new Date(today);
-  const offset = (today.getDay() + 6) % 7;
-  monday.setDate(today.getDate() - offset);
+  for (let month = 0; month < 12; month++) {
 
-  const names = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+    const card = document.createElement("div");
+    card.className = "month";
 
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
+    const title = document.createElement("div");
+    title.className = "month-title";
+    title.textContent = monthNames[month];
 
-    const key = dateKey(date);
-    const done = workoutDays.includes(key);
-    const isToday = key === dateKey(today);
+    card.appendChild(title);
 
-    const day = document.createElement("div");
-    day.className = "day" +
-      (done ? " done" : "") +
-      (isToday ? " today" : "");
+    /* NOMES DOS DIAS DA SEMANA */
 
-    day.innerHTML = `
-      <span>${names[i]}</span>
-      <div class="circle"></div>
-      <span>${date.getDate()}</span>
-    `;
+    const weekdays = document.createElement("div");
+    weekdays.className = "weekdays";
 
-    day.onclick = () => {
+    weekdayNames.forEach(name => {
+      const span = document.createElement("span");
+      span.textContent = name;
+      weekdays.appendChild(span);
+    });
+
+    card.appendChild(weekdays);
+
+    /* DIAS DO MÊS */
+
+    const daysContainer = document.createElement("div");
+    daysContainer.className = "month-days";
+
+    const firstDay = new Date(
+      year, month, 1
+    ).getDay();
+
+    /* AJUSTA PARA SEGUNDA-FEIRA SER O PRIMEIRO DIA */
+
+    const offset = (firstDay + 6) % 7;
+
+    const totalDays = new Date(
+      year, month + 1, 0
+    ).getDate();
+
+    /* ESPAÇOS ANTES DO PRIMEIRO DIA */
+
+    for (let i = 0; i < offset; i++) {
+      const empty = document.createElement("span");
+      empty.className = "calendar-empty";
+      daysContainer.appendChild(empty);
+    }
+
+    /* CRIA CADA DIA */
+
+    for (let day = 1; day <= totalDays; day++) {
+
+      const key = dateKey(year, month, day);
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "calendar-day";
+      button.textContent = day;
+
+      button.setAttribute(
+        "aria-label",
+        day + " de " + monthNames[month] + " de " + year
+      );
+
+      /* VERIFICA SE O TREINO FOI CONFIRMADO */
+
       if (workoutDays.includes(key)) {
-        workoutDays = workoutDays.filter(d => d !== key);
-      } else {
-        workoutDays.push(key);
+        button.classList.add("done");
       }
 
-      saveDays();
-      renderWeek();
-    };
+      button.setAttribute(
+        "aria-pressed",
+        workoutDays.includes(key) ? "true" : "false"
+      );
 
-    container.appendChild(day);
+      /* TOCAR PARA MARCAR OU DESMARCAR */
+
+      button.addEventListener("click", function() {
+
+        if (workoutDays.includes(key)) {
+
+          workoutDays = workoutDays.filter(
+            date => date !== key
+          );
+
+          button.classList.remove("done");
+
+        } else {
+
+          workoutDays.push(key);
+          button.classList.add("done");
+
+        }
+
+        button.setAttribute(
+          "aria-pressed",
+          workoutDays.includes(key) ? "true" : "false"
+        );
+
+        saveDays();
+
+      });
+
+      daysContainer.appendChild(button);
+    }
+
+    card.appendChild(daysContainer);
+    container.appendChild(card);
   }
 }
 
-renderWeek();
+renderYear(2026);
+renderYear(2027);
 
-// EXERCÍCIOS
+/* EXERCÍCIOS */
 
 function render() {
+
   const container = document.getElementById("exercises");
   container.innerHTML = "";
 
   exercises.forEach((ex, index) => {
+
     const card = document.createElement("div");
     card.className = "exercise";
+
+    /* FOTO */
 
     const photo = document.createElement("label");
     photo.className = "photo";
 
     if (ex.image) {
+
       const img = document.createElement("img");
       img.src = ex.image;
       photo.appendChild(img);
+
     } else {
+
       photo.textContent = "ADICIONAR FOTO";
+
     }
 
     const fileInput = document.createElement("input");
@@ -802,7 +636,9 @@ function render() {
     fileInput.hidden = true;
 
     fileInput.onchange = e => {
+
       const file = e.target.files[0];
+
       if (!file) return;
 
       if (file.size > 3 * 1024 * 1024) {
@@ -811,15 +647,19 @@ function render() {
       }
 
       const reader = new FileReader();
+
       reader.onload = () => {
         ex.image = reader.result;
         save();
         render();
       };
+
       reader.readAsDataURL(file);
     };
 
     photo.appendChild(fileInput);
+
+    /* INFORMAÇÕES */
 
     const info = document.createElement("div");
     info.className = "info";
@@ -828,10 +668,13 @@ function render() {
     name.className = "name";
     name.placeholder = "Nome do exercício";
     name.value = ex.name || "";
+
     name.oninput = e => {
       ex.name = e.target.value;
       save();
     };
+
+    /* SÉRIES, REPETIÇÕES E PESO */
 
     const fields = document.createElement("div");
     fields.className = "fields";
@@ -841,6 +684,7 @@ function render() {
       ["REPS", "reps"],
       ["PESO KG", "weight"]
     ].forEach(([label, key]) => {
+
       const field = document.createElement("div");
       field.className = "field";
 
@@ -860,15 +704,20 @@ function render() {
 
       field.append(title, input);
       fields.appendChild(field);
+
     });
 
     info.append(name, fields);
     card.append(photo, info);
     container.appendChild(card);
+
   });
 }
 
+/* ADICIONAR EXERCÍCIO */
+
 function addExercise() {
+
   exercises.push({
     name: "",
     series: 3,
@@ -882,7 +731,9 @@ function addExercise() {
 }
 
 render();
+
 </script>
 
 </body>
 </html>
+
