@@ -1,16 +1,24 @@
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SAGA Workout</title>
 
 <style>
+
+/* =====================================
+   1. CONFIGURAÇÃO GERAL DO SITE
+   ===================================== */
+
+/* Define o tamanho dos elementos e evita problemas de largura */
 * {
   box-sizing: border-box;
 }
 
+/* Define o fundo, a cor dos textos e a fonte principal */
 body {
   margin: 0;
   padding: 20px;
@@ -19,29 +27,34 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Espaçamento da identidade SAGA */
 header {
   margin-bottom: 25px;
 }
 
+/* Nome principal do site */
 header h1 {
   font-size: 35px;
   letter-spacing: 5px;
   margin: 0;
 }
 
+/* Subtítulo abaixo do nome */
 header p {
   color: #888;
   font-size: 11px;
   letter-spacing: 3px;
 }
 
+/* Títulos das seções */
 .section-title {
   color: #aaa;
   font-size: 11px;
   letter-spacing: 2px;
-  margin: 30px 0 12px;
+  margin: 25px 0 12px;
 }
 
+/* Painel padrão utilizado no cronômetro */
 .panel {
   background: #171717;
   padding: 17px;
@@ -49,8 +62,134 @@ header p {
   margin-bottom: 18px;
 }
 
-/* CRONÔMETRO */
 
+/* =====================================
+   2. CALENDÁRIO SEMANAL HORIZONTAL
+   ===================================== */
+
+/* Caixa principal do calendário */
+.calendar-panel {
+  background: #171717;
+  padding: 16px 12px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+/* Nome do mês exibido acima dos dias */
+.calendar-month {
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+/* Instrução para deslizar o calendário */
+.calendar-instruction {
+  color: #888;
+  font-size: 11px;
+  margin-bottom: 22px;
+}
+
+/* Nomes dos dias da semana */
+.week-labels,
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  text-align: center;
+}
+
+/* Espaçamento dos nomes dos dias */
+.week-labels {
+  margin-bottom: 12px;
+}
+
+/* Aparência de SEG, TER, QUA etc. */
+.week-labels span {
+  color: #999;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Área que permite deslizar de uma semana para outra */
+.week-scroll {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Esconde a barra de rolagem */
+.week-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Cada página representa uma semana completa */
+.week-page {
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+}
+
+/* Organiza os sete dias da semana */
+.week-days {
+  align-items: center;
+}
+
+/* Caixa individual de cada dia */
+.week-day {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Bolinha de cada dia */
+.calendar-day {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #414141;
+  border: 2px solid #555;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Cor verde quando o treino foi confirmado */
+.calendar-day.done {
+  background: #20b85a;
+  border-color: #20b85a;
+  color: #07190d;
+}
+
+/* Dias fora de novembro e dezembro ficam invisíveis */
+.calendar-day.hidden-day {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Indica a semana atual da navegação */
+.week-position {
+  text-align: center;
+  color: #777;
+  font-size: 10px;
+  margin-top: 18px;
+}
+
+
+/* =====================================
+   3. CRONÔMETRO
+   ===================================== */
+
+/* Tamanho e aparência dos números */
 .timer {
   font-size: 38px;
   text-align: center;
@@ -59,11 +198,13 @@ header p {
   margin: 12px 0 18px;
 }
 
+/* Organiza os três botões */
 .timer-buttons {
   display: flex;
   gap: 8px;
 }
 
+/* Aparência padrão dos botões */
 button {
   background: #eee;
   color: #111;
@@ -74,119 +215,23 @@ button {
   cursor: pointer;
 }
 
+/* Divide o espaço entre os botões do cronômetro */
 .timer-buttons button {
   flex: 1;
 }
 
+/* Botões secundários do cronômetro */
 button.secondary {
   background: #303030;
   color: white;
 }
 
-/* CALENDÁRIO ANUAL */
 
-.calendar-year {
-  margin-bottom: 35px;
-}
+/* =====================================
+   4. CARTÕES DE EXERCÍCIOS
+   ===================================== */
 
-.year-title {
-  font-size: 26px;
-  letter-spacing: 3px;
-  font-weight: bold;
-  margin: 25px 0 15px;
-}
-
-.calendar-legend {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  color: #aaa;
-  font-size: 11px;
-  margin: 15px 0 20px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-circle {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: #414141;
-}
-
-.legend-circle.green {
-  background: #20b85a;
-}
-
-.months-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.month {
-  background: #171717;
-  border: 1px solid #292929;
-  border-radius: 12px;
-  padding: 10px 6px;
-  min-width: 0;
-}
-
-.month-title {
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-}
-
-.weekdays,
-.month-days {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
-  text-align: center;
-}
-
-.weekdays span {
-  color: #999;
-  font-size: 8px;
-  font-weight: bold;
-  padding-bottom: 7px;
-}
-
-.calendar-day {
-  width: 100%;
-  min-width: 0;
-  aspect-ratio: 1;
-  padding: 0;
-  margin: 0;
-  border-radius: 50%;
-  background: #414141;
-  color: white;
-  font-size: 10px;
-  border: 1px solid #505050;
-}
-
-.calendar-day.done {
-  background: #20b85a;
-  border-color: #20b85a;
-  color: #061b0d;
-  font-weight: bold;
-}
-
-.calendar-empty {
-  visibility: hidden;
-  aspect-ratio: 1;
-}
-
-/* EXERCÍCIOS */
-
+/* Estrutura de cada exercício */
 .exercise {
   display: flex;
   gap: 12px;
@@ -197,6 +242,7 @@ button.secondary {
   align-items: center;
 }
 
+/* Área da foto do exercício */
 .photo {
   width: 105px;
   height: 105px;
@@ -213,17 +259,20 @@ button.secondary {
   cursor: pointer;
 }
 
+/* Faz a foto ocupar todo o espaço disponível */
 .photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* Área das informações do exercício */
 .info {
   flex: 1;
   min-width: 0;
 }
 
+/* Campo para editar o nome do exercício */
 .name {
   width: 100%;
   background: transparent;
@@ -235,12 +284,14 @@ button.secondary {
   outline: none;
 }
 
+/* Organiza séries, repetições e peso */
 .fields {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 5px;
 }
 
+/* Caixa individual de cada informação */
 .field {
   background: #292929;
   padding: 8px 3px;
@@ -249,6 +300,7 @@ button.secondary {
   min-width: 0;
 }
 
+/* Nome de cada campo */
 .field label {
   display: block;
   color: #999;
@@ -256,6 +308,7 @@ button.secondary {
   margin-bottom: 5px;
 }
 
+/* Números editáveis dos exercícios */
 .field input {
   width: 100%;
   background: transparent;
@@ -267,12 +320,19 @@ button.secondary {
   font-weight: bold;
 }
 
+/* Botão para adicionar novos exercícios */
 .add-button {
   width: 100%;
   margin-top: 8px;
 }
 
+
+/* =====================================
+   5. AJUSTES PARA CELULARES PEQUENOS
+   ===================================== */
+
 @media(max-width: 360px) {
+
   body {
     padding: 12px;
   }
@@ -286,118 +346,201 @@ button.secondary {
     font-size: 32px;
   }
 
-  .month {
-    padding: 8px 4px;
-  }
-
-  .weekdays span {
-    font-size: 7px;
-  }
-
   .calendar-day {
+    width: 31px;
+    height: 31px;
+  }
+
+  .week-labels span {
     font-size: 9px;
   }
+
 }
+
 </style>
 </head>
 
+
 <body>
+
+<!-- =====================================
+     6. CABEÇALHO DO SAGA
+     ===================================== -->
 
 <header>
   <h1>SAGA</h1>
   <p>WORKOUT SYSTEM</p>
 </header>
 
-<!-- CRONÔMETRO -->
+
+<!-- =====================================
+     7. CALENDÁRIO DE FREQUÊNCIA
+     Fica no topo do site.
+     ===================================== -->
+
+<div class="section-title">MINHA FREQUÊNCIA</div>
+
+<div class="calendar-panel">
+
+  <!-- Mostra o mês da semana selecionada -->
+  <div class="calendar-month" id="calendarMonth">
+    NOVEMBRO 2026
+  </div>
+
+  <!-- Orienta o usuário a deslizar para os lados -->
+  <div class="calendar-instruction">
+    Deslize para os lados para mudar de semana.
+  </div>
+
+  <!-- Nomes dos dias de segunda a domingo -->
+  <div class="week-labels">
+    <span>SEG</span>
+    <span>TER</span>
+    <span>QUA</span>
+    <span>QUI</span>
+    <span>SEX</span>
+    <span>SÁB</span>
+    <span>DOM</span>
+  </div>
+
+  <!-- Aqui o JavaScript cria todas as semanas -->
+  <div class="week-scroll" id="weekScroll"></div>
+
+  <!-- Mostra a posição da semana no calendário -->
+  <div class="week-position" id="weekPosition"></div>
+
+</div>
+
+
+<!-- =====================================
+     8. CRONÔMETRO DE TREINO
+     ===================================== -->
 
 <div class="section-title">TEMPO DE TREINO</div>
 
 <div class="panel">
+
+  <!-- Mostra o tempo decorrido -->
   <div class="timer" id="timer">00:00:00</div>
 
+  <!-- Botões para controlar o cronômetro -->
   <div class="timer-buttons">
-    <button onclick="startTimer()">INICIAR</button>
-    <button class="secondary" onclick="pauseTimer()">PAUSAR</button>
-    <button class="secondary" onclick="resetTimer()">ZERAR</button>
+
+    <button onclick="startTimer()">
+      INICIAR
+    </button>
+
+    <button class="secondary" onclick="pauseTimer()">
+      PAUSAR
+    </button>
+
+    <button class="secondary" onclick="resetTimer()">
+      ZERAR
+    </button>
+
   </div>
 </div>
 
-<!-- CALENDÁRIO ANUAL -->
 
-<div class="section-title">MEU HISTÓRICO DE TREINOS</div>
-
-<div class="calendar-legend">
-  <div class="legend-item">
-    <span class="legend-circle"></span>
-    NÃO TREINOU
-  </div>
-
-  <div class="legend-item">
-    <span class="legend-circle green"></span>
-    TREINO CONFIRMADO
-  </div>
-</div>
-
-<div id="calendar-2026" class="calendar-year">
-  <div class="year-title">2026</div>
-  <div class="months-grid" id="months-2026"></div>
-</div>
-
-<div id="calendar-2027" class="calendar-year">
-  <div class="year-title">2027</div>
-  <div class="months-grid" id="months-2027"></div>
-</div>
-
-<!-- EXERCÍCIOS -->
+<!-- =====================================
+     9. ÁREA DOS EXERCÍCIOS
+     ===================================== -->
 
 <div class="section-title">MEUS EXERCÍCIOS</div>
 
+<!-- O JavaScript coloca os cartões aqui -->
 <div id="exercises"></div>
 
+<!-- Adiciona um novo cartão de exercício -->
 <button class="add-button" onclick="addExercise()">
   + ADICIONAR EXERCÍCIO
 </button>
 
+
 <script>
 
-/* ARMAZENAMENTO */
+/* =====================================
+   10. CARREGAMENTO E ARMAZENAMENTO
+   ===================================== */
 
+// Busca uma informação salva no navegador.
+// Se não existir, utiliza o valor padrão informado.
 function getData(key, fallback) {
+
   try {
+
     const value = localStorage.getItem(key);
+
     return value ? JSON.parse(value) : fallback;
+
   } catch (error) {
+
     return fallback;
+
   }
+
 }
 
+
+// Carrega os exercícios que já estavam salvos.
 let exercises = getData("saga", []);
 
-/* PRESERVA AS MARCAÇÕES DA SEMANA ANTIGA */
+// Garante que a lista de exercícios seja válida.
+if (!Array.isArray(exercises)) {
+  exercises = [];
+}
 
+
+// Carrega os dias em que o usuário confirmou presença.
+// Mantém as marcações antigas da semana anterior.
 let workoutDays = getData("sagaDays", []);
 
-/* CRONÔMETRO */
+// Garante que a lista de presenças seja válida.
+if (!Array.isArray(workoutDays)) {
+  workoutDays = [];
+}
 
+
+// Carrega os dados anteriores do cronômetro.
 let timerData = getData("sagaTimer", {
   elapsed: 0,
   startedAt: null
 });
 
+
+// Salva os exercícios no navegador.
 function save() {
-  localStorage.setItem("saga", JSON.stringify(exercises));
+
+  localStorage.setItem(
+    "saga",
+    JSON.stringify(exercises)
+  );
+
 }
 
-/* CRONÔMETRO */
 
+/* =====================================
+   11. FUNÇÕES DO CRONÔMETRO
+   ===================================== */
+
+// Calcula o tempo total de treino.
+// Considera também o tempo desde que o cronômetro foi iniciado.
 function getElapsed() {
+
   return timerData.elapsed +
     (timerData.startedAt
-      ? Math.floor((Date.now() - timerData.startedAt) / 1000)
+      ? Math.floor(
+          (Date.now() - timerData.startedAt) / 1000
+        )
       : 0);
+
 }
 
+
+// Atualiza os números do cronômetro na tela.
+// Também salva os dados para não perder o tempo ao atualizar o site.
 function updateTimer() {
+
   const seconds = getElapsed();
 
   const h = String(
@@ -419,321 +562,638 @@ function updateTimer() {
     "sagaTimer",
     JSON.stringify(timerData)
   );
+
 }
 
+
+// Inicia o cronômetro se ele estiver parado.
 function startTimer() {
+
   if (!timerData.startedAt) {
+
     timerData.startedAt = Date.now();
+
     updateTimer();
+
   }
+
 }
 
+
+// Pausa o cronômetro e guarda o tempo acumulado.
 function pauseTimer() {
+
   if (timerData.startedAt) {
+
     timerData.elapsed = getElapsed();
+
     timerData.startedAt = null;
+
     updateTimer();
+
   }
+
 }
 
+
+// Zera o cronômetro depois de pedir confirmação.
 function resetTimer() {
+
   if (confirm("Deseja zerar o cronômetro?")) {
+
     timerData = {
       elapsed: 0,
       startedAt: null
     };
 
     updateTimer();
+
   }
+
 }
 
+
+// Atualiza o cronômetro a cada segundo.
 setInterval(updateTimer, 1000);
+
+// Mostra o tempo salvo assim que o site abre.
 updateTimer();
 
-/* CALENDÁRIO 2026 E 2027 */
 
+/* =====================================
+   12. CALENDÁRIO SEMANAL
+   NOVEMBRO E DEZEMBRO DE 2026
+   ===================================== */
+
+// Define a primeira segunda-feira do calendário.
+// A semana começa em 26 de outubro para incluir domingo, dia 1º de novembro.
+const calendarStart = new Date(2026, 9, 26);
+
+// Define a última segunda-feira do calendário.
+// A última semana vai de 28 de dezembro até 3 de janeiro.
+// Os dias de janeiro ficam escondidos.
+const calendarEnd = new Date(2026, 11, 28);
+
+// Encontra a área onde as semanas serão criadas.
+const weekScroll = document.getElementById("weekScroll");
+
+// Nomes dos meses utilizados no título.
 const monthNames = [
-  "Janeiro", "Fevereiro", "Março",
-  "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro",
-  "Outubro", "Novembro", "Dezembro"
+  "JANEIRO",
+  "FEVEREIRO",
+  "MARÇO",
+  "ABRIL",
+  "MAIO",
+  "JUNHO",
+  "JULHO",
+  "AGOSTO",
+  "SETEMBRO",
+  "OUTUBRO",
+  "NOVEMBRO",
+  "DEZEMBRO"
 ];
 
-const weekdayNames = [
-  "SEG", "TER", "QUA", "QUI",
-  "SEX", "SÁB", "DOM"
-];
 
-function dateKey(year, month, day) {
-  return (
-    year + "-" +
-    String(month + 1).padStart(2, "0") + "-" +
-    String(day).padStart(2, "0")
-  );
+// Transforma uma data em uma identificação única.
+// Exemplo: 2026-11-03.
+// Essa identificação é utilizada para salvar as presenças.
+function dateKey(date) {
+
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+
 }
 
+
+// Salva todas as presenças confirmadas no navegador.
 function saveDays() {
+
   localStorage.setItem(
     "sagaDays",
     JSON.stringify(workoutDays)
   );
+
 }
 
-function renderYear(year) {
-  const container = document.getElementById(
-    "months-" + year
-  );
 
-  container.innerHTML = "";
+// Cria todas as semanas de novembro e dezembro.
+// Cada semana ocupa uma tela inteira do calendário.
+function renderCalendar() {
 
-  for (let month = 0; month < 12; month++) {
+  weekScroll.innerHTML = "";
 
-    const card = document.createElement("div");
-    card.className = "month";
+  // Começa pela segunda-feira de 26 de outubro.
+  let monday = new Date(calendarStart);
 
-    const title = document.createElement("div");
-    title.className = "month-title";
-    title.textContent = monthNames[month];
+  // Conta quantas semanas foram criadas.
+  let weekIndex = 0;
 
-    card.appendChild(title);
+  // Continua criando semanas até chegar ao final de dezembro.
+  while (monday <= calendarEnd) {
 
-    /* NOMES DOS DIAS DA SEMANA */
+    // Cria uma página para a semana.
+    const page = document.createElement("div");
 
-    const weekdays = document.createElement("div");
-    weekdays.className = "weekdays";
+    page.className = "week-page";
 
-    weekdayNames.forEach(name => {
-      const span = document.createElement("span");
-      span.textContent = name;
-      weekdays.appendChild(span);
-    });
-
-    card.appendChild(weekdays);
-
-    /* DIAS DO MÊS */
-
+    // Cria a grade dos sete dias.
     const daysContainer = document.createElement("div");
-    daysContainer.className = "month-days";
 
-    const firstDay = new Date(
-      year, month, 1
-    ).getDay();
+    daysContainer.className = "week-days";
 
-    /* AJUSTA PARA SEGUNDA-FEIRA SER O PRIMEIRO DIA */
 
-    const offset = (firstDay + 6) % 7;
+    // Cria os sete dias, começando pela segunda-feira.
+    for (let i = 0; i < 7; i++) {
 
-    const totalDays = new Date(
-      year, month + 1, 0
-    ).getDate();
+      // Calcula a data correspondente ao dia da semana.
+      const date = new Date(monday);
 
-    /* ESPAÇOS ANTES DO PRIMEIRO DIA */
+      date.setDate(monday.getDate() + i);
 
-    for (let i = 0; i < offset; i++) {
-      const empty = document.createElement("span");
-      empty.className = "calendar-empty";
-      daysContainer.appendChild(empty);
-    }
+      // Cria a caixa individual do dia.
+      const dayBox = document.createElement("div");
 
-    /* CRIA CADA DIA */
+      dayBox.className = "week-day";
 
-    for (let day = 1; day <= totalDays; day++) {
 
-      const key = dateKey(year, month, day);
+      // Verifica se a data pertence a novembro ou dezembro de 2026.
+      const isValid =
+        date.getFullYear() === 2026 &&
+        date.getMonth() >= 10 &&
+        date.getMonth() <= 11;
 
+
+      // Cria a bolinha que pode ser marcada.
       const button = document.createElement("button");
+
       button.type = "button";
+
       button.className = "calendar-day";
-      button.textContent = day;
 
-      button.setAttribute(
-        "aria-label",
-        day + " de " + monthNames[month] + " de " + year
-      );
 
-      /* VERIFICA SE O TREINO FOI CONFIRMADO */
+      // Se a data estiver fora dos meses permitidos,
+      // esconde a bolinha, mas mantém seu espaço na grade.
+      if (!isValid) {
 
-      if (workoutDays.includes(key)) {
-        button.classList.add("done");
-      }
+        button.classList.add("hidden-day");
 
-      button.setAttribute(
-        "aria-pressed",
-        workoutDays.includes(key) ? "true" : "false"
-      );
+        button.disabled = true;
 
-      /* TOCAR PARA MARCAR OU DESMARCAR */
+      } else {
 
-      button.addEventListener("click", function() {
+        // Identifica a data para salvar a presença.
+        const key = dateKey(date);
 
+        // Coloca o número do dia dentro da bolinha.
+        button.textContent = date.getDate();
+
+        // Mostra a bolinha verde se o dia já foi marcado.
         if (workoutDays.includes(key)) {
 
-          workoutDays = workoutDays.filter(
-            date => date !== key
-          );
-
-          button.classList.remove("done");
-
-        } else {
-
-          workoutDays.push(key);
           button.classList.add("done");
 
         }
 
+        // Informa se o dia está marcado ou não.
         button.setAttribute(
           "aria-pressed",
           workoutDays.includes(key) ? "true" : "false"
         );
 
-        saveDays();
 
-      });
+        // Quando o usuário toca na bolinha, alterna a presença.
+        button.addEventListener("click", function() {
 
-      daysContainer.appendChild(button);
+          // Se já estiver verde, desmarca e volta para cinza.
+          if (workoutDays.includes(key)) {
+
+            workoutDays = workoutDays.filter(
+              date => date !== key
+            );
+
+            button.classList.remove("done");
+
+          } else {
+
+            // Se estiver cinza, confirma a presença e fica verde.
+            workoutDays.push(key);
+
+            button.classList.add("done");
+
+          }
+
+          // Atualiza o estado da bolinha.
+          button.setAttribute(
+            "aria-pressed",
+            workoutDays.includes(key) ? "true" : "false"
+          );
+
+          // Salva a alteração no navegador.
+          saveDays();
+
+        });
+
+      }
+
+
+      // Coloca o dia dentro da semana.
+      dayBox.appendChild(button);
+
+      daysContainer.appendChild(dayBox);
+
     }
 
-    card.appendChild(daysContainer);
-    container.appendChild(card);
+
+    // Coloca os sete dias dentro da página semanal.
+    page.appendChild(daysContainer);
+
+    // Adiciona a semana ao calendário.
+    weekScroll.appendChild(page);
+
+    // Avança sete dias para criar a próxima semana.
+    monday.setDate(monday.getDate() + 7);
+
+    weekIndex++;
+
   }
+
+
+  // Depois de criar as semanas, atualiza o título.
+  updateCalendarTitle();
+
+
+  // Descobre em qual semana estamos hoje.
+  const today = new Date();
+
+  const isInsideCalendar =
+    today.getFullYear() === 2026 &&
+    today.getMonth() >= 10 &&
+    today.getMonth() <= 11;
+
+
+  // Calcula a posição inicial da rolagem.
+  let initialIndex = 0;
+
+  if (isInsideCalendar) {
+
+    const difference =
+      today.getTime() - calendarStart.getTime();
+
+    initialIndex = Math.floor(
+      difference / (7 * 24 * 60 * 60 * 1000)
+    );
+
+  }
+
+
+  // Abre o calendário diretamente na semana atual,
+  // quando a data atual estiver dentro de novembro ou dezembro.
+  requestAnimationFrame(() => {
+
+    weekScroll.scrollLeft =
+      initialIndex * weekScroll.clientWidth;
+
+    updateCalendarTitle();
+
+  });
+
 }
 
-renderYear(2026);
-renderYear(2027);
 
-/* EXERCÍCIOS */
+// Atualiza o nome do mês e o número da semana.
+// É chamada quando o usuário desliza para os lados.
+function updateCalendarTitle() {
 
+  // Descobre qual página está mais próxima do centro da tela.
+  const width = weekScroll.clientWidth;
+
+  if (!width) return;
+
+  const index = Math.round(
+    weekScroll.scrollLeft / width
+  );
+
+  // Calcula a segunda-feira daquela semana.
+  const monday = new Date(calendarStart);
+
+  monday.setDate(
+    monday.getDate() + index * 7
+  );
+
+  // Calcula o domingo daquela semana.
+  const sunday = new Date(monday);
+
+  sunday.setDate(
+    monday.getDate() + 6
+  );
+
+
+  // Descobre o primeiro dia válido dentro da semana.
+  let firstValid = null;
+
+  let lastValid = null;
+
+  for (let i = 0; i < 7; i++) {
+
+    const date = new Date(monday);
+
+    date.setDate(monday.getDate() + i);
+
+    const valid =
+      date.getFullYear() === 2026 &&
+      date.getMonth() >= 10 &&
+      date.getMonth() <= 11;
+
+    if (valid) {
+
+      if (!firstValid) {
+        firstValid = date;
+      }
+
+      lastValid = date;
+
+    }
+
+  }
+
+
+  // Atualiza o título com o mês correspondente.
+  if (firstValid && lastValid) {
+
+    const firstMonth = monthNames[firstValid.getMonth()];
+
+    const lastMonth = monthNames[lastValid.getMonth()];
+
+    document.getElementById("calendarMonth").textContent =
+
+      firstMonth === lastMonth
+        ? firstMonth + " 2026"
+        : firstMonth + " / " + lastMonth + " 2026";
+
+  }
+
+
+  // Mostra a posição da semana entre as dez disponíveis.
+  document.getElementById("weekPosition").textContent =
+    "SEMANA " + (index + 1) + " DE 10";
+
+}
+
+
+// Detecta quando o usuário desliza o calendário.
+weekScroll.addEventListener(
+  "scroll",
+  updateCalendarTitle
+);
+
+
+// Cria o calendário assim que o site carrega.
+renderCalendar();
+
+
+/* =====================================
+   13. ÁREA DE EXERCÍCIOS
+   ===================================== */
+
+// Cria e atualiza todos os cartões de exercícios.
+// Também recupera os dados salvos anteriormente.
 function render() {
 
   const container = document.getElementById("exercises");
+
+  // Limpa a área antes de desenhar os cartões novamente.
   container.innerHTML = "";
 
+
+  // Percorre todos os exercícios cadastrados.
   exercises.forEach((ex, index) => {
 
+    // Cria o cartão individual.
     const card = document.createElement("div");
+
     card.className = "exercise";
 
-    /* FOTO */
 
+    // Cria a área da fotografia.
     const photo = document.createElement("label");
+
     photo.className = "photo";
 
+
+    // Se existir uma foto salva, mostra a imagem.
     if (ex.image) {
 
       const img = document.createElement("img");
+
       img.src = ex.image;
+
       photo.appendChild(img);
 
     } else {
 
+      // Se não existir foto, mostra a instrução.
       photo.textContent = "ADICIONAR FOTO";
 
     }
 
+
+    // Cria o campo para escolher uma foto do celular.
     const fileInput = document.createElement("input");
+
     fileInput.type = "file";
+
     fileInput.accept = "image/*";
+
     fileInput.hidden = true;
 
+
+    // Detecta quando uma nova foto é escolhida.
     fileInput.onchange = e => {
 
       const file = e.target.files[0];
 
       if (!file) return;
 
+
+      // Impede o envio de fotos maiores que 3 MB.
       if (file.size > 3 * 1024 * 1024) {
+
         alert("Escolha uma foto de até 3 MB.");
+
         return;
+
       }
 
+
+      // Lê a imagem para armazená-la no navegador.
       const reader = new FileReader();
 
       reader.onload = () => {
+
+        // Guarda a foto no exercício.
         ex.image = reader.result;
+
+        // Salva a alteração.
         save();
+
+        // Atualiza os cartões na tela.
         render();
+
       };
 
       reader.readAsDataURL(file);
+
     };
 
+
+    // Coloca o seletor de fotos dentro da área da imagem.
     photo.appendChild(fileInput);
 
-    /* INFORMAÇÕES */
 
+    // Cria a área de informações.
     const info = document.createElement("div");
+
     info.className = "info";
 
+
+    // Campo para escrever ou editar o nome do exercício.
     const name = document.createElement("input");
+
     name.className = "name";
+
     name.placeholder = "Nome do exercício";
+
     name.value = ex.name || "";
 
+
+    // Salva automaticamente cada alteração no nome.
     name.oninput = e => {
+
       ex.name = e.target.value;
+
       save();
+
     };
 
-    /* SÉRIES, REPETIÇÕES E PESO */
 
+    // Cria a área das três informações numéricas.
     const fields = document.createElement("div");
+
     fields.className = "fields";
 
-    [
+
+    // Define os campos de séries, repetições e peso.
+    const fieldSettings = [
       ["SÉRIES", "series"],
       ["REPS", "reps"],
       ["PESO KG", "weight"]
-    ].forEach(([label, key]) => {
+    ];
+
+
+    // Cria cada campo numérico.
+    fieldSettings.forEach(([label, key]) => {
 
       const field = document.createElement("div");
+
       field.className = "field";
 
+
+      // Nome do campo.
       const title = document.createElement("label");
+
       title.textContent = label;
 
+
+      // Entrada numérica editável.
       const input = document.createElement("input");
+
       input.type = "number";
+
       input.min = "0";
+
       input.step = key === "weight" ? "0.5" : "1";
+
       input.value = ex[key] ?? 0;
 
+
+      // Salva automaticamente o valor digitado.
       input.oninput = e => {
+
         ex[key] = e.target.value;
+
         save();
+
       };
 
+
+      // Junta o nome e o campo numérico.
       field.append(title, input);
+
       fields.appendChild(field);
 
     });
 
+
+    // Junta o nome e os campos numéricos.
     info.append(name, fields);
+
+
+    // Junta a foto e as informações no cartão.
     card.append(photo, info);
+
+
+    // Adiciona o cartão à página.
     container.appendChild(card);
 
   });
+
 }
 
-/* ADICIONAR EXERCÍCIO */
 
+/* =====================================
+   14. ADICIONAR NOVOS EXERCÍCIOS
+   ===================================== */
+
+// Cria um exercício vazio com valores iniciais.
+// Depois salva e atualiza a lista na tela.
 function addExercise() {
 
   exercises.push({
+
     name: "",
+
     series: 3,
+
     reps: 8,
+
     weight: 0,
+
     image: ""
+
   });
 
+  // Guarda o novo exercício.
   save();
+
+  // Mostra o novo cartão.
   render();
+
 }
 
+
+// Carrega todos os exercícios quando o site abre.
 render();
 
 </script>
 
 </body>
 </html>
-
