@@ -8,9 +8,7 @@
   <title>SAGA | Workout System</title>
 
   <style>
-    /* =========================
-       CONFIGURAÇÕES GERAIS
-    ========================= */
+    /* CONFIGURAÇÕES GERAIS */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -39,9 +37,7 @@
       margin: 0 auto;
     }
 
-    /* =========================
-       CABEÇALHO
-    ========================= */
+    /* CABEÇALHO */
     header {
       margin-bottom: 30px;
     }
@@ -67,9 +63,7 @@
       margin-bottom: 13px;
     }
 
-    /* =========================
-       CALENDÁRIO
-    ========================= */
+    /* CALENDÁRIO */
     .calendar-section {
       margin-bottom: 27px;
     }
@@ -159,9 +153,7 @@
       cursor: pointer;
     }
 
-    /* =========================
-       CRONÔMETRO
-    ========================= */
+    /* CRONÔMETRO */
     .timer-section {
       background: #101010;
       border: 1px solid #222;
@@ -202,9 +194,7 @@
       color: #080808;
     }
 
-    /* =========================
-       FICHAS DE TREINO
-    ========================= */
+    /* FICHAS DE TREINO */
     .workout-section {
       margin-bottom: 25px;
     }
@@ -227,6 +217,7 @@
       text-align: left;
       color: white;
       transition: .2s;
+      cursor: pointer;
     }
 
     .workout-box:active {
@@ -234,10 +225,23 @@
       border-color: #a8f05a;
     }
 
-    .workout-name {
+    /* CAMPO PARA EDITAR O NOME DA FICHA */
+    .workout-name-input {
+      width: 100%;
+      background: transparent;
+      color: white;
+      border: none;
+      border-bottom: 1px solid #333;
+      outline: none;
       font-size: 19px;
       font-weight: 900;
       letter-spacing: 1px;
+      padding: 0 0 7px;
+      border-radius: 0;
+    }
+
+    .workout-name-input:focus {
+      border-color: #a8f05a;
     }
 
     .workout-count {
@@ -258,9 +262,7 @@
       min-height: 90px;
     }
 
-    /* =========================
-       TELA INTERNA DA FICHA
-    ========================= */
+    /* TELA INTERNA DA FICHA */
     .workout-detail {
       display: none;
       margin-top: 5px;
@@ -300,9 +302,7 @@
       margin-bottom: 22px;
     }
 
-    /* =========================
-       CARTÕES DE EXERCÍCIO
-    ========================= */
+    /* CARTÕES DE EXERCÍCIO */
     .exercise-list {
       display: flex;
       flex-direction: column;
@@ -365,6 +365,7 @@
       text-align: center;
       font-size: 8px;
       letter-spacing: .5px;
+      cursor: pointer;
     }
 
     .exercise-info {
@@ -457,9 +458,7 @@
       border-radius: 10px;
     }
 
-    /* =========================
-       RODAPÉ
-    ========================= */
+    /* RODAPÉ */
     footer {
       text-align: center;
       color: #444;
@@ -479,7 +478,7 @@
         height: 105px;
       }
 
-      .workout-name {
+      .workout-name-input {
         font-size: 17px;
       }
     }
@@ -519,7 +518,7 @@
       </div>
     </section>
 
-    <!-- CINCO FICHAS FIXAS -->
+    <!-- CINCO FICHAS FIXAS E EDITÁVEIS -->
     <section class="workout-section" id="workoutSection">
       <div class="section-label">MINHAS FICHAS</div>
       <div class="workout-grid" id="workoutGrid"></div>
@@ -543,9 +542,7 @@
   </div>
 
   <script>
-    /* =========================
-       FICHAS FIXAS E DADOS
-    ========================= */
+    /* DADOS DAS CINCO FICHAS */
 
     const defaultWorkouts = [
       { id: "upper", name: "UPPER", exercises: [] },
@@ -565,13 +562,13 @@
         try {
           const parsed = JSON.parse(saved);
 
-          // Mantém somente as cinco fichas oficiais.
           return defaultWorkouts.map(defaultWorkout => {
             const existing = parsed.find(item => item.id === defaultWorkout.id);
 
             return existing
               ? {
                   ...defaultWorkout,
+                  name: existing.name || defaultWorkout.name,
                   exercises: Array.isArray(existing.exercises)
                     ? existing.exercises
                     : []
@@ -583,7 +580,7 @@
         }
       }
 
-      // Migração dos exercícios antigos para a ficha UPPER.
+      // Migra exercícios antigos para UPPER.
       const oldExercises = localStorage.getItem("saga");
 
       if (oldExercises) {
@@ -620,43 +617,66 @@
       return workouts.find(workout => workout.id === selectedWorkoutId);
     }
 
-    /* =========================
-       MOSTRAR AS CINCO FICHAS
-    ========================= */
+    /* MOSTRAR AS CINCO FICHAS COM NOMES EDITÁVEIS */
 
     function renderWorkouts() {
       const grid = document.getElementById("workoutGrid");
       grid.innerHTML = "";
 
       workouts.forEach(workout => {
-        const box = document.createElement("button");
+        const box = document.createElement("div");
         box.className = "workout-box";
-        box.type = "button";
 
-        const name = document.createElement("div");
-        name.className = "workout-name";
-        name.textContent = workout.name;
+        // Campo editável do nome da ficha.
+        const name = document.createElement("input");
+        name.className = "workout-name-input";
+        name.value = workout.name;
+        name.placeholder = "Nome do treino";
+        name.maxLength = 25;
+        name.setAttribute("aria-label", "Nome da ficha");
+
+        // Impede que tocar no nome abra a ficha.
+        name.addEventListener("click", event => {
+          event.stopPropagation();
+        });
+
+        name.addEventListener("keydown", event => {
+          event.stopPropagation();
+
+          if (event.key === "Enter") {
+            name.blur();
+          }
+        });
+
+        // Salva o nome automaticamente.
+        name.addEventListener("input", () => {
+          workout.name = name.value;
+          saveWorkouts();
+        });
 
         const count = document.createElement("div");
         count.className = "workout-count";
         count.textContent =
           workout.exercises.length +
-          (workout.exercises.length === 1 ? " EXERCÍCIO" : " EXERCÍCIOS");
+          (workout.exercises.length === 1
+            ? " EXERCÍCIO"
+            : " EXERCÍCIOS");
 
         const arrow = document.createElement("div");
         arrow.className = "workout-arrow";
         arrow.textContent = "↗";
 
         box.append(name, count, arrow);
-        box.addEventListener("click", () => openWorkout(workout.id));
+
+        box.addEventListener("click", () => {
+          openWorkout(workout.id);
+        });
 
         grid.appendChild(box);
       });
     }
 
-    /* =========================
-       ABRIR E FECHAR UMA FICHA
-    ========================= */
+    /* ABRIR E FECHAR FICHAS */
 
     function openWorkout(id) {
       selectedWorkoutId = id;
@@ -685,9 +705,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    /* =========================
-       ADICIONAR EXERCÍCIOS
-    ========================= */
+    /* ADICIONAR EXERCÍCIOS */
 
     function addExercise() {
       const workout = getSelectedWorkout();
@@ -706,9 +724,7 @@
       renderExercises();
     }
 
-    /* =========================
-       MOSTRAR EXERCÍCIOS
-    ========================= */
+    /* MOSTRAR EXERCÍCIOS */
 
     function renderExercises() {
       const workout = getSelectedWorkout();
@@ -771,7 +787,7 @@
             return;
           }
 
-          // Reduz a imagem para economizar espaço no navegador.
+          // Reduz a imagem para economizar espaço.
           const reader = new FileReader();
 
           reader.onload = loadEvent => {
@@ -812,7 +828,7 @@
 
         photoColumn.append(photoArea, photoInput, photoButton);
 
-        // Informações e nome.
+        // Nome e informações.
         const info = document.createElement("div");
         info.className = "exercise-info";
 
@@ -860,7 +876,7 @@
         info.append(nameInput, fields);
         main.append(photoColumn, info);
 
-        // Botão para excluir apenas o exercício.
+        // Excluir exercício.
         const footer = document.createElement("div");
         footer.className = "exercise-footer";
 
@@ -878,9 +894,7 @@
       });
     }
 
-    /* =========================
-       EXCLUIR UM EXERCÍCIO
-    ========================= */
+    /* EXCLUIR EXERCÍCIO */
 
     function deleteExercise(exerciseId) {
       const workout = getSelectedWorkout();
@@ -898,9 +912,7 @@
       renderWorkouts();
     }
 
-    /* =========================
-       CRONÔMETRO
-    ========================= */
+    /* CRONÔMETRO */
 
     const timerDisplay = document.getElementById("timerDisplay");
     const timerStartButton = document.getElementById("timerStart");
@@ -935,6 +947,8 @@
       updateTimerDisplay();
 
       if (timerRunning) {
+        timerStartButton.textContent = "PAUSAR";
+        timerStartButton.classList.remove("primary");
         startTimerInterval();
       }
     }
@@ -1012,14 +1026,13 @@
     timerStartButton.addEventListener("click", startOrPauseTimer);
     timerResetButton.addEventListener("click", resetTimer);
 
-    /* =========================
-       CALENDÁRIO NOVEMBRO/DEZEMBRO 2026
-    ========================= */
+    /* CALENDÁRIO NOVEMBRO E DEZEMBRO DE 2026 */
 
     const calendarScroll = document.getElementById("calendarScroll");
     const monthTitle = document.getElementById("monthTitle");
 
     const dayNames = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+
     const monthNames = [
       "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL",
       "MAIO", "JUNHO", "JULHO", "AGOSTO",
@@ -1045,7 +1058,6 @@
     function renderCalendar() {
       calendarScroll.innerHTML = "";
 
-      // Começa na segunda-feira da semana que contém 1º de novembro.
       const firstDate = new Date(2026, 9, 26);
 
       for (let weekIndex = 0; weekIndex < 10; weekIndex++) {
@@ -1144,9 +1156,11 @@
     function goToCurrentWeek() {
       const today = new Date();
 
-      if (today.getFullYear() !== 2026 ||
-          today.getMonth() < 10 ||
-          today.getMonth() > 11) {
+      if (
+        today.getFullYear() !== 2026 ||
+        today.getMonth() < 10 ||
+        today.getMonth() > 11
+      ) {
         return;
       }
 
@@ -1155,6 +1169,7 @@
       target.setDate(target.getDate() - dayOfWeek);
 
       const firstDate = new Date(2026, 9, 26);
+
       const weekIndex = Math.floor(
         (target - firstDate) / (7 * 24 * 60 * 60 * 1000)
       );
@@ -1167,15 +1182,12 @@
       }
     }
 
-    /* =========================
-       INICIALIZAÇÃO
-    ========================= */
+    /* INICIALIZAÇÃO */
 
     renderWorkouts();
     renderCalendar();
     loadTimer();
 
-    // Abre a semana atual quando a página carregar.
     setTimeout(goToCurrentWeek, 100);
   </script>
 </body>
