@@ -403,3 +403,486 @@ render();
 </body>
 
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAGA Workout</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #090909;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header { margin-bottom: 25px; }
+
+header h1 {
+  font-size: 35px;
+  letter-spacing: 5px;
+  margin: 0;
+}
+
+header p {
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+.section-title {
+  color: #aaa;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin: 25px 0 12px;
+}
+
+.panel {
+  background: #171717;
+  padding: 17px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+.timer {
+  font-size: 38px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 12px 0 18px;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  background: #eee;
+  color: #111;
+  border: none;
+  padding: 13px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.timer-buttons button { flex: 1; }
+
+button.secondary {
+  background: #303030;
+  color: white;
+}
+
+.week {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  cursor: pointer;
+  font-size: 11px;
+  color: #aaa;
+}
+
+.circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #414141;
+  border: 2px solid #555;
+}
+
+.day.done .circle {
+  background: #26b56b;
+  border-color: #26b56b;
+}
+
+.day.today span { color: white; font-weight: bold; }
+
+.exercise {
+  display: flex;
+  gap: 12px;
+  background: #171717;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.photo {
+  width: 105px;
+  height: 105px;
+  flex-shrink: 0;
+  background: #292929;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 11px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info { flex: 1; min-width: 0; }
+
+.name {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  outline: none;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.field {
+  background: #292929;
+  padding: 8px 3px;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 0;
+}
+
+.field label {
+  display: block;
+  color: #999;
+  font-size: 9px;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  text-align: center;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.add-button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+@media(max-width: 360px) {
+  body { padding: 12px; }
+  .photo { width: 85px; height: 85px; }
+  .timer { font-size: 32px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>SAGA</h1>
+  <p>WORKOUT SYSTEM</p>
+</header>
+
+<div class="section-title">TEMPO DE TREINO</div>
+
+<div class="panel">
+  <div class="timer" id="timer">00:00:00</div>
+  <div class="timer-buttons">
+    <button onclick="startTimer()">INICIAR</button>
+    <button class="secondary" onclick="pauseTimer()">PAUSAR</button>
+    <button class="secondary" onclick="resetTimer()">ZERAR</button>
+  </div>
+</div>
+
+<div class="section-title">MINHA SEMANA</div>
+
+<div class="panel">
+  <div class="week" id="week"></div>
+  <p style="font-size:10px;color:#888;margin:15px 0 0">
+    Toque no dia para confirmar ou desmarcar seu treino.
+  </p>
+</div>
+
+<div class="section-title">MEUS EXERCÍCIOS</div>
+
+<div id="exercises"></div>
+
+<button class="add-button" onclick="addExercise()">
+  + ADICIONAR EXERCÍCIO
+</button>
+
+<script>
+const getData = (key, fallback) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+let exercises = getData("saga", []);
+let workoutDays = getData("sagaDays", []);
+let timerData = getData("sagaTimer", {
+  elapsed: 0,
+  startedAt: null
+});
+
+function save() {
+  localStorage.setItem("saga", JSON.stringify(exercises));
+}
+
+function saveDays() {
+  localStorage.setItem("sagaDays", JSON.stringify(workoutDays));
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[c]);
+}
+
+// CRONÔMETRO
+
+function getElapsed() {
+  return timerData.elapsed +
+    (timerData.startedAt
+      ? Math.floor((Date.now() - timerData.startedAt) / 1000)
+      : 0);
+}
+
+function updateTimer() {
+  const seconds = getElapsed();
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor(seconds % 3600 / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+
+  document.getElementById("timer").textContent =
+    `${h}:${m}:${s}`;
+
+  localStorage.setItem("sagaTimer", JSON.stringify(timerData));
+}
+
+function startTimer() {
+  if (!timerData.startedAt) {
+    timerData.startedAt = Date.now();
+    updateTimer();
+  }
+}
+
+function pauseTimer() {
+  if (timerData.startedAt) {
+    timerData.elapsed = getElapsed();
+    timerData.startedAt = null;
+    updateTimer();
+  }
+}
+
+function resetTimer() {
+  if (confirm("Deseja zerar o cronômetro?")) {
+    timerData = { elapsed: 0, startedAt: null };
+    updateTimer();
+  }
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+
+// CALENDÁRIO SEMANAL
+
+function dateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function renderWeek() {
+  const container = document.getElementById("week");
+  container.innerHTML = "";
+
+  const today = new Date();
+  const monday = new Date(today);
+  const offset = (today.getDay() + 6) % 7;
+  monday.setDate(today.getDate() - offset);
+
+  const names = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+
+    const key = dateKey(date);
+    const done = workoutDays.includes(key);
+    const isToday = key === dateKey(today);
+
+    const day = document.createElement("div");
+    day.className = "day" +
+      (done ? " done" : "") +
+      (isToday ? " today" : "");
+
+    day.innerHTML = `
+      <span>${names[i]}</span>
+      <div class="circle"></div>
+      <span>${date.getDate()}</span>
+    `;
+
+    day.onclick = () => {
+      if (workoutDays.includes(key)) {
+        workoutDays = workoutDays.filter(d => d !== key);
+      } else {
+        workoutDays.push(key);
+      }
+
+      saveDays();
+      renderWeek();
+    };
+
+    container.appendChild(day);
+  }
+}
+
+renderWeek();
+
+// EXERCÍCIOS
+
+function render() {
+  const container = document.getElementById("exercises");
+  container.innerHTML = "";
+
+  exercises.forEach((ex, index) => {
+    const card = document.createElement("div");
+    card.className = "exercise";
+
+    const photo = document.createElement("label");
+    photo.className = "photo";
+
+    if (ex.image) {
+      const img = document.createElement("img");
+      img.src = ex.image;
+      photo.appendChild(img);
+    } else {
+      photo.textContent = "ADICIONAR FOTO";
+    }
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.hidden = true;
+
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 3 * 1024 * 1024) {
+        alert("Escolha uma foto de até 3 MB.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        ex.image = reader.result;
+        save();
+        render();
+      };
+      reader.readAsDataURL(file);
+    };
+
+    photo.appendChild(fileInput);
+
+    const info = document.createElement("div");
+    info.className = "info";
+
+    const name = document.createElement("input");
+    name.className = "name";
+    name.placeholder = "Nome do exercício";
+    name.value = ex.name || "";
+    name.oninput = e => {
+      ex.name = e.target.value;
+      save();
+    };
+
+    const fields = document.createElement("div");
+    fields.className = "fields";
+
+    [
+      ["SÉRIES", "series"],
+      ["REPS", "reps"],
+      ["PESO KG", "weight"]
+    ].forEach(([label, key]) => {
+      const field = document.createElement("div");
+      field.className = "field";
+
+      const title = document.createElement("label");
+      title.textContent = label;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.step = key === "weight" ? "0.5" : "1";
+      input.value = ex[key] ?? 0;
+
+      input.oninput = e => {
+        ex[key] = e.target.value;
+        save();
+      };
+
+      field.append(title, input);
+      fields.appendChild(field);
+    });
+
+    info.append(name, fields);
+    card.append(photo, info);
+    container.appendChild(card);
+  });
+}
+
+function addExercise() {
+  exercises.push({
+    name: "",
+    series: 3,
+    reps: 8,
+    weight: 0,
+    image: ""
+  });
+
+  save();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
