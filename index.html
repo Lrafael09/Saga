@@ -1372,5 +1372,50 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 })();
 </script>
 
+<!-- SAGA | RECONHECIMENTO DO NOME SEXTA-FEIRA -->
+<script>
+(function () {
+    "use strict";
+
+    const originalExecute = window.jarvisExecute;
+
+    if (typeof originalExecute !== "function") {
+        console.error("Núcleo JARVIS não encontrado.");
+        return;
+    }
+
+    // Evita instalar o mesmo complemento duas vezes
+    if (window.sagaNomeSextaFeiraAtivo) return;
+    window.sagaNomeSextaFeiraAtivo = true;
+
+    window.jarvisExecute = function (mensagem, ...args) {
+        let texto = String(mensagem).trim();
+
+        // Reconhece o nome da assistente em qualquer posição
+        texto = texto.replace(
+            /\bsexta[\s-]*feira\b/gi,
+            ""
+        );
+
+        // Limpa pontuação e espaços deixados pelo nome
+        texto = texto
+            .replace(/\s+([,.!?])/g, "$1")
+            .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        // Se a mensagem era apenas o nome dela
+        if (!texto) {
+            return "Sim, senhor? Estou aqui.";
+        }
+
+        // Encaminha a mensagem limpa ao cérebro original
+        return originalExecute.call(this, texto, ...args);
+    };
+
+    console.log("SEXTA-FEIRA: reconhecimento do nome ativado.");
+})();
+</script>
+
 </body>
 </html>
