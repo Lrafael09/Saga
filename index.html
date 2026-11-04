@@ -2712,5 +2712,731 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 })();
 </script>
 
+<!-- =====================================================
+ SAGA | CALENDÁRIO INTELIGENTE + SEQUÊNCIA DE FICHAS
+ COMPLEMENTO APPEND-ONLY — NÃO SUBSTITUI O CÓDIGO ORIGINAL
+===================================================== -->
+
+<style>
+.saga-day-ficha {
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+    color: #a8f05a;
+    font-size: 8px;
+    font-weight: 700;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: -5px;
+    letter-spacing: .3px;
+}
+
+.saga-ficha-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 64px;
+    padding: 3px 1px;
+    margin-top: -5px;
+    border: 1px solid #a8f05a;
+    border-radius: 5px;
+    background: #171717;
+    color: #fff;
+    font-size: 8px;
+    text-align: center;
+}
+
+.saga-ficha-remove,
+.saga-ficha-cancel {
+    border: 0;
+    background: transparent;
+    color: #999;
+    font-size: 8px;
+    padding: 2px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+(function () {
+    "use strict";
+
+    if (window.SAGA_CALENDAR_SPLIT_V1) return;
+    window.SAGA_CALENDAR_SPLIT_V1 = true;
+
+    const STORAGE = "saga_calendar_split_v1";
+
+    function readState() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE) || "{}");
+            return saved && typeof saved === "object" ? saved : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    const state = readState();
+
+    state.workoutByDate = state.workoutByDate || {};
+    state.workoutTimesByDate = state.workoutTimesByDate || {};
+    state.missedDays = state.missedDays || {};
+
+    function saveState() {
+        try {
+            localStorage.setItem(STORAGE, JSON.stringify(state));
+            return true;
+        } catch (e) {
+            console.error("SAGA: não foi possível salvar os registros.");
+            return false;
+        }
+    }
+
+    function normalize(text) {
+        return String(text || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, " ")
+            .trim();
+    }
+
+    function todayKey() {
+        const d = new Date();
+        return dateKey(d);
+    }
+
+    function dateKey(d) {
+        return d.getFullYear() + "-" +
+            String(d.getMonth() + 1).padStart(2, "0") + "-" +
+            String(d.getDate()).padStart(2, "0");
+    }
+
+    function dateFromKey(key) {
+        const p = key.split("-").map(Number);
+        return new Date(p[0], p[1] - 1, p[2]);
+    }
+
+    function formatDate(key) {
+        return dateFromKey(key).toLocaleDateString("pt-BR");
+    }
+
+    function getAllPlans() {
+        try {
+            return typeof data !== "undefined" && Array.isArray(data)
+                ? data.filter(p => p && p.id && p.name)
+                : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    /*
+      O SAGA original mantém cinco fichas padrão.
+      Para reconhecer divisões ABC, ABCD ou ABCDE,
+      fichas padrão vazias e sem renomeação ficam fora
+      quando houver fichas personalizadas ou preenchidas.
+    */
+    function getPlans() {
+        const all = getAllPlans();
+
+        const defaults = {
+            upper: "UPPER",
+            lower: "LOWER",
+            push: "PUSH",
+            pull: "PULL",
+            legs: "LEGS"
+        };
+
+        const active = all.filter(p => {
+            const exercises = Array.isArray(p.exercises) ? p.exercises : [];
+            const isCustom = !defaults[p.id] ||
+                normalize(p.name) !== normalize(defaults[p.id]);
+
+            return exercises.length > 0 || isCustom;
+        });
+
+        return active.length ? active : all;
+    }
+
+    function planSnapshot() {
+        return getPlans().map(p => ({
+            id: p.id,
+            name: p.name
+        }));
+    }
+
+    function divisionSignature() {
+        return JSON.stringify(planSnapshot());
+    }
+
+    function checkDivisionChange() {
+        const current = planSnapshot();
+        const signature = JSON.stringify(current);
+
+        if (!state.divisionSignature) {
+            state.divisionSignature = signature;
+            state.divisionSnapshot = current;
+            saveState();
+            return;
+        }
+
+        if (signature === state.divisionSignature) {
+            if (state.pendingDivision) {
+                state.pendingDivision = null;
+                saveState();
+            }
+            return;
+        }
+
+        state.pendingDivision = {
+            old: state.divisionSnapshot || [],
+            current: current,
+            signature: signature
+        };
+
+        saveState();
+    }
+
+    let pendingDate = null;
+
+    function getTrainedDays() {
+        try {
+            return typeof trainedDays !== "undefined" && Array.isArray(trainedDays)
+                ? trainedDays
+                : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveAttendance() {
+        try {
+            localStorage.setItem(
+                "sagaTrainingDays",
+                JSON.stringify(getTrainedDays())
+            );
+        } catch (e) {
+            console.error("SAGA: erro ao salvar o calendário.");
+        }
+    }
+
+    function chooseWorkout(date, planId) {
+        const plan = getPlans().find(p => p.id === planId);
+        if (!plan) return;
+
+        state.workoutByDate[date] = plan.id;
+        state.workoutTimesByDate[date] = Date.now();
+        delete state.missedDays[date];
+
+        const days = getTrainedDays();
+
+        if (!days.includes(date)) {
+            days.push(date);
+        }
+
+        saveAttendance();
+        saveState();
+
+        pendingDate = null;
+
+        if (typeof window.renderCalendar === "function") {
+            window.renderCalendar();
+        }
+    }
+
+    function removeAttendance(date) {
+        const days = getTrainedDays();
+        const index = days.indexOf(date);
+
+        if (index !== -1) days.splice(index, 1);
+
+        delete state.workoutByDate[date];
+        delete state.workoutTimesByDate[date];
+        delete state.missedDays[date];
+
+        saveAttendance();
+        saveState();
+
+        pendingDate = null;
+
+        if (typeof window.renderCalendar === "function") {
+            window.renderCalendar();
+        }
+    }
+
+    /*
+      O clique no dia abre a seleção.
+      A presença só é confirmada quando uma ficha é escolhida.
+    */
+    window.toggleDay = function (key) {
+        pendingDate = pendingDate === key ? null : key;
+
+        if (typeof window.renderCalendar === "function") {
+            window.renderCalendar();
+        }
+    };
+
+    function decorateCalendar() {
+        const week = document.getElementById("week");
+        if (!week) return;
+
+        const cards = week.querySelectorAll(".day");
+        if (!cards.length) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const monday = new Date(today);
+        monday.setDate(
+            monday.getDate() +
+            (monday.getDay() === 0 ? -6 : 1 - monday.getDay())
+        );
+
+        const offset = typeof weekOffset !== "undefined" ? weekOffset : 0;
+        monday.setDate(monday.getDate() + offset * 7);
+
+        const plans = getPlans();
+        const days = getTrainedDays();
+
+        cards.forEach((card, index) => {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + index);
+
+            const key = dateKey(d);
+            const planId = state.workoutByDate[key];
+            const plan = plans.find(p => p.id === planId);
+            const isTrained = days.includes(key);
+            const isPending = pendingDate === key;
+
+            card.dataset.sagaDate = key;
+
+            if (isPending) card.classList.add("trained");
+
+            const oldLabel = card.querySelector(".saga-day-ficha");
+            if (oldLabel) oldLabel.remove();
+
+            const oldSelect = card.querySelector(".saga-ficha-select");
+            if (oldSelect) oldSelect.remove();
+
+            const oldActions = card.querySelector(".saga-ficha-actions");
+            if (oldActions) oldActions.remove();
+
+            const label = document.createElement("div");
+            label.className = "saga-day-ficha";
+
+            if (isTrained) {
+                label.textContent = plan ? plan.name : "ESCOLHER FICHA";
+            } else if (isPending) {
+                label.textContent = "SELECIONE";
+            } else {
+                label.textContent = "";
+            }
+
+            card.appendChild(label);
+
+            if (!isPending) return;
+
+            const select = document.createElement("select");
+            select.className = "saga-ficha-select";
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Ficha...";
+            select.appendChild(placeholder);
+
+            plans.forEach(p => {
+                const option = document.createElement("option");
+                option.value = p.id;
+                option.textContent = p.name;
+                select.appendChild(option);
+            });
+
+            if (planId) select.value = planId;
+
+            select.addEventListener("click", e => e.stopPropagation());
+
+            select.addEventListener("change", function (e) {
+                e.stopPropagation();
+                if (this.value) chooseWorkout(key, this.value);
+            });
+
+            card.appendChild(select);
+
+            const actions = document.createElement("div");
+            actions.className = "saga-ficha-actions";
+
+            const cancel = document.createElement("button");
+            cancel.className = "saga-ficha-cancel";
+            cancel.textContent = "Fechar";
+            cancel.onclick = e => {
+                e.stopPropagation();
+                pendingDate = null;
+                window.renderCalendar();
+            };
+
+            actions.appendChild(cancel);
+
+            if (isTrained) {
+                const remove = document.createElement("button");
+                remove.className = "saga-ficha-remove";
+                remove.textContent = "Remover";
+                remove.onclick = e => {
+                    e.stopPropagation();
+                    removeAttendance(key);
+                };
+                actions.appendChild(remove);
+            }
+
+            card.appendChild(actions);
+        });
+    }
+
+    const originalRenderCalendar = window.renderCalendar;
+
+    if (typeof originalRenderCalendar === "function") {
+        window.renderCalendar = function () {
+            const result = originalRenderCalendar.apply(this, arguments);
+            decorateCalendar();
+            checkDivisionChange();
+            return result;
+        };
+    }
+
+    const originalRender = window.render;
+
+    if (typeof originalRender === "function") {
+        window.render = function () {
+            const result = originalRender.apply(this, arguments);
+            checkDivisionChange();
+            return result;
+        };
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target && event.target.classList &&
+            event.target.classList.contains("box-name-input")) {
+            checkDivisionChange();
+        }
+    }, true);
+
+    document.addEventListener("blur", function (event) {
+        if (event.target && event.target.classList &&
+            event.target.classList.contains("box-name-input")) {
+            checkDivisionChange();
+        }
+    }, true);
+
+    function getLastSession() {
+        const plans = getPlans();
+        const days = getTrainedDays();
+        const today = todayKey();
+
+        const records = Object.entries(state.workoutByDate)
+            .filter(([date, id]) => {
+                if (!days.includes(date)) return false;
+                if (date > today) return false;
+                if (!plans.some(p => p.id === id)) return false;
+
+                if (state.resetAt) {
+                    if (date < state.resetDate) return false;
+                    if ((state.workoutTimesByDate[date] || 0) < state.resetAt) {
+                        return false;
+                    }
+                }
+
+                return true;
+            })
+            .sort((a, b) => {
+                if (a[0] !== b[0]) return a[0].localeCompare(b[0]);
+                return (state.workoutTimesByDate[a[0]] || 0) -
+                    (state.workoutTimesByDate[b[0]] || 0);
+            });
+
+        if (!records.length) return null;
+
+        const last = records[records.length - 1];
+
+        return {
+            date: last[0],
+            plan: plans.find(p => p.id === last[1])
+        };
+    }
+
+    function getNextWorkout() {
+        const plans = getPlans();
+
+        if (!plans.length) return null;
+
+        const last = getLastSession();
+
+        if (!last) {
+            return {
+                next: plans[0],
+                last: null,
+                plans: plans
+            };
+        }
+
+        const index = plans.findIndex(p => p.id === last.plan.id);
+        const nextIndex = index < 0 ? 0 : (index + 1) % plans.length;
+
+        return {
+            next: plans[nextIndex],
+            last: last,
+            plans: plans
+        };
+    }
+
+    function nextWorkoutResponse() {
+        const result = getNextWorkout();
+
+        if (!result) {
+            return "Não encontrei fichas cadastradas para montar sua sequência.";
+        }
+
+        if (!result.last) {
+            return "Ainda não encontrei uma ficha registrada no calendário. " +
+                "A próxima ficha da sua divisão será " +
+                result.next.name + ".";
+        }
+
+        return "Seu último treino registrado foi " +
+            result.last.plan.name + " em " +
+            formatDate(result.last.date) + ".\n\n" +
+            "A próxima ficha da sequência é " +
+            result.next.name + ".\n\n" +
+            "A falta de um dia não faz a sequência avançar. " +
+            "Continuamos de onde o senhor realmente parou.";
+    }
+
+    function currentWeekSummary() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const monday = new Date(today);
+        monday.setDate(
+            monday.getDate() +
+            (monday.getDay() === 0 ? -6 : 1 - monday.getDay())
+        );
+
+        const names = [
+            "Segunda", "Terça", "Quarta",
+            "Quinta", "Sexta", "Sábado", "Domingo"
+        ];
+
+        const days = getTrainedDays();
+        const plans = getAllPlans();
+
+        let count = 0;
+        const lines = [];
+
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+
+            const key = dateKey(d);
+            const trained = days.includes(key);
+            const missed = !!state.missedDays[key];
+            const plan = plans.find(p => p.id === state.workoutByDate[key]);
+
+            if (trained) {
+                count++;
+                lines.push(
+                    names[i] + " (" + formatDate(key) + "): " +
+                    (plan ? plan.name : "presença registrada, ficha não selecionada")
+                );
+            } else if (missed) {
+                lines.push(names[i] + " (" + formatDate(key) + "): falta informada");
+            } else {
+                lines.push(names[i] + " (" + formatDate(key) + "): sem registro");
+            }
+        }
+
+        return "RESUMO DO CALENDÁRIO — ESTA SEMANA\n\n" +
+            "Presenças registradas: " + count + " de 7 dias.\n\n" +
+            lines.join("\n") +
+            "\n\nSó considero falta quando o senhor informa que faltou. " +
+            "Um dia sem marcação não é automaticamente considerado falta.";
+    }
+
+    function resolveWeekdayDate(text) {
+        const names = {
+            domingo: 0,
+            segunda: 1,
+            terca: 2,
+            quarta: 3,
+            quinta: 4,
+            sexta: 5,
+            sabado: 6
+        };
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        if (/\bontem\b/.test(text)) {
+            now.setDate(now.getDate() - 1);
+            return dateKey(now);
+        }
+
+        if (/\bhoje\b/.test(text)) {
+            return dateKey(now);
+        }
+
+        const match = text.match(
+            /\b(domingo|segunda|terca|quarta|quinta|sexta|sabado)\b/
+        );
+
+        if (!match) return null;
+
+        const target = names[match[1]];
+        const difference = (now.getDay() - target + 7) % 7;
+
+        now.setDate(now.getDate() - difference);
+
+        return dateKey(now);
+    }
+
+    function registerAbsence(text) {
+        const date = resolveWeekdayDate(text);
+
+        if (!date) {
+            return "Qual foi o dia da falta, senhor? Pode dizer, por exemplo: faltei na quarta.";
+        }
+
+        if (getTrainedDays().includes(date)) {
+            return "Esse dia já está marcado como treino no calendário. " +
+                "Não vou registrar uma falta sobre uma presença confirmada.";
+        }
+
+        state.missedDays[date] = true;
+        saveState();
+
+        let answer = "Ausência registrada em " + formatDate(date) + ". " +
+            "A sequência de fichas não avançou.";
+
+        if (state.pendingDivision) {
+            answer += "\n\nPercebi que sua divisão também foi alterada. " +
+                "Deseja começar a nova sequência do início ou continuar de onde parou?";
+        } else {
+            answer += "\n\n" + nextWorkoutResponse();
+        }
+
+        return answer;
+    }
+
+    function isNextQuestion(text) {
+        return /(proxima ficha|proximo treino|qual treino|qual ficha|treino de hoje|ficha de hoje|o que vou treinar|o que treino|qual seria depois|qual vem depois|e depois|continuar a sequencia)/.test(text);
+    }
+
+    function isCalendarQuestion(text) {
+        return /(quantos dias|quais dias|calendario|presenca|frequencia|resumo da semana|resuma a semana|dias que treinei|dias fui|quais treinos fiz)/.test(text);
+    }
+
+    function applyDivisionChoice(startOver) {
+        const current = planSnapshot();
+
+        state.divisionSignature = JSON.stringify(current);
+        state.divisionSnapshot = current;
+        state.pendingDivision = null;
+
+        if (startOver) {
+            state.resetAt = Date.now();
+            state.resetDate = todayKey();
+        } else {
+            state.resetAt = null;
+            state.resetDate = null;
+        }
+
+        saveState();
+
+        if (startOver) {
+            const first = getPlans()[0];
+
+            return "Nova divisão confirmada, senhor. " +
+                "A sequência foi reiniciada.\n\n" +
+                "A primeira ficha será " +
+                (first ? first.name : "a primeira ficha cadastrada") + ".";
+        }
+
+        return "Perfeito, senhor. Vou manter o histórico e continuar " +
+            "a sequência a partir da última ficha realizada.\n\n" +
+            nextWorkoutResponse();
+    }
+
+    function divisionQuestion() {
+        const oldNames = (state.pendingDivision.old || [])
+            .map(p => p.name).join(" → ");
+
+        const newNames = (state.pendingDivision.current || [])
+            .map(p => p.name).join(" → ");
+
+        return "Percebi que sua divisão de treino mudou.\n\n" +
+            "Antes: " + (oldNames || "não identificada") + "\n" +
+            "Agora: " + (newNames || "não identificada") + "\n\n" +
+            "O senhor deseja começar a nova sequência do início " +
+            "ou continuar de onde parou?\n\n" +
+            "Responda: COMEÇAR DO INÍCIO ou CONTINUAR.";
+    }
+
+    const previousExecute = window.jarvisExecute;
+
+    if (typeof previousExecute === "function") {
+        window.jarvisExecute = function (message, ...args) {
+            const raw = String(message || "").trim();
+            const text = normalize(raw);
+
+            checkDivisionChange();
+
+            if (state.pendingDivision) {
+                if (/(comecar do inicio|comecar do zero|reiniciar|nova sequencia do inicio|comecar a nova)/.test(text)) {
+                    return applyDivisionChoice(true);
+                }
+
+                if (/(continuar|manter|seguir de onde parei|nao reiniciar|manter sequencia)/.test(text)) {
+                    return applyDivisionChoice(false);
+                }
+            }
+
+            if (/\b(faltei|faltou|nao fui|perdi o treino)\b/.test(text)) {
+                return registerAbsence(text);
+            }
+
+            if (isNextQuestion(text)) {
+                if (state.pendingDivision) return divisionQuestion();
+                return nextWorkoutResponse();
+            }
+
+            if (isCalendarQuestion(text)) {
+                return currentWeekSummary();
+            }
+
+            return previousExecute.call(this, message, ...args);
+        };
+    }
+
+    window.SAGA_CALENDAR_SPLIT = {
+        version: "1.0.0",
+        getPlans: getPlans,
+        getNextWorkout: getNextWorkout,
+        getCalendarSummary: currentWeekSummary,
+        checkDivisionChange: checkDivisionChange
+    };
+
+    checkDivisionChange();
+
+    if (typeof window.renderCalendar === "function") {
+        window.renderCalendar();
+    }
+
+    console.log(
+        "SAGA: calendário inteligente e sequência dinâmica de fichas ativados."
+    );
+
+})();
+</script>
+
+<!-- FIM SAGA CALENDÁRIO INTELIGENTE -->
+
 </body>
 </html>
