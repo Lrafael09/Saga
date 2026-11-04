@@ -357,7 +357,7 @@ function renderCalendar(){
  const today=new Date();today.setHours(0,0,0,0);
  const monday=getMonday(today);monday.setDate(monday.getDate()+weekOffset*7);
  const months=["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
- const days=Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(d.getDate()+i);return d});
+ const days=Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d});
  const unique=[...new Set(days.map(d=>d.getMonth()))];
  document.getElementById("calendarTitle").textContent=unique.map(m=>months[m]).join(" / ")+" "+days[0].getFullYear();
  const week=document.getElementById("week");week.innerHTML="";
@@ -604,16 +604,31 @@ function checkPin(){
  }
 }
 /* ==========================================
-   JARVIS - ASSISTENTE LOCAL DO SAGA
+   J.A.R.V.I.S. - NÚCLEO CONVERSACIONAL LOCAL
+   Arquitetura B: preparado para um provedor de IA local futuro.
+   Nesta etapa, funciona sem API, servidor ou conexão externa.
 ========================================== */
 let jarvisStarted=false;
+let jarvisContext={lastIntent:null,lastTopic:null,lastWorkout:null,lastMeal:null};
+let jarvisTurnCount=0;
+const jarvisPersonality={
+ name:"J.A.R.V.I.S.",
+ greeting:"Olá, senhor. J.A.R.V.I.S. à sua disposição.",
+ address:"senhor"
+};
+/* Ponto de extensão: um provedor local futuro poderá ser conectado aqui.
+   O núcleo atual permanece totalmente funcional sem esse provedor. */
+const jarvisEngine={
+ mode:"local-rules",
+ respond(message){return jarvisLocalResponse(message)}
+};
 function toggleJarvis(){
  const win=document.getElementById("jarvis-window");
  win.classList.toggle("hidden");
  if(!win.classList.contains("hidden")){
   if(!jarvisStarted){
    jarvisStarted=true;
-   jarvisReply("Olá, senhor. Sou o JARVIS, assistente do SAGA.\n\nPosso consultar suas fichas, adicionar exercícios, renomear treinos e registrar alimentos.\n\nDigite ou diga ajuda para conhecer meus comandos.");
+   jarvisReply(jarvisPersonality.greeting+"\n\nComo posso ajudá-lo hoje, senhor?");
   }
   setTimeout(()=>document.getElementById("jarvis-input").focus(),100);
  }
@@ -631,7 +646,7 @@ function jarvisMessage(text,type){
  area.scrollTop=area.scrollHeight;
 }
 function normalizeText(text){
- return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ return String(text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 }
 function findWorkout(name){
  const target=normalizeText(name);
@@ -641,7 +656,7 @@ function listWorkouts(){
  return data.map(w=>w.name+": "+w.exercises.length+" exercício(s)").join("\n");
 }
 function jarvisHelp(){
- return "À SUA DISPOSIÇÃO, SENHOR.\n\nPOSSO AJUDAR COM:\n\n• Mostre minhas fichas\n• Resuma meu treino\n• Adicione supino reto na ficha PUSH\n• Renomeie a ficha PUSH para PEITO\n• Renomeie o exercício supino para supino máquina na ficha PUSH\n• Adicione arroz no almoço\n• Mostre minha alimentação\n\nMeus comandos são executados neste navegador. Seus dados permanecem salvos localmente.";
+ return "À SUA DISPOSIÇÃO, SENHOR.\n\nPOSSO AJUDAR COM:\n\n• Conversar sobre assuntos do dia a dia\n• Consultar suas fichas e resumir seu treino\n• Adicionar exercícios e renomear fichas ou exercícios\n• Consultar sua alimentação\n• Registrar alimentos nas refeições (os macros precisam ser informados no SAGA)\n\nEXEMPLOS:\n“Mostre minhas fichas”\n“Adicione supino reto na ficha PUSH”\n“Como posso melhorar meu treino?”\n“Hoje estou meio desanimado”\n“Quero conversar sobre carros”\n\nSou uma versão local, senhor. Quando não souber algo, direi com clareza em vez de inventar.";
 }
 function jarvisFoodSummary(){
  const date=getFoodDate()||dateKey(new Date());
@@ -653,97 +668,117 @@ function jarvisFoodSummary(){
  });
  return "ALIMENTAÇÃO DE "+date+"\n"+lines.join("\n");
 }
-function jarvisExecute(raw){
- raw=raw.replace(/^\s*(jarvis|j\.a\.r\.v\.i\.s)[,:\s-]*/i,"");
+function jarvisWorkoutSummary(){
+ const total=data.reduce((n,w)=>n+w.exercises.length,0);
+ return "RESUMO DO SAGA\n\nFichas cadastradas: "+data.length+"\nExercícios cadastrados: "+total+"\n\n"+listWorkouts();
+}
+function jarvisConversationResponse(text,raw){
+ const t=text;
+ if(/\b(obrigad[oa]|valeu|agradeco)\b/.test(t))return "Sempre às ordens, senhor. Fico satisfeito em ser útil.";
+ if(/\b(quem e voce|seu nome|o que e voce)\b/.test(t))return "Sou o J.A.R.V.I.S., seu assistente local integrado ao SAGA. Posso conversar, ajudar com informações e consultar os dados que o senhor cadastrou neste sistema.";
+ if(/\b(como voce esta|tudo bem com voce|como vai)\b/.test(t))return "Em pleno funcionamento, senhor. Obrigado por perguntar. E quanto ao senhor, como está?";
+ if(/\b(quem sou eu|o que sabe sobre mim)\b/.test(t))return "Neste momento, só conheço o que está disponível nos dados do SAGA neste navegador e o que o senhor me conta durante esta conversa. Ainda não tenho uma memória pessoal completa configurada.";
+ if(/\b(triste|desanimad[oa]|pra baixo|sozinh[oa]|mal hoje|dia dificil|ansios[oa]|preocupad[oa])\b/.test(t)){
+  jarvisContext.lastIntent="support";jarvisContext.lastTopic="sentimentos";
+  return "Lamento que esteja se sentindo assim, senhor. Não vou presumir que sei exatamente o que está acontecendo, mas posso ouvi-lo sem julgamentos. Quer me contar o que deixou seu dia mais pesado?";
+ }
+ if(/\b(feliz|animad[oa]|empolgad[oa]|consegui|deu certo|orgulhos[oa])\b/.test(t)){
+  jarvisContext.lastIntent="positive";jarvisContext.lastTopic="conquista";
+  return "Excelente notícia, senhor. Gosto de ouvir que as coisas estão caminhando bem. O que aconteceu?";
+ }
+ if(/\b(carro|carros|celta|moto|veiculo|veiculos|mecanica|motor|embreagem|freio)\b/.test(t)){
+  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="automoveis";
+  return "Certamente, senhor. Podemos falar sobre carros, manutenção, desempenho ou comparar modelos. Se for uma questão mecânica, descreva os sintomas e o veículo; vou separar o que é hipótese do que pode ser confirmado.";
+ }
+ if(/\b(fome|comer|alimentacao|dieta|refeicao|nutricao|ganhar peso|engordar|emagrecer)\b/.test(t)){
+  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="alimentacao";
+  return "Podemos tratar disso, senhor. Posso consultar os alimentos registrados no SAGA, mas ainda não calculo automaticamente suas necessidades nutricionais. Se a questão é fome agora, diga o que comeu hoje e que tipo de alimento tem disponível.";
+ }
+ if(/\b(treino|musculacao|hipertrofia|musculo|exercicio|academia|serie|repeticao)\b/.test(t)){
+  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="treinamento";
+  return "À disposição, senhor. Posso consultar suas fichas cadastradas e conversar sobre princípios de treinamento. Para avaliar seu treino com precisão, preciso dos exercícios, séries, repetições, cargas e frequência que o senhor utiliza.";
+ }
+ if(/\b(cansad[oa]|com sono|exaust[oa])\b/.test(t)){
+  jarvisContext.lastIntent="support";jarvisContext.lastTopic="cansaco";
+  return "Entendido, senhor. Cansaço pode ter várias causas, desde uma noite mal dormida até rotina intensa. Foi um dia puxado ou essa sensação vem se repetindo?";
+ }
+ if(/\b(conte uma curiosidade|curiosidade|me surpreenda|assunto aleatorio|vamos conversar|conversar)\b/.test(t)){
+  const curiosities=[
+   "Uma curiosidade, senhor: polvo tem três corações. Dois movimentam sangue pelas brânquias e um pelo restante do corpo.",
+   "Um fato interessante: um dia em Vênus dura mais que um ano venusiano. O planeta demora mais para girar em torno do próprio eixo do que para orbitar o Sol.",
+   "A memória humana não funciona como uma gravação de vídeo. Ao recordar, o cérebro reconstrói a experiência — por isso detalhes podem mudar com o tempo."
+  ];
+  return curiosities[jarvisTurnCount%curiosities.length];
+ }
+ if(/\b(nao sei|nao tenho certeza|estou em duvida|me ajuda a decidir)\b/.test(t)){
+  jarvisContext.lastIntent="decision";jarvisContext.lastTopic="decisao";
+  return "Podemos organizar isso juntos, senhor. Qual é a decisão que está tentando tomar?";
+ }
+ if(/\b(e voce|e vc|e ai)\b/.test(t)&&jarvisContext.lastIntent==="support")return "Estou aqui para ouvi-lo, senhor. O importante agora é entender como o senhor está, sem pressa.";
+ if(jarvisContext.lastIntent==="support"&&t.length<90)return "Compreendo, senhor. Pode continuar. O que mais está passando pela sua cabeça?";
+ if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="automoveis")return "Entendi, senhor. Para não lhe dar uma resposta genérica, conte um pouco mais: qual modelo, ano ou sintoma estamos analisando?";
+ if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="alimentacao")return "Certo, senhor. Posso ajudar a organizar as informações, mas não vou inventar calorias ou macros. O que gostaria de avaliar primeiro?";
+ if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="treinamento")return "Perfeitamente. Qual exercício, grupo muscular ou parte da ficha deseja analisar?";
+ if(/\b(boa noite|bom dia|boa tarde|ola|oi|e ai|fala)\b/.test(t))return "Olá, senhor. É um prazer ouvi-lo. Como posso ajudar?";
+ return "Entendido, senhor. Ainda não tenho conhecimento suficiente para responder isso com segurança nesta versão local. Se me der um pouco mais de contexto, tentarei ajudá-lo — e, se eu não souber, serei franco.";
+}
+function jarvisLocalResponse(raw){
+ const original=String(raw||"").trim();
+ raw=original.replace(/^\s*(jarvis|j\.a\.r\.v\.i\.s)[,:\s-]*/i,"");
  const text=normalizeText(raw);
  if(!text)return "Não entendi, senhor. Poderia repetir?";
+ jarvisTurnCount++;
  if(/^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala)\b/.test(text))
-  return "Olá, senhor. Estou à sua disposição. O que vamos ajustar hoje?";
- if(text.includes("ajuda")||text.includes("comandos")||text.includes("o que voce consegue"))
-  return jarvisHelp();
- if(text.includes("ficha")&&(text.includes("mostr")||text.includes("list")||text.includes("quais")))
-  return "SUAS FICHAS:\n"+listWorkouts();
- if(text.includes("resuma meu treino")||text.includes("resumo do treino")||text.includes("resumo geral")){
-  const total=data.reduce((n,w)=>n+w.exercises.length,0);
-  return "RESUMO DO SAGA\n\nFichas cadastradas: "+data.length+"\nExercícios cadastrados: "+total+"\n\n"+listWorkouts();
- }
- if(text.includes("alimentacao")&&(text.includes("mostr")||text.includes("resum")||text.includes("ver"))){
-  return jarvisFoodSummary();
- }
- /* RENOMEAR FICHA */
+  return "Olá, senhor. Estou à sua disposição. O que vamos resolver hoje?";
+ if(text.includes("ajuda")||text.includes("comandos")||text.includes("o que voce consegue"))return jarvisHelp();
+ if(text.includes("ficha")&&(text.includes("mostr")||text.includes("list")||text.includes("quais")))return "SUAS FICHAS:\n"+listWorkouts();
+ if(text.includes("resuma meu treino")||text.includes("resumo do treino")||text.includes("resumo geral")||text.includes("resumo meu treino"))return jarvisWorkoutSummary();
+ if(text.includes("alimentacao")&&(text.includes("mostr")||text.includes("resum")||text.includes("ver")))return jarvisFoodSummary();
+ /* RENOMEAR FICHA - comando original preservado */
  let match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:a\s+)?ficha\s+(.+?)\s+para\s+(.+)/i);
  if(match){
   const workout=findWorkout(match[1]);
   if(!workout)return "Não encontrei a ficha \""+match[1]+"\". Suas fichas são:\n"+listWorkouts();
-  const old=workout.name;
-  workout.name=match[2].trim().toUpperCase();
-  persist();
-  render();
+  const old=workout.name;workout.name=match[2].trim().toUpperCase();persist();render();
   if(selected===workout.id)document.getElementById("detailTitle").textContent=workout.name;
   return "Perfeitamente, senhor. Renomeei a ficha "+old+" para "+workout.name+".";
  }
- /* ADICIONAR EXERCÍCIO */
+ /* ADICIONAR EXERCÍCIO - comando original preservado */
  match=raw.match(/(?:adicione|adicionar|inclua|incluir)\s+(.+?)\s+(?:na|no|em)\s+(?:ficha\s+)?(.+)/i);
  if(match){
-  const exerciseName=match[1].trim();
-  const workout=findWorkout(match[2].trim().replace(/[.!?]+$/,""));
-  if(workout){
-   workout.exercises.push({name:exerciseName,series:"",reps:"",weight:"",image:""});
-   persist();
-   render();
-   if(selected===workout.id)renderExercises();
-   return "Exercício adicionado, senhor.\n\n"+exerciseName+" foi incluído na ficha "+workout.name+".";
-  }
+  const exerciseName=match[1].trim();const workout=findWorkout(match[2].trim().replace(/[.!?]+$/, ""));
+  if(workout){workout.exercises.push({name:exerciseName,series:"",reps:"",weight:"",image:""});persist();render();if(selected===workout.id)renderExercises();return "Exercício adicionado, senhor.\n\n"+exerciseName+" foi incluído na ficha "+workout.name+".";}
  }
- /* RENOMEAR EXERCÍCIO */
+ /* RENOMEAR EXERCÍCIO - comando original preservado */
  match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:o\s+)?exercicio\s+(.+?)\s+para\s+(.+?)\s+(?:na|no)\s+(?:ficha\s+)?(.+)/i);
  if(match){
-  const workout=findWorkout(match[3].trim());
-  if(!workout)return "Não encontrei essa ficha. Confira o nome e tente novamente.";
+  const workout=findWorkout(match[3].trim());if(!workout)return "Não encontrei essa ficha. Confira o nome e tente novamente.";
   const exercise=workout.exercises.find(e=>normalizeText(e.name)===normalizeText(match[1]));
   if(!exercise)return "Não encontrei o exercício \""+match[1]+"\" na ficha "+workout.name+".";
-  const old=exercise.name;
-  exercise.name=match[2].trim();
-  persist();
-  if(selected===workout.id)renderExercises();
-  return "Concluído. O exercício "+old+" agora se chama "+exercise.name+".";
+  const old=exercise.name;exercise.name=match[2].trim();persist();if(selected===workout.id)renderExercises();
+  return "Concluído, senhor. O exercício "+old+" agora se chama "+exercise.name+".";
  }
- /* ADICIONAR ALIMENTO */
+ /* ADICIONAR ALIMENTO - comando original preservado */
  match=raw.match(/(?:adicione|adicionar|registre|registrar)\s+(.+?)\s+(?:no|na)\s+(cafe da manha|almoco|cafe da tarde|jantar|ceia)/i);
  if(match){
   const mealIndex=mealNames.findIndex(n=>normalizeText(n)===normalizeText(match[2]));
-  if(mealIndex>=0){
-   const date=getFoodDate()||dateKey(new Date());
-   if(!foodData[date])foodData[date]={};
-   if(!Array.isArray(foodData[date][mealIndex]))foodData[date][mealIndex]=[];
-   foodData[date][mealIndex].push({
-    name:match[1].trim(),
-    quantity:"",
-    calories:0,
-    protein:0,
-    carbs:0,
-    fat:0
-   });
-   saveFood();
-   renderFood();
-   return "Registrei "+match[1].trim()+" em "+mealNames[mealIndex]+", senhor.\n\nAs calorias e os macros ficaram zerados porque você ainda não informou os valores.";
+  if(mealIndex>=0){const date=getFoodDate()||dateKey(new Date());if(!foodData[date])foodData[date]={};if(!Array.isArray(foodData[date][mealIndex]))foodData[date][mealIndex]=[];
+   foodData[date][mealIndex].push({name:match[1].trim(),quantity:"",calories:0,protein:0,carbs:0,fat:0});saveFood();renderFood();
+   return "Registrei "+match[1].trim()+" em "+mealNames[mealIndex]+", senhor.\n\nAs calorias e os macros ficaram zerados porque ainda não foram informados.";
   }
  }
- return "Ainda não tenho um comando para executar isso, senhor. Digite ou diga ajuda para consultar minhas funções.";
+ return jarvisConversationResponse(text,raw);
 }
+/* COMPATIBILIDADE: mantém o nome antigo utilizado pelo restante do SAGA. */
+function jarvisExecute(raw){return jarvisEngine.respond(raw)}
 /* ENVIAR MENSAGEM */
 function sendJarvisMessage(){
  const input=document.getElementById("jarvis-input");
- const message=input.value.trim();
- if(!message)return;
- jarvisMessage(message,"user");
- input.value="";
- const response=jarvisExecute(message);
- setTimeout(()=>jarvisReply(response),180);
+ const message=input.value.trim();if(!message)return;
+ jarvisMessage(message,"user");input.value="";
+ const response=jarvisExecute(message);setTimeout(()=>jarvisReply(response),180);
 }
-document.getElementById("jarvis-input").addEventListener("keydown",e=>{
- if(e.key==="Enter")sendJarvisMessage();
-});
+document.getElementById("jarvis-input").addEventListener("keydown",e=>{if(e.key==="Enter")sendJarvisMessage()});
 /* ==========================================
    JARVIS - VOZ E RECONHECIMENTO
 ========================================== */
@@ -755,6 +790,7 @@ function loadJarvisVoice(){
  if(!("speechSynthesis" in window))return;
  const voices=window.speechSynthesis.getVoices();
  jarvisVoice=
+  voices.find(v=>v.lang.toLowerCase()==="pt-br"&&/male|masculino|daniel|jorge|antonio/i.test(v.name))||
   voices.find(v=>v.lang.toLowerCase()==="pt-br")||
   voices.find(v=>v.lang.toLowerCase().startsWith("pt"))||
   null;
@@ -771,8 +807,8 @@ function speakJarvis(text){
  window.speechSynthesis.cancel();
  const speech=new SpeechSynthesisUtterance(text);
  speech.lang="pt-BR";
- speech.rate=0.88;
- speech.pitch=0.72;
+ speech.rate=0.86;
+ speech.pitch=0.82;
  speech.volume=1;
  if(jarvisVoice){
   speech.voice=jarvisVoice;
