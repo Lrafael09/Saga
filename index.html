@@ -1,462 +1,276 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SAGA Workout System</title>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  background:#080808;
-  color:#fff;
-  font-family:Arial;
-  padding:25px 16px
-}
-
+body{background:#080808;color:#fff;font-family:Arial;padding:25px 16px}
 .container{max-width:600px;margin:auto}
-header{margin-bottom:30px}
+header{margin-bottom:25px;display:flex;align-items:center;justify-content:space-between;position:relative}
 .logo{font-size:35px;font-weight:900;letter-spacing:5px}
 .subtitle{font-size:10px;color:#777;letter-spacing:4px;margin-top:5px}
 .label{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:14px;font-weight:bold}
-
 button{cursor:pointer;font-weight:bold}
-
 .hidden{display:none!important}
-
+/* MENU */
+.menu-area{position:relative}
+.menu-toggle{background:#151515;border:1px solid #333;color:#a8f05a;border-radius:7px;width:43px;height:43px;font-size:23px}
+.menu-dropdown{position:absolute;right:0;top:52px;width:210px;background:#151515;border:1px solid #333;border-radius:9px;padding:8px;z-index:20;box-shadow:0 10px 30px #000}
+.menu-item{display:block;width:100%;text-align:left;padding:13px 12px;background:transparent;border:0;color:#ddd;border-radius:5px;font-size:11px;letter-spacing:1px}
+.menu-item:active,.menu-item:hover{background:#252525;color:#a8f05a}
+.menu-divider{height:1px;background:#333;margin:6px 0}
+/* NAVEGAÇÃO */
+.page-heading{font-size:25px;font-weight:900;margin-bottom:7px}
+.page-description{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:25px}
 /* CALENDÁRIO */
-
 .calendar-section{margin-bottom:28px}
-
-.calendar{
-  background:#111;
-  border:1px solid #292929;
-  border-radius:12px;
-  padding:16px
-}
-
-.calendar-top{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:18px
-}
-
-.calendar-title{
-  font-size:12px;
-  font-weight:bold;
-  letter-spacing:1px
-}
-
+.calendar{background:#111;border:1px solid #292929;border-radius:12px;padding:16px}
+.calendar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.calendar-title{font-size:12px;font-weight:bold;letter-spacing:1px}
 .calendar-nav{display:flex;gap:8px}
-
-.nav-btn{
-  background:#202020;
-  color:#aaa;
-  border:1px solid #333;
-  border-radius:5px;
-  width:30px;
-  height:30px;
-  font-size:16px
-}
-
-.week{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px
-}
-
-.day{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:9px;
-  cursor:pointer;
-  padding:5px 0;
-  border-radius:7px
-}
-
+.nav-btn{background:#202020;color:#aaa;border:1px solid #333;border-radius:5px;width:30px;height:30px;font-size:16px}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day{display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;padding:5px 0;border-radius:7px}
 .day-name{font-size:9px;color:#777;font-weight:bold}
-
-.day-number{
-  width:30px;
-  height:30px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:50%;
-  background:#252525;
-  color:#aaa;
-  font-size:11px;
-  font-weight:bold
-}
-
-.day.trained .day-number{
-  background:#a8f05a;
-  color:#080808
-}
-
+.day-number{width:30px;height:30px;display:flex;justify-content:center;align-items:center;border-radius:50%;background:#252525;color:#aaa;font-size:11px;font-weight:bold}
+.day.trained .day-number{background:#a8f05a;color:#080808}
 .day.today .day-number{border:1px solid #a8f05a}
-
 .day.trained.today .day-number{border:1px solid #fff}
-
-.calendar-footer{
-  border-top:1px solid #292929;
-  margin-top:15px;
-  padding-top:12px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center
-}
-
+.calendar-footer{border-top:1px solid #292929;margin-top:15px;padding-top:12px;display:flex;justify-content:space-between;align-items:center}
 .calendar-info,.legend{font-size:9px;color:#777}
 .legend{display:flex;align-items:center;gap:6px}
-
-.legend-dot{
-  width:7px;
-  height:7px;
-  background:#a8f05a;
-  border-radius:50%
-}
-
+.legend-dot{width:7px;height:7px;background:#a8f05a;border-radius:50%}
 /* TEMPORIZADOR */
-
 .timer-section{margin-bottom:30px}
-
-.timer{
-  background:#111;
-  border:1px solid #292929;
-  border-radius:12px;
-  padding:20px;
-  text-align:center
-}
-
-.timer-label{
-  color:#777;
-  font-size:9px;
-  letter-spacing:2px;
-  margin-bottom:12px
-}
-
-.timer-display{
-  font-size:43px;
-  font-weight:900;
-  letter-spacing:3px;
-  color:#a8f05a;
-  font-variant-numeric:tabular-nums;
-  margin-bottom:17px
-}
-
-.timer-actions{
-  display:flex;
-  justify-content:center;
-  gap:8px
-}
-
-.timer-btn{
-  border:0;
-  border-radius:5px;
-  padding:11px 18px;
-  font-size:9px;
-  font-weight:bold
-}
-
+.timer{background:#111;border:1px solid #292929;border-radius:12px;padding:20px;text-align:center}
+.timer-label{color:#777;font-size:9px;letter-spacing:2px;margin-bottom:12px}
+.timer-display{font-size:43px;font-weight:900;letter-spacing:3px;color:#a8f05a;font-variant-numeric:tabular-nums;margin-bottom:17px}
+.timer-actions{display:flex;justify-content:center;gap:8px}
+.timer-btn{border:0;border-radius:5px;padding:11px 18px;font-size:9px;font-weight:bold}
 .timer-start{background:#a8f05a;color:#080808}
 .timer-pause{background:#252525;color:#fff}
 .timer-reset{background:transparent;border:1px solid #333;color:#888}
-
 /* FICHAS */
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px
-}
-
-.box{
-  background:#111;
-  border:1px solid #292929;
-  border-radius:12px;
-  padding:16px;
-  min-height:145px;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between
-}
-
-.box-name-input{
-  width:100%;
-  background:transparent;
-  color:#fff;
-  border:0;
-  border-bottom:1px solid transparent;
-  outline:none;
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:1px;
-  font-family:Arial;
-  text-transform:uppercase;
-  padding:3px 0;
-  border-radius:0
-}
-
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box{background:#111;border:1px solid #292929;border-radius:12px;padding:16px;min-height:145px;display:flex;flex-direction:column;justify-content:space-between}
+.box-name-input{width:100%;background:transparent;color:#fff;border:0;border-bottom:1px solid transparent;outline:none;font-size:20px;font-weight:900;letter-spacing:1px;font-family:Arial;text-transform:uppercase;padding:3px 0;border-radius:0}
 .box-name-input:focus{border-bottom:1px solid #a8f05a}
 .box-name-input::placeholder{color:#666}
 .count{font-size:10px;color:#777;margin-top:8px}
-
-.actions{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  margin-top:15px;
-  gap:6px
-}
-
-.open{
-  background:#a8f05a;
-  color:#080808;
-  border:0;
-  border-radius:5px;
-  padding:9px;
-  font-size:9px
-}
-
+.actions{display:flex;justify-content:flex-end;align-items:center;margin-top:15px;gap:6px}
+.open{background:#a8f05a;color:#080808;border:0;border-radius:5px;padding:9px;font-size:9px}
 .last{grid-column:1/-1}
-
-/* DETALHES */
-
-.back{
-  background:transparent;
-  color:#aaa;
-  border:1px solid #333;
-  padding:10px 14px;
-  border-radius:6px;
-  margin-bottom:25px
-}
-
+/* DETALHES DOS EXERCÍCIOS */
+.back{background:transparent;color:#aaa;border:1px solid #333;padding:10px 14px;border-radius:6px;margin-bottom:25px}
 h2{font-size:27px;margin-bottom:8px}
-
-.sub{
-  color:#777;
-  font-size:10px;
-  letter-spacing:2px;
-  margin-bottom:20px
-}
-
-.exercise{
-  background:#111;
-  border:1px solid #292929;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:12px
-}
-
-.exercise input:not([type="file"]){
-  width:100%;
-  background:#202020;
-  color:white;
-  border:1px solid #333;
-  padding:11px;
-  border-radius:5px;
-  margin-top:8px;
-  outline:none
-}
-
-.fields{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:7px
-}
-
+.sub{color:#777;font-size:10px;letter-spacing:2px;margin-bottom:20px}
+.exercise{background:#111;border:1px solid #292929;padding:15px;border-radius:10px;margin-bottom:12px}
+.exercise input:not([type="file"]){width:100%;background:#202020;color:white;border:1px solid #333;padding:11px;border-radius:5px;margin-top:8px;outline:none}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .fields label{font-size:9px;color:#777}
-
-/* IMAGENS DOS EXERCÍCIOS */
-
-.image-area{
-  width:100%;
-  margin-bottom:12px
-}
-
-.image-preview{
-  width:100%;
-  max-height:260px;
-  object-fit:cover;
-  border-radius:8px;
-  display:block;
-  margin-bottom:10px;
-  border:1px solid #333
-}
-
-.image-placeholder{
-  width:100%;
-  height:145px;
-  background:#191919;
-  border:1px dashed #444;
-  border-radius:8px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  color:#777;
-  font-size:11px;
-  margin-bottom:10px
-}
-
-.image-placeholder span:first-child{
-  font-size:28px;
-  color:#a8f05a
-}
-
-.image-actions{
-  display:flex;
-  gap:8px;
-  align-items:center
-}
-
-.image-upload{
-  flex:1;
-  background:#202020;
-  color:#a8f05a;
-  border:1px solid #444;
-  border-radius:5px;
-  padding:11px 8px;
-  text-align:center;
-  font-size:9px;
-  font-weight:bold;
-  cursor:pointer
-}
-
-.image-remove{
-  background:transparent;
-  color:#b77;
-  border:1px solid #533;
-  border-radius:5px;
-  padding:10px;
-  font-size:9px
-}
-
+.image-area{width:100%;margin-bottom:12px}
+.image-preview{width:100%;max-height:260px;object-fit:cover;border-radius:8px;display:block;margin-bottom:10px;border:1px solid #333}
+.image-placeholder{width:100%;height:145px;background:#191919;border:1px dashed #444;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#777;font-size:11px;margin-bottom:10px}
+.image-placeholder span:first-child{font-size:28px;color:#a8f05a}
+.image-actions{display:flex;gap:8px;align-items:center}
+.image-upload{flex:1;background:#202020;color:#a8f05a;border:1px solid #444;border-radius:5px;padding:11px 8px;text-align:center;font-size:9px;font-weight:bold;cursor:pointer}
+.image-remove{background:transparent;color:#b77;border:1px solid #533;border-radius:5px;padding:10px;font-size:9px}
 .image-input{display:none}
-
-.add{
-  width:100%;
-  padding:15px;
-  background:#a8f05a;
-  border:0;
-  border-radius:7px;
-  margin-top:10px
-}
-
-.delete{
-  background:transparent;
-  color:#b77;
-  border:0;
-  font-size:10px;
-  margin-top:12px
-}
-
+.add{width:100%;padding:15px;background:#a8f05a;border:0;border-radius:7px;margin-top:10px}
+.delete{background:transparent;color:#b77;border:0;font-size:10px;margin-top:12px}
+/* ALIMENTAÇÃO */
+.food-date-area{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.food-date{flex:1;background:#151515;border:1px solid #333;color:#fff;padding:12px;border-radius:7px;font-family:Arial;color-scheme:dark}
+.today-btn{background:#252525;color:#a8f05a;border:1px solid #444;padding:12px;border-radius:7px;font-size:9px}
+.macro-summary{background:#111;border:1px solid #292929;border-radius:12px;padding:17px;margin-bottom:22px}
+.calorie-number{font-size:34px;font-weight:900;color:#a8f05a;margin:5px 0}
+.calorie-caption{font-size:9px;color:#777;letter-spacing:2px}
+.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}
+.macro-item{background:#1a1a1a;border-radius:7px;padding:11px 8px;text-align:center}
+.macro-value{font-size:17px;font-weight:bold;margin-bottom:5px}
+.macro-name{font-size:8px;color:#888;letter-spacing:1px}
+.meal{background:#111;border:1px solid #292929;border-radius:11px;padding:15px;margin-bottom:12px}
+.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.meal-title{font-size:13px;font-weight:bold;letter-spacing:1px}
+.meal-total{font-size:9px;color:#a8f05a}
+.food-entry{background:#1a1a1a;border-radius:7px;padding:11px;margin-bottom:8px}
+.food-entry-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.food-name{font-size:12px;font-weight:bold;overflow-wrap:anywhere}
+.food-description{font-size:9px;color:#888;margin-top:5px;line-height:1.5}
+.food-delete{background:transparent;border:0;color:#b77;font-size:10px;padding:5px}
+.meal-add{width:100%;background:#202020;color:#a8f05a;border:1px solid #383838;border-radius:6px;padding:11px;font-size:9px;letter-spacing:1px;margin-top:5px}
+.food-form{background:#191919;border:1px solid #383838;border-radius:8px;padding:12px;margin-top:10px}
+.food-form input{width:100%;background:#252525;color:#fff;border:1px solid #383838;border-radius:5px;padding:11px;margin-bottom:8px;outline:none;font-family:Arial}
+.food-form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.food-form-grid input{min-width:0}
+.save-food{width:100%;background:#a8f05a;color:#080808;border:0;border-radius:5px;padding:12px;margin-top:4px;font-size:10px}
+.cancel-food{width:100%;background:transparent;color:#888;border:0;padding:10px;font-size:9px}
+.empty-meal{font-size:10px;color:#666;margin-bottom:10px}
+.food-note{font-size:9px;color:#666;line-height:1.5;margin-top:15px}
+/* PERFIL / PIN */
+.modal-backdrop{position:fixed;inset:0;background:#000d;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:100%;max-width:380px;background:#151515;border:1px solid #383838;border-radius:12px;padding:20px}
+.modal h3{font-size:18px;margin-bottom:8px}
+.modal p{font-size:10px;color:#888;line-height:1.5;margin-bottom:15px}
+.modal input{width:100%;background:#222;border:1px solid #444;border-radius:6px;padding:13px;color:#fff;margin-bottom:10px;outline:none}
+.modal-actions{display:flex;gap:8px}
+.modal-actions button{flex:1;padding:12px;border-radius:6px;border:0;font-size:10px}
+.modal-confirm{background:#a8f05a;color:#080808}
+.modal-cancel{background:#292929;color:#fff}
+.pin-screen{position:fixed;inset:0;background:#080808;z-index:100;display:flex;align-items:center;justify-content:center;padding:25px}
+.pin-card{width:100%;max-width:340px;text-align:center}
+.pin-card .logo{margin-bottom:5px}
+.pin-card p{font-size:10px;color:#777;letter-spacing:1px;margin:18px 0}
+.pin-card input{text-align:center;font-size:25px;letter-spacing:12px;background:#151515;border:1px solid #444;border-radius:7px;color:#a8f05a;padding:14px;width:100%;margin-bottom:12px}
+.pin-card button{width:100%;padding:14px;background:#a8f05a;color:#080808;border:0;border-radius:6px}
+.pin-error{color:#e88;font-size:10px;margin-top:12px}
 @media(max-width:360px){
   .timer-display{font-size:35px}
   .timer-btn{padding:10px 12px}
   .day-number{width:27px;height:27px}
+  .macro-value{font-size:14px}
 }
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
 <header>
-  <div class="logo">SAGA</div>
-  <div class="subtitle">WORKOUT SYSTEM</div>
+  <div>
+    <div class="logo">SAGA</div>
+    <div class="subtitle">WORKOUT SYSTEM</div>
+  </div>
+  <div class="menu-area">
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="Abrir menu">☰</button>
+    <div id="menuDropdown" class="menu-dropdown hidden">
+      <button class="menu-item" onclick="showPage('training')">▣ &nbsp; TREINO</button>
+      <button class="menu-item" onclick="showPage('food')">◈ &nbsp; ALIMENTAÇÃO</button>
+      <div class="menu-divider"></div>
+      <button class="menu-item" onclick="editProfile()">♙ &nbsp; MEU PERFIL</button>
+      <button class="menu-item" onclick="configurePin()">♧ &nbsp; CONFIGURAR PIN</button>
+      <button class="menu-item" id="lockMenuItem" onclick="lockApp()">⌑ &nbsp; BLOQUEAR / SAIR</button>
+    </div>
+  </div>
 </header>
-
-<section id="home">
-
-  <!-- CALENDÁRIO -->
-
-  <div class="calendar-section">
-    <div class="label">FREQUÊNCIA DE TREINO</div>
-
-    <div class="calendar">
-
-      <div class="calendar-top">
-        <div class="calendar-title" id="calendarTitle">SEMANA</div>
-
-        <div class="calendar-nav">
-          <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
-          <button class="nav-btn" onclick="changeWeek(1)">›</button>
+<!-- ÁREA DE TREINO -->
+<section id="trainingPage">
+  <div id="home">
+    <div class="calendar-section">
+      <div class="label">FREQUÊNCIA DE TREINO</div>
+      <div class="calendar">
+        <div class="calendar-top">
+          <div class="calendar-title" id="calendarTitle">SEMANA</div>
+          <div class="calendar-nav">
+            <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
+            <button class="nav-btn" onclick="changeWeek(1)">›</button>
+          </div>
+        </div>
+        <div class="week" id="week"></div>
+        <div class="calendar-footer">
+          <div class="calendar-info" id="weekInfo">SEUS TREINOS</div>
+          <div class="legend"><div class="legend-dot"></div>DIA TREINADO</div>
         </div>
       </div>
-
-      <div class="week" id="week"></div>
-
-      <div class="calendar-footer">
-        <div class="calendar-info" id="weekInfo">SEUS TREINOS</div>
-
-        <div class="legend">
-          <div class="legend-dot"></div>
-          DIA TREINADO
+    </div>
+    <div class="timer-section">
+      <div class="label">TEMPORIZADOR</div>
+      <div class="timer">
+        <div class="timer-label">TEMPO DE TREINO</div>
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        <div class="timer-actions">
+          <button class="timer-btn timer-start" onclick="startTimer()">INICIAR</button>
+          <button class="timer-btn timer-pause" onclick="pauseTimer()">PAUSAR</button>
+          <button class="timer-btn timer-reset" onclick="resetTimer()">ZERAR</button>
         </div>
       </div>
-
     </div>
+    <div class="label">MINHAS FICHAS</div>
+    <div class="grid" id="grid"></div>
   </div>
-
-  <!-- TEMPORIZADOR -->
-
-  <div class="timer-section">
-    <div class="label">TEMPORIZADOR</div>
-
-    <div class="timer">
-      <div class="timer-label">TEMPO DE TREINO</div>
-
-      <div class="timer-display" id="timerDisplay">00:00:00</div>
-
-      <div class="timer-actions">
-        <button class="timer-btn timer-start" onclick="startTimer()">INICIAR</button>
-        <button class="timer-btn timer-pause" onclick="pauseTimer()">PAUSAR</button>
-        <button class="timer-btn timer-reset" onclick="resetTimer()">ZERAR</button>
+  <section id="detail" class="hidden">
+    <button class="back" onclick="goBack()">← VOLTAR</button>
+    <h2 id="detailTitle"></h2>
+    <div class="sub">EXERCÍCIOS DO TREINO</div>
+    <div id="exerciseList"></div>
+    <button class="add" onclick="addExercise()">+ ADICIONAR EXERCÍCIO</button>
+  </section>
+</section>
+<!-- ÁREA DE ALIMENTAÇÃO -->
+<section id="foodPage" class="hidden">
+  <div class="page-heading">ALIMENTAÇÃO</div>
+  <div class="page-description">ACOMPANHAMENTO NUTRICIONAL</div>
+  <div class="food-date-area">
+    <input type="date" id="foodDate" class="food-date" onchange="renderFood()">
+    <button class="today-btn" onclick="setTodayFood()">HOJE</button>
+  </div>
+  <div class="macro-summary">
+    <div class="calorie-caption">CONSUMO TOTAL DO DIA</div>
+    <div class="calorie-number"><span id="totalCalories">0</span> <span style="font-size:13px">kcal</span></div>
+    <div class="macro-grid">
+      <div class="macro-item">
+        <div class="macro-value" id="totalProtein">0 g</div>
+        <div class="macro-name">PROTEÍNA</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-value" id="totalCarbs">0 g</div>
+        <div class="macro-name">CARBOIDRATOS</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-value" id="totalFat">0 g</div>
+        <div class="macro-name">GORDURAS</div>
       </div>
     </div>
   </div>
-
-  <!-- FICHAS -->
-
-  <div class="label">MINHAS FICHAS</div>
-  <div class="grid" id="grid"></div>
-
+  <div class="label">MINHAS REFEIÇÕES</div>
+  <div id="mealList"></div>
+  <div class="food-note">
+    Os valores nutricionais são preenchidos manualmente por alimento. Confira os rótulos ou uma fonte nutricional confiável para registrar os valores corretos.
+  </div>
 </section>
-
-<!-- TELA DOS EXERCÍCIOS -->
-
-<section id="detail" class="hidden">
-
-  <button class="back" onclick="goBack()">← VOLTAR</button>
-
-  <h2 id="detailTitle"></h2>
-
-  <div class="sub">EXERCÍCIOS DO TREINO</div>
-
-  <div id="exerciseList"></div>
-
-  <button class="add" onclick="addExercise()">
-    + ADICIONAR EXERCÍCIO
-  </button>
-
-</section>
-
 </div>
-
+<!-- MODAL -->
+<div id="modalBackdrop" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3 id="modalTitle">SAGA</h3>
+    <p id="modalDescription"></p>
+    <div id="modalFields"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">CANCELAR</button>
+      <button class="modal-confirm" id="modalConfirm">SALVAR</button>
+    </div>
+  </div>
+</div>
+<!-- BLOQUEIO OPCIONAL POR PIN -->
+<div id="pinScreen" class="pin-screen hidden">
+  <div class="pin-card">
+    <div class="logo">SAGA</div>
+    <div class="subtitle">WORKOUT SYSTEM</div>
+    <p>INSIRA SEU PIN DE ACESSO</p>
+    <input id="pinLoginInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <button onclick="checkPin()">ENTRAR</button>
+    <div id="pinError" class="pin-error"></div>
+  </div>
+</div>
 <script>
-
+/* =================================
+   NAVEGAÇÃO E MENU
+================================= */
+function toggleMenu(){
+  document.getElementById("menuDropdown").classList.toggle("hidden");
+}
+function closeMenu(){
+  document.getElementById("menuDropdown").classList.add("hidden");
+}
+function showPage(page){
+  closeMenu();
+  document.getElementById("trainingPage").classList.toggle("hidden",page!=="training");
+  document.getElementById("foodPage").classList.toggle("hidden",page!=="food");
+  if(page==="food")renderFood();
+}
 /* =================================
    DADOS DAS FICHAS
 ================================= */
-
 const defaults=[
   {id:"upper",name:"UPPER",exercises:[]},
   {id:"lower",name:"LOWER",exercises:[]},
@@ -464,34 +278,21 @@ const defaults=[
   {id:"pull",name:"PULL",exercises:[]},
   {id:"legs",name:"LEGS",exercises:[]}
 ];
-
 let data;
-
 try{
   const saved=JSON.parse(localStorage.getItem("sagaDemo"));
-
-  data=Array.isArray(saved)
-    ?saved
-    :JSON.parse(JSON.stringify(defaults));
-
+  data=Array.isArray(saved)?saved:JSON.parse(JSON.stringify(defaults));
   defaults.forEach(d=>{
     if(!data.some(w=>w.id===d.id)){
       data.push(JSON.parse(JSON.stringify(d)));
     }
-
     const workout=data.find(w=>w.id===d.id);
-
-    if(!Array.isArray(workout.exercises)){
-      workout.exercises=[];
-    }
+    if(!Array.isArray(workout.exercises))workout.exercises=[];
   });
-
 }catch(e){
   data=JSON.parse(JSON.stringify(defaults));
 }
-
 let selected=null;
-
 function persist(){
   try{
     localStorage.setItem("sagaDemo",JSON.stringify(data));
@@ -501,608 +302,659 @@ function persist(){
     return false;
   }
 }
-
-
 /* =================================
    CALENDÁRIO
 ================================= */
-
 const DAY_NAMES=["SEG","TER","QUA","QUI","SEX","SÁB","DOM"];
-
 let trainedDays=[];
-
 try{
   const savedDays=JSON.parse(localStorage.getItem("sagaTrainingDays"));
   trainedDays=Array.isArray(savedDays)?savedDays:[];
-}catch(e){
-  trainedDays=[];
-}
-
+}catch(e){trainedDays=[]}
 let weekOffset=0;
-
 function dateKey(date){
   const y=date.getFullYear();
   const m=String(date.getMonth()+1).padStart(2,"0");
   const d=String(date.getDate()).padStart(2,"0");
   return `${y}-${m}-${d}`;
 }
-
 function getMonday(date){
   const d=new Date(date);
   d.setHours(0,0,0,0);
   const day=d.getDay();
-  const diff=day===0?-6:1-day;
-  d.setDate(d.getDate()+diff);
+  d.setDate(d.getDate()+(day===0?-6:1-day));
   return d;
 }
-
 function changeWeek(amount){
   weekOffset+=amount;
   renderCalendar();
 }
-
 function toggleDay(key){
   if(trainedDays.includes(key)){
     trainedDays=trainedDays.filter(d=>d!==key);
   }else{
     trainedDays.push(key);
   }
-
   localStorage.setItem("sagaTrainingDays",JSON.stringify(trainedDays));
   renderCalendar();
 }
-
 function renderCalendar(){
-
   const today=new Date();
   today.setHours(0,0,0,0);
-
   const monday=getMonday(today);
   monday.setDate(monday.getDate()+(weekOffset*7));
-
-  const monthNames=[
-    "JANEIRO","FEVEREIRO","MARÇO","ABRIL",
-    "MAIO","JUNHO","JULHO","AGOSTO",
-    "SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
-  ];
-
+  const monthNames=["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
   const days=[];
-
   for(let i=0;i<7;i++){
     const d=new Date(monday);
     d.setDate(monday.getDate()+i);
     days.push(d);
   }
-
   const months=[...new Set(days.map(d=>d.getMonth()))];
-
-  const title=months.length===1
-    ?monthNames[months[0]]
-    :monthNames[months[0]]+" / "+monthNames[months[1]];
-
-  document.getElementById("calendarTitle").textContent=
-    title+" "+days[0].getFullYear();
-
+  const title=months.length===1?monthNames[months[0]]:monthNames[months[0]]+" / "+monthNames[months[1]];
+  document.getElementById("calendarTitle").textContent=title+" "+days[0].getFullYear();
   const week=document.getElementById("week");
   week.innerHTML="";
-
   days.forEach((date,i)=>{
-
     const key=dateKey(date);
-    const isTrained=trainedDays.includes(key);
-    const isToday=dateKey(today)===key;
-
     const day=document.createElement("div");
     day.className="day";
-
-    if(isTrained)day.classList.add("trained");
-    if(isToday)day.classList.add("today");
-
+    if(trainedDays.includes(key))day.classList.add("trained");
+    if(dateKey(today)===key)day.classList.add("today");
     const name=document.createElement("div");
     name.className="day-name";
     name.textContent=DAY_NAMES[i];
-
     const number=document.createElement("div");
     number.className="day-number";
     number.textContent=date.getDate();
-
     day.append(name,number);
     day.onclick=()=>toggleDay(key);
-
     week.append(day);
   });
-
   const total=days.filter(d=>trainedDays.includes(dateKey(d))).length;
-
-  document.getElementById("weekInfo").textContent=
-    total+" DE 7 DIAS TREINADOS";
+  document.getElementById("weekInfo").textContent=total+" DE 7 DIAS TREINADOS";
 }
-
-
 /* =================================
    TEMPORIZADOR
 ================================= */
-
 let timerInterval=null;
 let elapsed=0;
 let startedAt=null;
-
 try{
   const savedTimer=JSON.parse(localStorage.getItem("sagaTimer"));
-
   if(savedTimer){
     elapsed=Number(savedTimer.elapsed)||0;
     startedAt=savedTimer.startedAt||null;
-
-    if(startedAt){
-      elapsed+=Date.now()-startedAt;
-    }
+    if(startedAt)elapsed+=Date.now()-startedAt;
   }
-}catch(e){
-  elapsed=0;
-  startedAt=null;
-}
-
+}catch(e){elapsed=0;startedAt=null}
 function saveTimer(){
-  localStorage.setItem("sagaTimer",JSON.stringify({
-    elapsed:elapsed,
-    startedAt:startedAt
-  }));
+  localStorage.setItem("sagaTimer",JSON.stringify({elapsed,startedAt}));
 }
-
 function formatTime(ms){
   const total=Math.floor(ms/1000);
-
   const hours=Math.floor(total/3600);
   const minutes=Math.floor((total%3600)/60);
   const seconds=total%60;
-
-  return [
-    String(hours).padStart(2,"0"),
-    String(minutes).padStart(2,"0"),
-    String(seconds).padStart(2,"0")
-  ].join(":");
+  return [hours,minutes,seconds].map(n=>String(n).padStart(2,"0")).join(":");
 }
-
 function updateTimer(){
   let current=elapsed;
-
-  if(startedAt){
-    current+=Date.now()-startedAt;
-  }
-
+  if(startedAt)current+=Date.now()-startedAt;
   document.getElementById("timerDisplay").textContent=formatTime(current);
 }
-
 function startTimer(){
   if(startedAt)return;
-
   startedAt=Date.now();
   saveTimer();
-
   if(timerInterval)clearInterval(timerInterval);
-
   timerInterval=setInterval(updateTimer,250);
   updateTimer();
 }
-
 function pauseTimer(){
   if(!startedAt)return;
-
   elapsed+=Date.now()-startedAt;
   startedAt=null;
-
   clearInterval(timerInterval);
   timerInterval=null;
-
   saveTimer();
   updateTimer();
 }
-
 function resetTimer(){
   if(!confirm("Zerar o temporizador?"))return;
-
   elapsed=0;
   startedAt=null;
-
   clearInterval(timerInterval);
   timerInterval=null;
-
   saveTimer();
   updateTimer();
 }
-
-
 /* =================================
-   CAIXAS DOS TREINOS
+   FICHAS DE TREINO
 ================================= */
-
 function render(){
-
   const grid=document.getElementById("grid");
   grid.innerHTML="";
-
   data.forEach((w,index)=>{
-
     const box=document.createElement("div");
     box.className="box"+(index===4?" last":"");
-
     const name=document.createElement("input");
-
     name.className="box-name-input";
     name.type="text";
     name.value=w.name;
     name.placeholder="Nome do treino";
     name.maxLength=25;
     name.setAttribute("aria-label","Nome da ficha");
-
     name.addEventListener("click",event=>event.stopPropagation());
     name.addEventListener("pointerdown",event=>event.stopPropagation());
     name.addEventListener("touchstart",event=>event.stopPropagation());
-
     name.addEventListener("input",()=>{
       w.name=name.value;
       persist();
-
-      if(selected===w.id){
-        document.getElementById("detailTitle").textContent=w.name;
-      }
+      if(selected===w.id)document.getElementById("detailTitle").textContent=w.name;
     });
-
     name.addEventListener("keydown",event=>{
       event.stopPropagation();
       if(event.key==="Enter")name.blur();
     });
-
     name.addEventListener("blur",()=>{
       w.name=name.value.trim().toUpperCase()||"SEM NOME";
       name.value=w.name;
       persist();
-
-      if(selected===w.id){
-        document.getElementById("detailTitle").textContent=w.name;
-      }
+      if(selected===w.id)document.getElementById("detailTitle").textContent=w.name;
     });
-
     const count=document.createElement("div");
     count.className="count";
-    count.textContent=w.exercises.length+
-      (w.exercises.length===1?" EXERCÍCIO":" EXERCÍCIOS");
-
+    count.textContent=w.exercises.length+(w.exercises.length===1?" EXERCÍCIO":" EXERCÍCIOS");
     const actions=document.createElement("div");
     actions.className="actions";
-
     const open=document.createElement("button");
     open.className="open";
     open.textContent="ABRIR FICHA ↗";
     open.onclick=()=>openWorkout(w.id);
-
     actions.append(open);
     box.append(name,count,actions);
     grid.append(box);
   });
 }
-
-
-/* =================================
-   ABRIR E VOLTAR
-================================= */
-
 function openWorkout(id){
   selected=id;
-
   document.getElementById("home").classList.add("hidden");
   document.getElementById("detail").classList.remove("hidden");
-
   renderExercises();
 }
-
 function goBack(){
   selected=null;
-
   document.getElementById("detail").classList.add("hidden");
   document.getElementById("home").classList.remove("hidden");
-
   render();
 }
-
-
-/* =================================
-   ADICIONAR EXERCÍCIO
-================================= */
-
 function addExercise(){
-
   const w=data.find(x=>x.id===selected);
   if(!w)return;
-
-  w.exercises.push({
-    name:"",
-    series:"",
-    reps:"",
-    weight:"",
-    image:""
-  });
-
+  w.exercises.push({name:"",series:"",reps:"",weight:"",image:""});
   persist();
   renderExercises();
 }
-
-
 /* =================================
-   COMPRIMIR IMAGEM
+   IMAGENS DOS EXERCÍCIOS
 ================================= */
-
 function compressImage(file){
-
   return new Promise((resolve,reject)=>{
-
     if(!file.type.startsWith("image/")){
       reject(new Error("Arquivo não é uma imagem."));
       return;
     }
-
     const reader=new FileReader();
-
     reader.onload=()=>{
-
       const img=new Image();
-
       img.onload=()=>{
-
         const maxSize=1000;
         let width=img.width;
         let height=img.height;
-
-        if(width>height && width>maxSize){
+        if(width>height&&width>maxSize){
           height=Math.round(height*maxSize/width);
           width=maxSize;
         }else if(height>maxSize){
           width=Math.round(width*maxSize/height);
           height=maxSize;
         }
-
         const canvas=document.createElement("canvas");
         canvas.width=width;
         canvas.height=height;
-
-        const ctx=canvas.getContext("2d");
-
-        ctx.drawImage(img,0,0,width,height);
-
-        const compressed=canvas.toDataURL("image/jpeg",0.72);
-
-        resolve(compressed);
-
+        canvas.getContext("2d").drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL("image/jpeg",0.72));
       };
-
       img.onerror=()=>reject(new Error("Não foi possível abrir a imagem."));
       img.src=reader.result;
-
     };
-
     reader.onerror=()=>reject(new Error("Erro ao ler a imagem."));
     reader.readAsDataURL(file);
-
   });
-
 }
-
-
-/* =================================
-   MOSTRAR EXERCÍCIOS E IMAGENS
-================================= */
-
 function renderExercises(){
-
   const w=data.find(x=>x.id===selected);
   if(!w)return;
-
   document.getElementById("detailTitle").textContent=w.name;
-
   const list=document.getElementById("exerciseList");
   list.innerHTML="";
-
   if(!w.exercises.length){
     list.textContent="AINDA NÃO HÁ EXERCÍCIOS NESTA FICHA.";
     list.style.color="#777";
     return;
   }
-
   list.style.color="";
-
   w.exercises.forEach((ex,i)=>{
-
     const card=document.createElement("div");
     card.className="exercise";
-
-    /* ÁREA DA IMAGEM */
-
     const imageArea=document.createElement("div");
     imageArea.className="image-area";
-
     const fileInput=document.createElement("input");
     fileInput.type="file";
     fileInput.accept="image/*";
     fileInput.className="image-input";
     fileInput.id="exercise-image-"+i;
-
     if(ex.image){
-
       const preview=document.createElement("img");
       preview.className="image-preview";
       preview.src=ex.image;
       preview.alt="Imagem do exercício";
-
       imageArea.append(preview);
-
     }else{
-
       const placeholder=document.createElement("div");
       placeholder.className="image-placeholder";
-
       const symbol=document.createElement("span");
       symbol.textContent="＋";
-
       const message=document.createElement("span");
       message.textContent="ADICIONE UMA FOTO DO EXERCÍCIO";
-
       placeholder.append(symbol,message);
       imageArea.append(placeholder);
-
     }
-
     const imageActions=document.createElement("div");
     imageActions.className="image-actions";
-
     const uploadLabel=document.createElement("label");
     uploadLabel.className="image-upload";
     uploadLabel.htmlFor=fileInput.id;
-    uploadLabel.textContent=ex.image
-      ?"TROCAR IMAGEM"
-      :"＋ ADICIONAR IMAGEM";
-
+    uploadLabel.textContent=ex.image?"TROCAR IMAGEM":"＋ ADICIONAR IMAGEM";
     imageActions.append(uploadLabel);
-
     if(ex.image){
-
       const removeImage=document.createElement("button");
       removeImage.className="image-remove";
       removeImage.textContent="REMOVER";
-
       removeImage.onclick=()=>{
-
         if(!confirm("Remover a imagem deste exercício?"))return;
-
         ex.image="";
         persist();
         renderExercises();
-
       };
-
       imageActions.append(removeImage);
     }
-
     imageArea.append(fileInput,imageActions);
-
-    /* SELEÇÃO DA FOTO */
-
     fileInput.onchange=async()=>{
-
       const file=fileInput.files[0];
       if(!file)return;
-
       if(file.size>15*1024*1024){
         alert("Escolha uma imagem de até 15 MB.");
         return;
       }
-
       uploadLabel.textContent="PROCESSANDO...";
-
       try{
-
         const image=await compressImage(file);
-
         const oldImage=ex.image;
         ex.image=image;
-
-        if(!persist()){
-          ex.image=oldImage;
-        }
-
+        if(!persist())ex.image=oldImage;
         renderExercises();
-
       }catch(error){
-
         alert("Não foi possível carregar esta imagem.");
         uploadLabel.textContent="＋ ADICIONAR IMAGEM";
-
       }
-
     };
-
-    /* NOME DO EXERCÍCIO */
-
     const name=document.createElement("input");
     name.placeholder="Nome do exercício";
     name.value=ex.name||"";
-
     name.oninput=()=>{
       ex.name=name.value;
       persist();
     };
-
-    /* SÉRIES, REPS E CARGA */
-
     const fields=document.createElement("div");
     fields.className="fields";
-
-    [
-      ["SÉRIES","series","4"],
-      ["REPS","reps","10"],
-      ["CARGA","weight","20kg"]
-    ].forEach(([label,key,placeholder])=>{
-
+    [["SÉRIES","series","4"],["REPS","reps","10"],["CARGA","weight","20kg"]].forEach(([label,key,placeholder])=>{
       const div=document.createElement("div");
-
       const title=document.createElement("label");
       title.textContent=label;
-
       const input=document.createElement("input");
       input.placeholder=placeholder;
       input.value=ex[key]||"";
-
       input.oninput=()=>{
         ex[key]=input.value;
         persist();
       };
-
       div.append(title,input);
       fields.append(div);
-
     });
-
-    /* EXCLUIR EXERCÍCIO */
-
     const del=document.createElement("button");
     del.className="delete";
     del.textContent="EXCLUIR EXERCÍCIO";
-
     del.onclick=()=>{
-
       if(confirm("Excluir este exercício?")){
-
         w.exercises.splice(i,1);
-
         persist();
         renderExercises();
         render();
-
       }
-
     };
-
     card.append(imageArea,name,fields,del);
     list.append(card);
-
   });
-
 }
-
-
+/* =================================
+   ALIMENTAÇÃO - DADOS
+================================= */
+const mealNames=[
+  "CAFÉ DA MANHÃ",
+  "ALMOÇO",
+  "CAFÉ DA TARDE",
+  "JANTAR",
+  "CEIA"
+];
+let foodData={};
+try{
+  const savedFood=JSON.parse(localStorage.getItem("sagaFood"));
+  if(savedFood&&typeof savedFood==="object")foodData=savedFood;
+}catch(e){foodData={}}
+function saveFood(){
+  try{
+    localStorage.setItem("sagaFood",JSON.stringify(foodData));
+    return true;
+  }catch(e){
+    alert("Não foi possível salvar os alimentos. O armazenamento do navegador pode estar cheio.");
+    return false;
+  }
+}
+function getFoodDate(){
+  return document.getElementById("foodDate").value;
+}
+function getDayMeals(){
+  const date=getFoodDate();
+  if(!foodData[date]){
+    foodData[date]={};
+    mealNames.forEach((_,i)=>foodData[date][i]=[]);
+  }
+  mealNames.forEach((_,i)=>{
+    if(!Array.isArray(foodData[date][i]))foodData[date][i]=[];
+  });
+  return foodData[date];
+}
+function setTodayFood(){
+  document.getElementById("foodDate").value=dateKey(new Date());
+  renderFood();
+}
+/* =================================
+   ADICIONAR ALIMENTOS
+================================= */
+function addFood(mealIndex){
+  const date=getFoodDate();
+  const meals=getDayMeals();
+  const meal=document.getElementById("meal-"+mealIndex);
+  if(meal.querySelector(".food-form"))return;
+  const form=document.createElement("div");
+  form.className="food-form";
+  const foodName=document.createElement("input");
+  foodName.placeholder="Nome do alimento (ex: arroz, frango...)";
+  foodName.id="foodName-"+mealIndex;
+  const quantity=document.createElement("input");
+  quantity.placeholder="Quantidade / porção (ex: 150 g)";
+  quantity.id="foodQuantity-"+mealIndex;
+  const macroFields=document.createElement("div");
+  macroFields.className="food-form-grid";
+  const inputs=[
+    ["Calorias (kcal)","foodCalories"],
+    ["Proteína (g)","foodProtein"],
+    ["Carboidratos (g)","foodCarbs"],
+    ["Gorduras (g)","foodFat"]
+  ];
+  inputs.forEach(([placeholder,id])=>{
+    const input=document.createElement("input");
+    input.placeholder=placeholder;
+    input.inputMode="decimal";
+    input.id=id+"-"+mealIndex;
+    macroFields.append(input);
+  });
+  const save=document.createElement("button");
+  save.className="save-food";
+  save.textContent="SALVAR ALIMENTO";
+  save.onclick=()=>{
+    const name=foodName.value.trim();
+    const qty=quantity.value.trim();
+    if(!name){
+      alert("Digite o nome do alimento.");
+      return;
+    }
+    const readNumber=id=>{
+      const value=document.getElementById(id+"-"+mealIndex).value.trim().replace(",",".");
+      const number=Number(value);
+      return Number.isFinite(number)&&number>=0?number:0;
+    };
+    const item={
+      name,
+      quantity:qty,
+      calories:readNumber("foodCalories"),
+      protein:readNumber("foodProtein"),
+      carbs:readNumber("foodCarbs"),
+      fat:readNumber("foodFat")
+    };
+    meals[mealIndex].push(item);
+    if(saveFood())renderFood();
+    else meals[mealIndex].pop();
+  };
+  const cancel=document.createElement("button");
+  cancel.className="cancel-food";
+  cancel.textContent="CANCELAR";
+  cancel.onclick=()=>form.remove();
+  form.append(foodName,quantity,macroFields,save,cancel);
+  meal.append(form);
+  foodName.focus();
+}
+/* =================================
+   EXCLUIR ALIMENTOS
+================================= */
+function deleteFood(mealIndex,foodIndex){
+  if(!confirm("Excluir este alimento?"))return;
+  const meals=getDayMeals();
+  meals[mealIndex].splice(foodIndex,1);
+  if(saveFood())renderFood();
+}
+/* =================================
+   MOSTRAR ALIMENTAÇÃO
+================================= */
+function renderFood(){
+  const date=getFoodDate();
+  if(!date)return;
+  const meals=getDayMeals();
+  const mealList=document.getElementById("mealList");
+  mealList.innerHTML="";
+  let totalCalories=0;
+  let totalProtein=0;
+  let totalCarbs=0;
+  let totalFat=0;
+  mealNames.forEach((mealName,mealIndex)=>{
+    const meal=document.createElement("div");
+    meal.className="meal";
+    meal.id="meal-"+mealIndex;
+    const foods=meals[mealIndex]||[];
+    let mealCalories=0;
+    foods.forEach(food=>{
+      mealCalories+=Number(food.calories)||0;
+      totalCalories+=Number(food.calories)||0;
+      totalProtein+=Number(food.protein)||0;
+      totalCarbs+=Number(food.carbs)||0;
+      totalFat+=Number(food.fat)||0;
+    });
+    const header=document.createElement("div");
+    header.className="meal-header";
+    const title=document.createElement("div");
+    title.className="meal-title";
+    title.textContent=mealName;
+    const total=document.createElement("div");
+    total.className="meal-total";
+    total.textContent=Math.round(mealCalories)+" KCAL";
+    header.append(title,total);
+    meal.append(header);
+    if(!foods.length){
+      const empty=document.createElement("div");
+      empty.className="empty-meal";
+      empty.textContent="Nenhum alimento cadastrado.";
+      meal.append(empty);
+    }
+    foods.forEach((food,foodIndex)=>{
+      const entry=document.createElement("div");
+      entry.className="food-entry";
+      const top=document.createElement("div");
+      top.className="food-entry-top";
+      const name=document.createElement("div");
+      name.className="food-name";
+      name.textContent=food.name;
+      const del=document.createElement("button");
+      del.className="food-delete";
+      del.textContent="EXCLUIR";
+      del.onclick=()=>deleteFood(mealIndex,foodIndex);
+      top.append(name,del);
+      const description=document.createElement("div");
+      description.className="food-description";
+      const quantityText=food.quantity?food.quantity+" • ":"";
+      description.textContent=
+        quantityText+
+        Math.round(Number(food.calories)||0)+" kcal • "+
+        (Number(food.protein)||0)+" g proteína • "+
+        (Number(food.carbs)||0)+" g carboidratos • "+
+        (Number(food.fat)||0)+" g gorduras";
+      entry.append(top,description);
+      meal.append(entry);
+    });
+    const add=document.createElement("button");
+    add.className="meal-add";
+    add.textContent="+ ADICIONAR ALIMENTO";
+    add.onclick=()=>addFood(mealIndex);
+    meal.append(add);
+    mealList.append(meal);
+  });
+  document.getElementById("totalCalories").textContent=Math.round(totalCalories);
+  document.getElementById("totalProtein").textContent=totalProtein.toFixed(1)+" g";
+  document.getElementById("totalCarbs").textContent=totalCarbs.toFixed(1)+" g";
+  document.getElementById("totalFat").textContent=totalFat.toFixed(1)+" g";
+}
+/* =================================
+   MODAL E PERFIL
+================================= */
+function openModal(title,description,fields,onSave){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalDescription").textContent=description;
+  const area=document.getElementById("modalFields");
+  area.innerHTML="";
+  fields.forEach(field=>{
+    const input=document.createElement("input");
+    input.id=field.id;
+    input.placeholder=field.placeholder;
+    input.value=field.value||"";
+    input.type=field.type||"text";
+    if(field.maxLength)input.maxLength=field.maxLength;
+    if(field.inputMode)input.inputMode=field.inputMode;
+    area.append(input);
+  });
+  document.getElementById("modalConfirm").onclick=()=>{
+    const values={};
+    fields.forEach(field=>{
+      values[field.id]=document.getElementById(field.id).value;
+    });
+    onSave(values);
+  };
+  document.getElementById("modalBackdrop").classList.remove("hidden");
+}
+function closeModal(){
+  document.getElementById("modalBackdrop").classList.add("hidden");
+}
+function editProfile(){
+  closeMenu();
+  const profile=JSON.parse(localStorage.getItem("sagaProfile")||"{}");
+  openModal(
+    "MEU PERFIL",
+    "Personalize seu espaço SAGA neste dispositivo.",
+    [{id:"profileName",placeholder:"Seu nome",value:profile.name||""}],
+    values=>{
+      localStorage.setItem("sagaProfile",JSON.stringify({name:values.profileName.trim()}));
+      closeModal();
+      alert("Perfil atualizado!");
+    }
+  );
+}
+/* =================================
+   PIN OPCIONAL
+================================= */
+function configurePin(){
+  closeMenu();
+  openModal(
+    "CONFIGURAR PIN",
+    "Crie um PIN de 4 números para bloquear o acesso neste dispositivo. Isso não cria uma conta nem sincroniza seus dados.",
+    [
+      {id:"newPin",placeholder:"Novo PIN de 4 números",type:"password",maxLength:4,inputMode:"numeric"},
+      {id:"confirmPin",placeholder:"Confirme o PIN",type:"password",maxLength:4,inputMode:"numeric"}
+    ],
+    values=>{
+      const pin=values.newPin;
+      if(!/^\d{4}$/.test(pin)){
+        alert("O PIN precisa ter exatamente 4 números.");
+        return;
+      }
+      if(pin!==values.confirmPin){
+        alert("Os PINs não são iguais.");
+        return;
+      }
+      localStorage.setItem("sagaPin",pin);
+      closeModal();
+      updateLockMenu();
+      alert("PIN configurado!");
+    }
+  );
+}
+function updateLockMenu(){
+  const item=document.getElementById("lockMenuItem");
+  item.textContent=localStorage.getItem("sagaPin")?"⌑  BLOQUEAR / SAIR":"⌑  BLOQUEIO DESATIVADO";
+  item.disabled=!localStorage.getItem("sagaPin");
+  item.style.opacity=item.disabled?".4":"1";
+}
+function lockApp(){
+  closeMenu();
+  if(!localStorage.getItem("sagaPin")){
+    alert("Configure um PIN primeiro.");
+    return;
+  }
+  document.getElementById("pinScreen").classList.remove("hidden");
+  document.getElementById("pinLoginInput").value="";
+  document.getElementById("pinError").textContent="";
+}
+function checkPin(){
+  const entered=document.getElementById("pinLoginInput").value;
+  const saved=localStorage.getItem("sagaPin");
+  if(entered===saved){
+    document.getElementById("pinScreen").classList.add("hidden");
+    document.getElementById("pinError").textContent="";
+  }else{
+    document.getElementById("pinError").textContent="PIN incorreto. Tente novamente.";
+    document.getElementById("pinLoginInput").value="";
+  }
+}
 /* =================================
    INICIALIZAÇÃO
 ================================= */
-
+document.getElementById("foodDate").value=dateKey(new Date());
 renderCalendar();
 render();
 updateTimer();
-
+renderFood();
+updateLockMenu();
 if(startedAt){
   timerInterval=setInterval(updateTimer,250);
 }
-
 </script>
-
 </body>
 </html>
