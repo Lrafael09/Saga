@@ -20,7 +20,192 @@ body{
 header{margin-bottom:30px}
 .logo{font-size:35px;font-weight:900;letter-spacing:5px}
 .subtitle{font-size:10px;color:#777;letter-spacing:4px;margin-top:5px}
-.label{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:14px;font-weight:bold}
+.label{
+  font-size:10px;
+  color:#777;
+  letter-spacing:2px;
+  margin-bottom:14px;
+  font-weight:bold
+}
+
+/* CALENDÁRIO */
+
+.calendar-section{margin-bottom:28px}
+
+.calendar{
+  background:#111;
+  border:1px solid #292929;
+  border-radius:12px;
+  padding:16px
+}
+
+.calendar-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px
+}
+
+.calendar-title{
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:1px
+}
+
+.calendar-nav{
+  display:flex;
+  gap:8px
+}
+
+.nav-btn{
+  background:#202020;
+  color:#aaa;
+  border:1px solid #333;
+  border-radius:5px;
+  width:30px;
+  height:30px;
+  font-size:16px
+}
+
+.week{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px
+}
+
+.day{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:9px;
+  cursor:pointer;
+  padding:5px 0;
+  border-radius:7px
+}
+
+.day-name{
+  font-size:9px;
+  color:#777;
+  font-weight:bold
+}
+
+.day-number{
+  width:30px;
+  height:30px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:50%;
+  background:#252525;
+  color:#aaa;
+  font-size:11px;
+  font-weight:bold
+}
+
+.day.trained .day-number{
+  background:#a8f05a;
+  color:#080808
+}
+
+.day.today .day-number{
+  border:1px solid #a8f05a
+}
+
+.day.trained.today .day-number{
+  border:1px solid #fff
+}
+
+.day:active{transform:scale(.94)}
+
+.calendar-footer{
+  border-top:1px solid #292929;
+  margin-top:15px;
+  padding-top:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+
+.calendar-info{
+  font-size:9px;
+  color:#777;
+  letter-spacing:1px
+}
+
+.legend{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:9px;
+  color:#777
+}
+
+.legend-dot{
+  width:7px;
+  height:7px;
+  background:#a8f05a;
+  border-radius:50%
+}
+
+/* TEMPORIZADOR */
+
+.timer-section{margin-bottom:30px}
+
+.timer{
+  background:#111;
+  border:1px solid #292929;
+  border-radius:12px;
+  padding:20px;
+  text-align:center
+}
+
+.timer-label{
+  color:#777;
+  font-size:9px;
+  letter-spacing:2px;
+  margin-bottom:12px
+}
+
+.timer-display{
+  font-size:43px;
+  font-weight:900;
+  letter-spacing:3px;
+  color:#a8f05a;
+  font-variant-numeric:tabular-nums;
+  margin-bottom:17px
+}
+
+.timer-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px
+}
+
+.timer-btn{
+  border:0;
+  border-radius:5px;
+  padding:11px 18px;
+  font-size:9px;
+  font-weight:bold
+}
+
+.timer-start{
+  background:#a8f05a;
+  color:#080808
+}
+
+.timer-pause{
+  background:#252525;
+  color:#fff
+}
+
+.timer-reset{
+  background:transparent;
+  border:1px solid #333;
+  color:#888
+}
+
+/* FICHAS */
 
 .grid{
   display:grid;
@@ -95,7 +280,12 @@ button{cursor:pointer;font-weight:bold}
 }
 
 h2{font-size:27px;margin-bottom:8px}
-.sub{color:#777;font-size:10px;letter-spacing:2px;margin-bottom:20px}
+.sub{
+  color:#777;
+  font-size:10px;
+  letter-spacing:2px;
+  margin-bottom:20px
+}
 
 .exercise{
   background:#111;
@@ -140,6 +330,12 @@ h2{font-size:27px;margin-bottom:8px}
   font-size:10px;
   margin-top:12px
 }
+
+@media(max-width:360px){
+  .timer-display{font-size:35px}
+  .timer-btn{padding:10px 12px}
+  .day-number{width:27px;height:27px}
+}
 </style>
 </head>
 
@@ -152,22 +348,122 @@ h2{font-size:27px;margin-bottom:8px}
   <div class="subtitle">WORKOUT SYSTEM</div>
 </header>
 
+<!-- CALENDÁRIO NO TOPO -->
+
 <section id="home">
+
+  <div class="calendar-section">
+
+    <div class="label">FREQUÊNCIA DE TREINO</div>
+
+    <div class="calendar">
+
+      <div class="calendar-top">
+
+        <div class="calendar-title" id="calendarTitle">
+          SEMANA
+        </div>
+
+        <div class="calendar-nav">
+          <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
+          <button class="nav-btn" onclick="changeWeek(1)">›</button>
+        </div>
+
+      </div>
+
+      <div class="week" id="week"></div>
+
+      <div class="calendar-footer">
+
+        <div class="calendar-info" id="weekInfo">
+          SEUS TREINOS
+        </div>
+
+        <div class="legend">
+          <div class="legend-dot"></div>
+          DIA TREINADO
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TEMPORIZADOR ABAIXO DO CALENDÁRIO -->
+
+  <div class="timer-section">
+
+    <div class="label">TEMPORIZADOR</div>
+
+    <div class="timer">
+
+      <div class="timer-label">TEMPO DE TREINO</div>
+
+      <div class="timer-display" id="timerDisplay">
+        00:00:00
+      </div>
+
+      <div class="timer-actions">
+
+        <button
+          class="timer-btn timer-start"
+          id="startBtn"
+          onclick="startTimer()">
+          INICIAR
+        </button>
+
+        <button
+          class="timer-btn timer-pause"
+          onclick="pauseTimer()">
+          PAUSAR
+        </button>
+
+        <button
+          class="timer-btn timer-reset"
+          onclick="resetTimer()">
+          ZERAR
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- CAIXAS DOS TREINOS POR ÚLTIMO -->
+
   <div class="label">MINHAS FICHAS</div>
+
   <div class="grid" id="grid"></div>
+
 </section>
 
+<!-- DETALHES DO TREINO -->
+
 <section id="detail" class="hidden">
+
   <button class="back" onclick="goBack()">← VOLTAR</button>
+
   <h2 id="detailTitle"></h2>
+
   <div class="sub">EXERCÍCIOS DO TREINO</div>
+
   <div id="exerciseList"></div>
-  <button class="add" onclick="addExercise()">+ ADICIONAR EXERCÍCIO</button>
+
+  <button class="add" onclick="addExercise()">
+    + ADICIONAR EXERCÍCIO
+  </button>
+
 </section>
 
 </div>
 
 <script>
+
+/* =================================
+   DADOS DAS FICHAS
+================================= */
 
 const defaults=[
   {id:"upper",name:"UPPER",exercises:[]},
@@ -180,11 +476,15 @@ const defaults=[
 let data;
 
 try{
+
   const saved=JSON.parse(localStorage.getItem("sagaDemo"));
 
-  data=Array.isArray(saved)?saved:JSON.parse(JSON.stringify(defaults));
+  data=Array.isArray(saved)
+    ?saved
+    :JSON.parse(JSON.stringify(defaults));
 
   defaults.forEach(d=>{
+
     if(!data.some(w=>w.id===d.id)){
       data.push(JSON.parse(JSON.stringify(d)));
     }
@@ -194,10 +494,13 @@ try{
     if(!Array.isArray(workout.exercises)){
       workout.exercises=[];
     }
+
   });
 
 }catch(e){
+
   data=JSON.parse(JSON.stringify(defaults));
+
 }
 
 let selected=null;
@@ -206,19 +509,301 @@ function persist(){
   localStorage.setItem("sagaDemo",JSON.stringify(data));
 }
 
-// MONTA AS CAIXAS DOS TREINOS
+
+/* =================================
+   CALENDÁRIO
+================================= */
+
+const DAY_NAMES=["SEG","TER","QUA","QUI","SEX","SÁB","DOM"];
+
+let trainedDays=[];
+
+try{
+
+  const savedDays=JSON.parse(
+    localStorage.getItem("sagaTrainingDays")
+  );
+
+  trainedDays=Array.isArray(savedDays)?savedDays:[];
+
+}catch(e){
+
+  trainedDays=[];
+
+}
+
+let weekOffset=0;
+
+function dateKey(date){
+
+  const y=date.getFullYear();
+  const m=String(date.getMonth()+1).padStart(2,"0");
+  const d=String(date.getDate()).padStart(2,"0");
+
+  return `${y}-${m}-${d}`;
+
+}
+
+function getMonday(date){
+
+  const d=new Date(date);
+  d.setHours(0,0,0,0);
+
+  const day=d.getDay();
+  const diff=day===0?-6:1-day;
+
+  d.setDate(d.getDate()+diff);
+
+  return d;
+
+}
+
+function changeWeek(amount){
+
+  weekOffset+=amount;
+  renderCalendar();
+
+}
+
+function toggleDay(key){
+
+  if(trainedDays.includes(key)){
+
+    trainedDays=trainedDays.filter(d=>d!==key);
+
+  }else{
+
+    trainedDays.push(key);
+
+  }
+
+  localStorage.setItem(
+    "sagaTrainingDays",
+    JSON.stringify(trainedDays)
+  );
+
+  renderCalendar();
+
+}
+
+function renderCalendar(){
+
+  const today=new Date();
+  today.setHours(0,0,0,0);
+
+  const monday=getMonday(today);
+
+  monday.setDate(monday.getDate()+(weekOffset*7));
+
+  const monthNames=[
+    "JANEIRO","FEVEREIRO","MARÇO","ABRIL",
+    "MAIO","JUNHO","JULHO","AGOSTO",
+    "SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
+  ];
+
+  const days=[];
+
+  for(let i=0;i<7;i++){
+
+    const d=new Date(monday);
+    d.setDate(monday.getDate()+i);
+
+    days.push(d);
+
+  }
+
+  const months=[...new Set(days.map(d=>d.getMonth()))];
+
+  const title=months.length===1
+    ?monthNames[months[0]]
+    :monthNames[months[0]]+" / "+monthNames[months[1]];
+
+  document.getElementById("calendarTitle").textContent=
+    title+" "+days[0].getFullYear();
+
+  const week=document.getElementById("week");
+
+  week.innerHTML="";
+
+  days.forEach((date,i)=>{
+
+    const key=dateKey(date);
+
+    const isTrained=trainedDays.includes(key);
+    const isToday=dateKey(today)===key;
+
+    const day=document.createElement("div");
+
+    day.className="day";
+
+    if(isTrained)day.classList.add("trained");
+    if(isToday)day.classList.add("today");
+
+    const name=document.createElement("div");
+    name.className="day-name";
+    name.textContent=DAY_NAMES[i];
+
+    const number=document.createElement("div");
+    number.className="day-number";
+    number.textContent=date.getDate();
+
+    day.append(name,number);
+
+    day.onclick=()=>toggleDay(key);
+
+    week.append(day);
+
+  });
+
+  const total=days.filter(
+    d=>trainedDays.includes(dateKey(d))
+  ).length;
+
+  document.getElementById("weekInfo").textContent=
+    total+" DE 7 DIAS TREINADOS";
+
+}
+
+
+/* =================================
+   TEMPORIZADOR
+================================= */
+
+let timerInterval=null;
+let elapsed=0;
+let startedAt=null;
+
+try{
+
+  const savedTimer=JSON.parse(
+    localStorage.getItem("sagaTimer")
+  );
+
+  if(savedTimer){
+
+    elapsed=Number(savedTimer.elapsed)||0;
+    startedAt=savedTimer.startedAt||null;
+
+    if(startedAt){
+      elapsed+=Date.now()-startedAt;
+    }
+
+  }
+
+}catch(e){
+
+  elapsed=0;
+  startedAt=null;
+
+}
+
+function saveTimer(){
+
+  localStorage.setItem(
+    "sagaTimer",
+    JSON.stringify({
+      elapsed:elapsed,
+      startedAt:startedAt
+    })
+  );
+
+}
+
+function formatTime(ms){
+
+  const total=Math.floor(ms/1000);
+
+  const hours=Math.floor(total/3600);
+  const minutes=Math.floor((total%3600)/60);
+  const seconds=total%60;
+
+  return [
+    String(hours).padStart(2,"0"),
+    String(minutes).padStart(2,"0"),
+    String(seconds).padStart(2,"0")
+  ].join(":");
+
+}
+
+function updateTimer(){
+
+  let current=elapsed;
+
+  if(startedAt){
+    current+=Date.now()-startedAt;
+  }
+
+  document.getElementById("timerDisplay").textContent=
+    formatTime(current);
+
+}
+
+function startTimer(){
+
+  if(startedAt)return;
+
+  startedAt=Date.now();
+
+  saveTimer();
+
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
+
+  timerInterval=setInterval(updateTimer,250);
+
+  updateTimer();
+
+}
+
+function pauseTimer(){
+
+  if(!startedAt)return;
+
+  elapsed+=Date.now()-startedAt;
+  startedAt=null;
+
+  clearInterval(timerInterval);
+  timerInterval=null;
+
+  saveTimer();
+  updateTimer();
+
+}
+
+function resetTimer(){
+
+  if(!confirm("Zerar o temporizador?"))return;
+
+  elapsed=0;
+  startedAt=null;
+
+  clearInterval(timerInterval);
+  timerInterval=null;
+
+  saveTimer();
+  updateTimer();
+
+}
+
+
+/* =================================
+   MONTA AS CAIXAS DOS TREINOS
+================================= */
 
 function render(){
 
   const grid=document.getElementById("grid");
+
   grid.innerHTML="";
 
   data.forEach((w,index)=>{
 
     const box=document.createElement("div");
+
     box.className="box"+(index===4?" last":"");
 
-    // CAMPO EDITÁVEL DO NOME
+    // NOME EDITÁVEL
 
     const name=document.createElement("input");
 
@@ -228,8 +813,6 @@ function render(){
     name.placeholder="Nome do treino";
     name.maxLength=25;
     name.setAttribute("aria-label","Nome da ficha");
-
-    // Impede que tocar no nome abra outra tela
 
     name.addEventListener("click",event=>{
       event.stopPropagation();
@@ -243,54 +826,60 @@ function render(){
       event.stopPropagation();
     });
 
-    // Salva enquanto digita
-
     name.addEventListener("input",()=>{
+
       w.name=name.value;
+
       persist();
 
       if(selected===w.id){
         document.getElementById("detailTitle").textContent=w.name;
       }
+
     });
 
-    // Enter finaliza a edição
-
     name.addEventListener("keydown",event=>{
+
       event.stopPropagation();
 
       if(event.key==="Enter"){
         name.blur();
       }
+
     });
 
-    // Organiza o nome ao sair do campo
-
     name.addEventListener("blur",()=>{
+
       w.name=name.value.trim().toUpperCase()||"SEM NOME";
+
       name.value=w.name;
+
       persist();
 
       if(selected===w.id){
         document.getElementById("detailTitle").textContent=w.name;
       }
+
     });
 
-    // Quantidade de exercícios
+    // CONTAGEM
 
     const count=document.createElement("div");
+
     count.className="count";
 
     count.textContent=
       w.exercises.length+
       (w.exercises.length===1?" EXERCÍCIO":" EXERCÍCIOS");
 
-    // Botão para abrir a ficha
+    // BOTÃO ABRIR
 
     const actions=document.createElement("div");
+
     actions.className="actions";
 
     const open=document.createElement("button");
+
     open.className="open";
     open.textContent="ABRIR FICHA ↗";
 
@@ -301,40 +890,57 @@ function render(){
     actions.append(open);
 
     box.append(name,count,actions);
+
     grid.append(box);
 
   });
+
 }
 
-// ABRIR TREINO
+
+/* =================================
+   ABRIR TREINO
+================================= */
 
 function openWorkout(id){
 
   selected=id;
 
   document.getElementById("home").classList.add("hidden");
+
   document.getElementById("detail").classList.remove("hidden");
 
   renderExercises();
+
 }
 
-// VOLTAR PARA INÍCIO
+
+/* =================================
+   VOLTAR
+================================= */
 
 function goBack(){
 
   selected=null;
 
   document.getElementById("detail").classList.add("hidden");
+
   document.getElementById("home").classList.remove("hidden");
 
   render();
+
 }
 
-// ADICIONAR EXERCÍCIO
+
+/* =================================
+   ADICIONAR EXERCÍCIO
+================================= */
 
 function addExercise(){
 
   const w=data.find(x=>x.id===selected);
+
+  if(!w)return;
 
   w.exercises.push({
     name:"",
@@ -344,26 +950,36 @@ function addExercise(){
   });
 
   persist();
+
   renderExercises();
+
 }
 
-// MOSTRAR EXERCÍCIOS
+
+/* =================================
+   MOSTRAR EXERCÍCIOS
+================================= */
 
 function renderExercises(){
 
   const w=data.find(x=>x.id===selected);
 
+  if(!w)return;
+
   document.getElementById("detailTitle").textContent=w.name;
 
   const list=document.getElementById("exerciseList");
+
   list.innerHTML="";
 
   if(!w.exercises.length){
 
     list.textContent="AINDA NÃO HÁ EXERCÍCIOS NESTA FICHA.";
+
     list.style.color="#777";
 
     return;
+
   }
 
   list.style.color="";
@@ -371,22 +987,29 @@ function renderExercises(){
   w.exercises.forEach((ex,i)=>{
 
     const card=document.createElement("div");
+
     card.className="exercise";
 
     // NOME DO EXERCÍCIO
 
     const name=document.createElement("input");
+
     name.placeholder="Nome do exercício";
-    name.value=ex.name;
+
+    name.value=ex.name||"";
 
     name.oninput=()=>{
+
       ex.name=name.value;
+
       persist();
+
     };
 
     // SÉRIES, REPETIÇÕES E CARGA
 
     const fields=document.createElement("div");
+
     fields.className="fields";
 
     [
@@ -398,18 +1021,25 @@ function renderExercises(){
       const div=document.createElement("div");
 
       const title=document.createElement("label");
+
       title.textContent=label;
 
       const input=document.createElement("input");
+
       input.placeholder=placeholder;
-      input.value=ex[key];
+
+      input.value=ex[key]||"";
 
       input.oninput=()=>{
+
         ex[key]=input.value;
+
         persist();
+
       };
 
       div.append(title,input);
+
       fields.append(div);
 
     });
@@ -419,6 +1049,7 @@ function renderExercises(){
     const del=document.createElement("button");
 
     del.className="delete";
+
     del.textContent="EXCLUIR EXERCÍCIO";
 
     del.onclick=()=>{
@@ -428,19 +1059,39 @@ function renderExercises(){
         w.exercises.splice(i,1);
 
         persist();
+
         renderExercises();
+
         render();
+
       }
+
     };
 
     card.append(name,fields,del);
+
     list.append(card);
 
   });
 
 }
 
+
+/* =================================
+   INICIALIZAÇÃO
+================================= */
+
+renderCalendar();
+
 render();
+
+updateTimer();
+
+if(startedAt){
+
+  timerInterval=setInterval(updateTimer,250);
+
+}
 
 </script>
 
