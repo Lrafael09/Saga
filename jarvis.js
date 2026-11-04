@@ -491,3 +491,180 @@ jarvis/jarvis.js
     createInterface();
   }
 })();
+
+jarvis/jarvis.css
+
+#jarvisRoot {
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+#jarvisToggle {
+  position: fixed;
+  right: 20px;
+  bottom: 22px;
+  z-index: 9998;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1px solid #384c5c;
+  background: #101c26;
+  color: #9bdcff;
+  font-size: 25px;
+  font-weight: bold;
+  box-shadow: 0 0 20px #0009;
+  cursor: pointer;
+}
+
+.jarvis-panel {
+  position: fixed;
+  right: 15px;
+  bottom: 92px;
+  z-index: 9999;
+  width: min(380px, calc(100vw - 30px));
+  height: min(570px, calc(100dvh - 125px));
+  background: #101214;
+  border: 1px solid #303940;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 15px 50px #000b;
+}
+
+.jarvis-panel[hidden] {
+  display: none;
+}
+
+.jarvis-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #171e23;
+  border-bottom: 1px solid #303940;
+}
+
+.jarvis-avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #1a3445;
+  color: #9bdcff;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.jarvis-heading {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 4px;
+}
+
+.jarvis-heading strong {
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.jarvis-heading small {
+  color: #91a0a9;
+  font-size: 11px;
+}
+
+#jarvisClose {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.jarvis-welcome {
+  padding: 18px 16px 10px;
+}
+
+.jarvis-welcome strong {
+  font-size: 16px;
+}
+
+.jarvis-welcome p {
+  margin-top: 7px;
+  color: #a6b0b7;
+  font-size: 13px;
+}
+
+.jarvis-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jarvis-message {
+  max-width: 88%;
+  padding: 11px 13px;
+  border-radius: 13px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.jarvis-message.user {
+  align-self: flex-end;
+  background: #1d394b;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.jarvis-message.jarvis {
+  align-self: flex-start;
+  background: #24292d;
+  color: #e8edf0;
+  border-bottom-left-radius: 4px;
+}
+
+.jarvis-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #303940;
+}
+
+.jarvis-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 13px;
+  border: 1px solid #38434a;
+  border-radius: 10px;
+  background: #1b2024;
+  color: #fff;
+  outline: none;
+}
+
+.jarvis-form input:focus {
+  border-color: #73bce4;
+}
+
+.jarvis-form button {
+  width: 45px;
+  border: 0;
+  border-radius: 10px;
+  background: #1c3d50;
+  color: #9bdcff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.jarvis-footer {
+  padding: 0 12px 12px;
+  text-align: center;
+  color: #64727b;
+  font-size: 9px;
+  letter-spacing: 2px;
+}
