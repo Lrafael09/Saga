@@ -791,7 +791,7 @@ function loadJarvisVoice(){
  const voices=window.speechSynthesis.getVoices();
  jarvisVoice=
   voices.find(v=>v.lang.toLowerCase()==="pt-br"&&/male|masculino|daniel|jorge|antonio/i.test(v.name))||
-  voices.find(v=>v.lang.toLowerCase()==="pt-br")||
+  null||
   voices.find(v=>v.lang.toLowerCase().startsWith("pt"))||
   null;
 }
