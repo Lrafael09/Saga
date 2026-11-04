@@ -1417,5 +1417,502 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 })();
 </script>
 
+<!-- =====================================================
+ SAGA KNOWLEDGE CORE
+ Base de conhecimentos da SEXTA-FEIRA
+ Integrado ao núcleo original JARVIS
+===================================================== -->
+
+<script>
+(function () {
+    "use strict";
+
+    if (window.sagaKnowledgeCoreActive) return;
+
+    if (typeof window.jarvisExecute !== "function") {
+        console.error("SAGA KNOWLEDGE CORE: núcleo JARVIS não encontrado.");
+        return;
+    }
+
+    window.sagaKnowledgeCoreActive = true;
+
+    const executarNucleoOriginal = window.jarvisExecute;
+
+    // NORMALIZAÇÃO DAS PERGUNTAS
+    function normalizar(texto) {
+        return String(texto)
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^\w\s]/g, " ")
+            .replace(/\bsexta\s*feira\b/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    // CONHECIMENTOS TÉCNICOS
+    const conhecimentos = [
+
+        // ================================================
+        // ANATOMIA HUMANA
+        // ================================================
+
+        {
+            p: /origem e insercao|onde .* (origina|insere)|origem .* musculo/,
+            r: "A origem muscular é geralmente o ponto de fixação mais estável durante determinado movimento, enquanto a inserção costuma ser o ponto mais móvel. Essa relação pode variar conforme a ação e a posição do corpo. Posso explicar a origem e a inserção de cada músculo separadamente."
+        },
+
+        {
+            p: /peitoral|musculo do peito|musculos do peito/,
+            r: "O principal músculo superficial do peito é o peitoral maior, dividido funcionalmente em porções clavicular e esternocostal. Ele participa principalmente da adução horizontal e da rotação interna do ombro. O peitoral menor fica em uma camada mais profunda e participa dos movimentos da escápula."
+        },
+
+        {
+            p: /dorsal|latissimo|costas|musculos das costas/,
+            r: "As costas possuem vários músculos. O latíssimo do dorso participa da extensão, adução e rotação interna do ombro. O trapézio atua nos movimentos e na estabilização das escápulas. Romboides, redondo maior e eretores da coluna também têm funções importantes."
+        },
+
+        {
+            p: /trapezio/,
+            r: "O trapézio é dividido em porções superior, média e inferior. A superior participa da elevação da escápula; a média, da retração; e a inferior, da depressão e da rotação superior da escápula. Ele trabalha em conjunto com outros músculos para estabilizar o ombro."
+        },
+
+        {
+            p: /deltoide|ombro|musculos do ombro/,
+            r: "O deltoide possui três porções principais: anterior, lateral e posterior. A anterior participa da flexão do ombro, a lateral da abdução e a posterior da extensão e abdução horizontal. O manguito rotador também é essencial para estabilizar a articulação."
+        },
+
+        {
+            p: /biceps/,
+            r: "O bíceps braquial possui duas cabeças: longa e curta. Atua principalmente na flexão do cotovelo e na supinação do antebraço. O braquial e o braquiorradial também são importantes flexores do cotovelo."
+        },
+
+        {
+            p: /triceps/,
+            r: "O tríceps braquial possui três cabeças: longa, lateral e medial. Sua principal função é estender o cotovelo. A cabeça longa também participa da extensão e adução do ombro."
+        },
+
+        {
+            p: /quadriceps|coxa da frente/,
+            r: "O quadríceps é formado por reto femoral, vasto lateral, vasto medial e vasto intermédio. Sua principal função é estender o joelho. O reto femoral também participa da flexão do quadril."
+        },
+
+        {
+            p: /posterior de coxa|isquiotibiais|femoral posterior/,
+            r: "Os isquiotibiais incluem bíceps femoral, semitendíneo e semimembranáceo. Participam da flexão do joelho e da extensão do quadril. São fundamentais para movimentos de corrida, saltos e controle da perna."
+        },
+
+        {
+            p: /gluteo/,
+            r: "O conjunto glúteo inclui glúteo máximo, médio e mínimo. O máximo é um importante extensor e rotador externo do quadril. Médio e mínimo participam da abdução e estabilização da pelve durante atividades como caminhar e agachar."
+        },
+
+        {
+            p: /panturrilha|gastrocnemio|soleo/,
+            r: "A panturrilha é formada principalmente pelo gastrocnêmio e pelo sóleo. Juntos, são importantes na flexão plantar do tornozelo. O gastrocnêmio também cruza o joelho, enquanto o sóleo não."
+        },
+
+        {
+            p: /abdomen|abdominal|reto abdominal|obliqu/,
+            r: "A musculatura abdominal inclui reto abdominal, oblíquo externo, oblíquo interno e transverso do abdome. Esses músculos participam da flexão e rotação do tronco, da estabilidade e do controle da pressão abdominal."
+        },
+
+        // ================================================
+        // BIOMECÂNICA E EXERCÍCIOS
+        // ================================================
+
+        {
+            p: /supino|exercicio de peito/,
+            r: "No supino, o peitoral maior é um dos principais músculos envolvidos, com participação do tríceps braquial e deltoide anterior. A contribuição de cada um muda conforme a inclinação do banco, a pegada, a amplitude e a técnica."
+        },
+
+        {
+            p: /puxada|pulldown|barra fixa/,
+            r: "Na puxada e na barra fixa, o latíssimo do dorso é um dos principais músculos envolvidos. Bíceps, braquial, braquiorradial, redondo maior e músculos estabilizadores das escápulas também participam."
+        },
+
+        {
+            p: /remada/,
+            r: "As remadas recrutam principalmente os músculos responsáveis pela extensão do ombro e retração das escápulas, como latíssimo do dorso, romboides e trapézio médio. Bíceps e deltoide posterior também ajudam."
+        },
+
+        {
+            p: /agachamento|hack|pendulo/,
+            r: "Agachamentos, hack e pêndulo recrutam principalmente quadríceps e glúteo máximo, com participação dos adutores e dos músculos estabilizadores do tronco. A distribuição do esforço depende da máquina, profundidade, posição dos pés e mobilidade."
+        },
+
+        {
+            p: /leg press|prensa de pernas/,
+            r: "O leg press trabalha principalmente quadríceps e glúteo máximo, com participação dos adutores. A posição dos pés pode alterar a distribuição do esforço, mas não isola completamente um músculo específico."
+        },
+
+        {
+            p: /cadeira extensora|extensora/,
+            r: "A cadeira extensora realiza extensão do joelho e trabalha o quadríceps. É útil para treinar essa musculatura com movimento relativamente isolado."
+        },
+
+        {
+            p: /mesa flexora|cadeira flexora|flexora/,
+            r: "As máquinas flexoras trabalham os músculos posteriores da coxa por meio da flexão do joelho. A posição do quadril e o tipo de máquina influenciam a participação relativa dos músculos."
+        },
+
+        {
+            p: /levantamento terra|stiff|romeno|rdl/,
+            r: "O levantamento terra romeno e o stiff são movimentos de dobradiça do quadril. Trabalham principalmente posteriores da coxa e glúteo máximo, além dos músculos que estabilizam o tronco. A execução deve respeitar mobilidade e tolerância individual."
+        },
+
+        {
+            p: /elevacao lateral/,
+            r: "A elevação lateral é utilizada principalmente para desenvolver a porção lateral do deltoide. O supraespinal também participa do início da abdução do ombro."
+        },
+
+        {
+            p: /rosca direta|rosca martelo|rosca alternada/,
+            r: "As variações de rosca treinam os flexores do cotovelo. A rosca direta enfatiza o bíceps braquial; a rosca martelo aumenta a participação do braquial e do braquiorradial, sem excluir o bíceps."
+        },
+
+        // ================================================
+        // FISIOLOGIA E HIPERTROFIA
+        // ================================================
+
+        {
+            p: /hipertrofia|crescimento muscular|ganhar musculo/,
+            r: "Hipertrofia muscular é o aumento do tamanho das fibras musculares. O treinamento resistido fornece estímulos mecânicos e fisiológicos, enquanto alimentação adequada, recuperação e progressão do treino ajudam a sustentar as adaptações."
+        },
+
+        {
+            p: /miofibrilar|sarcoplasmatica/,
+            r: "A hipertrofia miofibrilar está associada ao aumento das estruturas contráteis da fibra muscular. A hipertrofia sarcoplasmática descreve alterações no volume dos componentes não contráteis. Na prática, as adaptações musculares são integradas e não funcionam como dois tipos totalmente separados."
+        },
+
+        {
+            p: /falha muscular|treinar ate a falha|repeticao maxima/,
+            r: "Falha muscular é o ponto em que você não consegue completar outra repetição com a técnica e amplitude pretendidas. Chegar à falha pode ser útil, mas não é obrigatório em todas as séries. A proximidade da falha, o volume e a recuperação também importam."
+        },
+
+        {
+            p: /volume de treino|quantas series|numero de series/,
+            r: "O volume de treino pode ser acompanhado pelo número de séries desafiadoras por grupo muscular por semana. A quantidade ideal depende da experiência, recuperação, intensidade e resposta individual. Mais séries não significam automaticamente mais hipertrofia."
+        },
+
+        {
+            p: /progressao de carga|sobrecarga progressiva/,
+            r: "Sobrecarga progressiva significa aumentar gradualmente a exigência do treinamento ao longo do tempo. Isso pode ocorrer com mais carga, repetições, séries ou melhor controle da execução. A progressão deve preservar a técnica."
+        },
+
+        {
+            p: /descanso entre series|intervalo entre series/,
+            r: "O intervalo depende do exercício e do objetivo. Exercícios multiarticulares pesados geralmente se beneficiam de descansos mais longos, frequentemente de 2 a 3 minutos ou mais. Exercícios isolados podem permitir intervalos menores, desde que o desempenho seja mantido."
+        },
+
+        {
+            p: /sintese proteica|mps/,
+            r: "A síntese proteica muscular é o processo de construção de proteínas musculares. O treinamento e a ingestão de proteína estimulam esse processo. O crescimento ao longo do tempo depende do equilíbrio entre síntese e degradação proteica, além da recuperação."
+        },
+
+        {
+            p: /dor muscular|dor tardia|dor depois do treino/,
+            r: "A dor muscular tardia pode aparecer após um treino, principalmente quando há exercícios ou estímulos novos. Ela não é uma medida confiável de qualidade ou crescimento muscular. Dor intensa, persistente ou acompanhada de perda importante de função merece avaliação profissional."
+        },
+
+        // ================================================
+        // ALIMENTAÇÃO E NUTRIÇÃO
+        // ================================================
+
+        {
+            p: /quantas calorias|calorias preciso|gasto calorico|calcular calorias/,
+            r: "Para estimar suas calorias diárias, precisamos considerar idade, peso, altura, sexo utilizado na equação, rotina de atividade e objetivo. Podemos estimar o gasto energético e ajustar a ingestão conforme a evolução do peso e do desempenho. Uma estimativa inicial não é uma medida exata."
+        },
+
+        {
+            p: /superavit calorico|ganhar peso|ganho de massa/,
+            r: "Para ganhar massa muscular, normalmente utilizamos um superávit calórico moderado, acompanhado de treinamento progressivo e proteína suficiente. Um aumento inicial pequeno na ingestão pode ser ajustado conforme a evolução do peso, medidas e desempenho."
+        },
+
+        {
+            p: /deficit calorico|emagrecer|perder gordura|secar/,
+            r: "O déficit calórico acontece quando a ingestão de energia fica abaixo do gasto energético. Para preservar massa muscular, é importante manter treinamento resistido, consumir proteína suficiente e evitar déficits excessivamente agressivos."
+        },
+
+        {
+            p: /proteina|quantos gramas de proteina/,
+            r: "Para adultos saudáveis que treinam musculação, uma faixa frequentemente estudada para hipertrofia é aproximadamente 1,6 a 2,2 gramas de proteína por quilo de peso corporal ao dia. A necessidade individual pode variar conforme dieta, objetivo e condições de saúde."
+        },
+
+        {
+            p: /carboidrato|carboidratos/,
+            r: "Carboidratos são uma importante fonte de energia, especialmente em atividades intensas. Arroz, batata, aveia, frutas, pães e massas são exemplos de fontes alimentares. A quantidade depende do gasto energético, rotina e objetivo."
+        },
+
+        {
+            p: /gordura boa|gorduras|lipidios/,
+            r: "As gorduras alimentares participam da produção hormonal, estrutura das células e absorção das vitaminas A, D, E e K. Fontes incluem azeite, castanhas, sementes, abacate e peixes."
+        },
+
+        {
+            p: /fibra|fibras alimentares/,
+            r: "As fibras ajudam no funcionamento intestinal, saciedade e controle da resposta glicêmica. São encontradas em frutas, verduras, legumes, feijões, aveia e cereais integrais. A ingestão deve ser acompanhada de hidratação adequada."
+        },
+
+        {
+            p: /indice glicemico|glicemia|acucar no sangue/,
+            r: "O índice glicêmico indica a velocidade relativa com que um alimento contendo carboidrato eleva a glicose em comparação com uma referência. A resposta real também depende da porção, preparo, fibras, gorduras e composição da refeição."
+        },
+
+        {
+            p: /refeicao pre treino|comer antes do treino|o que comer antes/,
+            r: "Uma refeição pré-treino pode combinar carboidratos para energia e proteína para contribuir com a ingestão diária. O horário e a quantidade devem considerar a digestão, duração do treino e tolerância individual."
+        },
+
+        {
+            p: /pos treino|depois do treino|comer depois de treinar/,
+            r: "Após o treino, uma refeição com proteína de boa qualidade e carboidratos pode contribuir para recuperação e reposição de energia. Não existe uma janela de poucos minutos obrigatória: a ingestão total do dia e a distribuição das refeições também importam."
+        },
+
+        {
+            p: /tabela nutricional|valor nutricional|macros/,
+            r: "Uma tabela nutricional apresenta informações como valor energético, carboidratos, proteínas, gorduras, fibras e sódio. Para avaliar um alimento corretamente, precisamos observar o tamanho da porção e os valores por 100 gramas quando disponíveis."
+        },
+
+        {
+            p: /indice de massa corporal|imc/,
+            r: "O IMC é calculado dividindo o peso em quilogramas pela altura em metros ao quadrado. É uma ferramenta de triagem populacional, mas não distingue massa muscular de gordura e não deve ser usado isoladamente para avaliar a composição corporal."
+        },
+
+        // ================================================
+        // ALIMENTOS
+        // ================================================
+
+        {
+            p: /ovo|ovos/,
+            r: "O ovo fornece proteína de alta qualidade, gorduras, vitaminas e minerais. Um ovo grande costuma fornecer aproximadamente 6 a 7 gramas de proteína, mas os valores variam com o tamanho."
+        },
+
+        {
+            p: /frango|peito de frango/,
+            r: "O peito de frango é uma fonte de proteína de alta qualidade e geralmente possui pouca gordura quando preparado sem pele e com pouca adição de óleo. O valor nutricional muda conforme o corte e o preparo."
+        },
+
+        {
+            p: /arroz/,
+            r: "O arroz é principalmente uma fonte de carboidratos e fornece energia. O arroz integral costuma ter mais fibras que o branco. A composição por porção muda bastante entre o alimento cru e o cozido."
+        },
+
+        {
+            p: /feijao/,
+            r: "O feijão fornece carboidratos, fibras, proteínas vegetais e minerais. Combinado com arroz, faz parte de uma refeição nutritiva e acessível."
+        },
+
+        {
+            p: /banana/,
+            r: "A banana fornece carboidratos, fibras e potássio. Pode ser uma opção prática antes ou depois do treino, dependendo da tolerância e composição da refeição."
+        },
+
+        {
+            p: /aveia/,
+            r: "A aveia fornece carboidratos, fibras, especialmente beta-glucana, além de pequenas quantidades de proteína e minerais. Pode ajudar na saciedade e na composição de refeições."
+        },
+
+        {
+            p: /leite|iogurte/,
+            r: "Leite e iogurte podem fornecer proteínas, cálcio e outros nutrientes. A composição varia conforme o produto, teor de gordura, açúcar adicionado e presença de lactose."
+        },
+
+        // ================================================
+        // SUPLEMENTAÇÃO
+        // ================================================
+
+        {
+            p: /creatina/,
+            r: "A creatina monohidratada é um dos suplementos mais estudados para desempenho em esforços intensos e repetidos. Uma estratégia comum para adultos saudáveis é consumir de 3 a 5 gramas diariamente. A resposta é gradual e não depende de tomar exatamente no pré-treino."
+        },
+
+        {
+            p: /whey|proteina em po/,
+            r: "Whey protein é uma proteína derivada do leite. Pode facilitar o consumo diário de proteína, mas não é obrigatório para ganhar massa muscular. Alimentos comuns também podem atender às necessidades."
+        },
+
+        {
+            p: /cafeina|cafe|pre treino/,
+            r: "A cafeína pode melhorar temporariamente o estado de alerta e o desempenho em algumas atividades. A sensibilidade varia entre pessoas. Doses elevadas podem causar ansiedade, palpitações e prejudicar o sono."
+        },
+
+        {
+            p: /hipercalorico|mass gainer/,
+            r: "Hipercalóricos são produtos com alta densidade energética, geralmente combinando carboidratos e proteínas. Podem ajudar quem tem dificuldade de consumir calorias suficientes, mas também é possível atingir o superávit com alimentos comuns."
+        },
+
+        // ================================================
+        // FISIOLOGIA E RECUPERAÇÃO
+        // ================================================
+
+        {
+            p: /metabolismo/,
+            r: "Metabolismo é o conjunto de processos químicos do organismo. O gasto energético diário inclui metabolismo basal, atividade física, atividades cotidianas e o efeito térmico dos alimentos."
+        },
+
+        {
+            p: /testosterona|hormonios/,
+            r: "A testosterona é um hormônio envolvido no desenvolvimento e manutenção de características sexuais e na função muscular, entre outras funções. Seus níveis são influenciados por diversos fatores. Não é correto atribuir qualquer alteração de desempenho apenas a esse hormônio."
+        },
+
+        {
+            p: /sono|dormir|horas de sono/,
+            r: "O sono participa da recuperação física, regulação hormonal, memória e desempenho. Para a maioria dos adultos, recomenda-se regularmente pelo menos 7 horas de sono, com necessidades individuais que podem variar."
+        },
+
+        {
+            p: /hidratacao|agua|beber agua/,
+            r: "A água é essencial para a regulação da temperatura, circulação e funcionamento do organismo. A necessidade varia conforme peso, clima, alimentação e suor. Durante exercícios prolongados ou em calor intenso, a reposição de líquidos merece atenção especial."
+        },
+
+        {
+            p: /alongamento|mobilidade/,
+            r: "Mobilidade envolve a capacidade de movimentar uma articulação com controle e amplitude. Alongamentos podem ajudar a melhorar a flexibilidade, enquanto exercícios de força em amplitudes adequadas também contribuem para o controle do movimento."
+        },
+
+        {
+            p: /lesao|lesionar|dor articular/,
+            r: "Dor durante o exercício não deve ser ignorada. Reduza ou interrompa o movimento que provoca dor e observe os sintomas. Dor intensa, inchaço, perda de força ou limitação persistente justificam avaliação por um profissional de saúde."
+        },
+
+        {
+            p: /frequencia cardiaca|batimento cardiaco|frequencia cardiaca/,
+            r: "A frequência cardíaca representa o número de batimentos por minuto. Ela varia com esforço, condicionamento, temperatura, hidratação, estresse e estimulantes. Sintomas como dor no peito, desmaio ou falta de ar intensa exigem atendimento médico."
+        },
+
+        // ================================================
+        // CONCEITOS DE TREINAMENTO
+        // ================================================
+
+        {
+            p: /periodizacao|periodizar/,
+            r: "Periodização é a organização planejada do treinamento ao longo do tempo. Pode variar volume, intensidade, exercícios e recuperação para organizar a progressão e controlar a fadiga."
+        },
+
+        {
+            p: /amplitude de movimento|amplitude completa/,
+            r: "A amplitude de movimento é o percurso realizado em uma articulação durante o exercício. Uma amplitude adequada e controlada pode favorecer o desenvolvimento muscular, desde que respeite a anatomia, mobilidade e tolerância individual."
+        },
+
+        {
+            p: /rpe|rir|repeticoes em reserva/,
+            r: "RIR significa repetições em reserva e estima quantas repetições ainda seriam possíveis antes da falha. RPE é uma escala de esforço percebido. São ferramentas para controlar a intensidade do treinamento."
+        },
+
+        {
+            p: /exercicio composto|multiarticular/,
+            r: "Exercícios compostos ou multiarticulares envolvem mais de uma articulação e vários grupos musculares. Agachamento, supino e remada são exemplos. Eles permitem treinar movimentos complexos e utilizar cargas relativamente altas."
+        },
+
+        {
+            p: /exercicio isolado|monoarticular/,
+            r: "Exercícios isolados ou monoarticulares enfatizam o movimento de uma articulação e geralmente permitem concentrar o trabalho em determinados músculos. Extensora, flexora e rosca direta são exemplos."
+        }
+    ];
+
+    // CONSULTA À MEMÓRIA PERSONALIZADA JÁ EXISTENTE
+    function procurarAprendizado(texto) {
+        try {
+            const dados = JSON.parse(
+                localStorage.getItem("saga_sexta_feira_learning_v1") || "[]"
+            );
+
+            if (!Array.isArray(dados)) return null;
+
+            const pergunta = normalizar(texto);
+
+            const exato = dados.find(item =>
+                item.question &&
+                normalizar(item.question) === pergunta
+            );
+
+            if (exato) return exato.answer;
+
+            const aproximado = dados
+                .filter(item => item.question && item.answer)
+                .sort((a, b) =>
+                    normalizar(b.question).length -
+                    normalizar(a.question).length
+                )
+                .find(item => {
+                    const ensinada = normalizar(item.question);
+                    return ensinada.length >= 5 &&
+                        pergunta.includes(ensinada);
+                });
+
+            return aproximado ? aproximado.answer : null;
+
+        } catch (erro) {
+            return null;
+        }
+    }
+
+    // BUSCA NA BASE DE CONHECIMENTO
+    function consultarConhecimento(mensagem) {
+        const texto = normalizar(mensagem);
+
+        for (const item of conhecimentos) {
+            if (item.p.test(texto)) {
+                return item.r;
+            }
+        }
+
+        return null;
+    }
+
+    // INTERCEPTAÇÃO DO CÉREBRO ORIGINAL
+    window.jarvisExecute = function (mensagem, ...args) {
+
+        const texto = String(mensagem).trim();
+        const normalizada = normalizar(texto);
+
+        // Preserva os comandos do modo de aprendizagem
+        if (
+            /^ensinar\s*:/i.test(texto) ||
+            /^(ativar|ligar|iniciar|desativar|desligar|sair)\s+(o\s+)?(do\s+)?modo\s+(de\s+)?ensinar$/.test(normalizada) ||
+            /^(meus aprendizados|listar aprendizados|o que voce aprendeu)$/.test(normalizada) ||
+            texto.includes("=") ||
+            texto.includes("=>")
+        ) {
+            return executarNucleoOriginal.call(this, mensagem, ...args);
+        }
+
+        // Conhecimentos ensinados pelo usuário têm prioridade
+        const aprendido = procurarAprendizado(texto);
+
+        if (aprendido) {
+            return aprendido;
+        }
+
+        // Consulta à biblioteca técnica
+        const resposta = consultarConhecimento(texto);
+
+        if (resposta) {
+            return resposta;
+        }
+
+        // Se não encontrar resposta, mantém o comportamento original
+        return executarNucleoOriginal.call(this, mensagem, ...args);
+    };
+
+    // EXPOR INFORMAÇÕES DA BASE
+    window.SAGA_KNOWLEDGE = {
+        total: conhecimentos.length,
+        consultar: consultarConhecimento,
+        normalizar: normalizar
+    };
+
+    console.log(
+        "SAGA KNOWLEDGE CORE carregado.",
+        conhecimentos.length,
+        "regras de conhecimento disponíveis."
+    );
+
+})();
+</script>
+<!-- FIM SAGA KNOWLEDGE CORE -->
+
+
 </body>
 </html>
