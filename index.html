@@ -1,76 +1,448 @@
-function renderWorkouts() {
-  const grid = document.getElementById("workoutGrid");
-  grid.innerHTML = "";
 
-  workouts.forEach(workout => {
-    const box = document.createElement("div");
-    box.className = "workout-box";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAGA Workout System</title>
 
-    const name = document.createElement("input");
-    name.className = "workout-name-input";
-    name.type = "text";
-    name.value = workout.name;
-    name.placeholder = "Nome do treino";
-    name.maxLength = 25;
-    name.setAttribute("aria-label", "Nome da ficha");
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
 
-    // Impede que tocar no nome abra a ficha
-    name.addEventListener("click", event => {
+body{
+  background:#080808;
+  color:#fff;
+  font-family:Arial;
+  padding:25px 16px
+}
+
+.container{max-width:600px;margin:auto}
+header{margin-bottom:30px}
+.logo{font-size:35px;font-weight:900;letter-spacing:5px}
+.subtitle{font-size:10px;color:#777;letter-spacing:4px;margin-top:5px}
+.label{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:14px;font-weight:bold}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px
+}
+
+.box{
+  background:#111;
+  border:1px solid #292929;
+  border-radius:12px;
+  padding:16px;
+  min-height:145px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between
+}
+
+.box-name-input{
+  width:100%;
+  background:transparent;
+  color:#fff;
+  border:0;
+  border-bottom:1px solid transparent;
+  outline:none;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:1px;
+  font-family:Arial;
+  text-transform:uppercase;
+  padding:3px 0;
+  border-radius:0
+}
+
+.box-name-input:focus{
+  border-bottom:1px solid #a8f05a
+}
+
+.box-name-input::placeholder{color:#666}
+
+.count{font-size:10px;color:#777;margin-top:8px}
+
+.actions{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  margin-top:15px;
+  gap:6px
+}
+
+button{cursor:pointer;font-weight:bold}
+
+.open{
+  background:#a8f05a;
+  color:#080808;
+  border:0;
+  border-radius:5px;
+  padding:9px;
+  font-size:9px
+}
+
+.last{grid-column:1/-1}
+.hidden{display:none!important}
+
+.back{
+  background:transparent;
+  color:#aaa;
+  border:1px solid #333;
+  padding:10px 14px;
+  border-radius:6px;
+  margin-bottom:25px
+}
+
+h2{font-size:27px;margin-bottom:8px}
+.sub{color:#777;font-size:10px;letter-spacing:2px;margin-bottom:20px}
+
+.exercise{
+  background:#111;
+  border:1px solid #292929;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:12px
+}
+
+.exercise input{
+  width:100%;
+  background:#202020;
+  color:white;
+  border:1px solid #333;
+  padding:11px;
+  border-radius:5px;
+  margin-top:8px;
+  outline:none
+}
+
+.fields{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px
+}
+
+.fields label{font-size:9px;color:#777}
+
+.add{
+  width:100%;
+  padding:15px;
+  background:#a8f05a;
+  border:0;
+  border-radius:7px;
+  margin-top:10px
+}
+
+.delete{
+  background:transparent;
+  color:#b77;
+  border:0;
+  font-size:10px;
+  margin-top:12px
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div class="logo">SAGA</div>
+  <div class="subtitle">WORKOUT SYSTEM</div>
+</header>
+
+<section id="home">
+  <div class="label">MINHAS FICHAS</div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section id="detail" class="hidden">
+  <button class="back" onclick="goBack()">← VOLTAR</button>
+  <h2 id="detailTitle"></h2>
+  <div class="sub">EXERCÍCIOS DO TREINO</div>
+  <div id="exerciseList"></div>
+  <button class="add" onclick="addExercise()">+ ADICIONAR EXERCÍCIO</button>
+</section>
+
+</div>
+
+<script>
+
+const defaults=[
+  {id:"upper",name:"UPPER",exercises:[]},
+  {id:"lower",name:"LOWER",exercises:[]},
+  {id:"push",name:"PUSH",exercises:[]},
+  {id:"pull",name:"PULL",exercises:[]},
+  {id:"legs",name:"LEGS",exercises:[]}
+];
+
+let data;
+
+try{
+  const saved=JSON.parse(localStorage.getItem("sagaDemo"));
+
+  data=Array.isArray(saved)?saved:JSON.parse(JSON.stringify(defaults));
+
+  defaults.forEach(d=>{
+    if(!data.some(w=>w.id===d.id)){
+      data.push(JSON.parse(JSON.stringify(d)));
+    }
+
+    const workout=data.find(w=>w.id===d.id);
+
+    if(!Array.isArray(workout.exercises)){
+      workout.exercises=[];
+    }
+  });
+
+}catch(e){
+  data=JSON.parse(JSON.stringify(defaults));
+}
+
+let selected=null;
+
+function persist(){
+  localStorage.setItem("sagaDemo",JSON.stringify(data));
+}
+
+// MONTA AS CAIXAS DOS TREINOS
+
+function render(){
+
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+
+  data.forEach((w,index)=>{
+
+    const box=document.createElement("div");
+    box.className="box"+(index===4?" last":"");
+
+    // CAMPO EDITÁVEL DO NOME
+
+    const name=document.createElement("input");
+
+    name.className="box-name-input";
+    name.type="text";
+    name.value=w.name;
+    name.placeholder="Nome do treino";
+    name.maxLength=25;
+    name.setAttribute("aria-label","Nome da ficha");
+
+    // Impede que tocar no nome abra outra tela
+
+    name.addEventListener("click",event=>{
       event.stopPropagation();
     });
 
-    name.addEventListener("pointerdown", event => {
+    name.addEventListener("pointerdown",event=>{
       event.stopPropagation();
     });
 
-    name.addEventListener("touchstart", event => {
+    name.addEventListener("touchstart",event=>{
       event.stopPropagation();
     });
 
-    name.addEventListener("keydown", event => {
+    // Salva enquanto digita
+
+    name.addEventListener("input",()=>{
+      w.name=name.value;
+      persist();
+
+      if(selected===w.id){
+        document.getElementById("detailTitle").textContent=w.name;
+      }
+    });
+
+    // Enter finaliza a edição
+
+    name.addEventListener("keydown",event=>{
       event.stopPropagation();
 
-      if (event.key === "Enter") {
+      if(event.key==="Enter"){
         name.blur();
       }
     });
 
-    // Salva o nome enquanto você digita
-    name.addEventListener("input", () => {
-      workout.name = name.value;
-      saveWorkouts();
-    });
+    // Organiza o nome ao sair do campo
 
-    // Organiza o nome ao terminar de editar
-    name.addEventListener("blur", () => {
-      workout.name = name.value.trim().toUpperCase() || "SEM NOME";
-      name.value = workout.name;
-      saveWorkouts();
-    });
+    name.addEventListener("blur",()=>{
+      w.name=name.value.trim().toUpperCase()||"SEM NOME";
+      name.value=w.name;
+      persist();
 
-    const count = document.createElement("div");
-    count.className = "workout-count";
-    count.textContent =
-      workout.exercises.length +
-      (workout.exercises.length === 1
-        ? " EXERCÍCIO"
-        : " EXERCÍCIOS");
-
-    const arrow = document.createElement("div");
-    arrow.className = "workout-arrow";
-    arrow.textContent = "↗";
-
-    box.append(name, count, arrow);
-
-    // Tocar fora do campo abre o treino
-    box.addEventListener("click", event => {
-      if (event.target.closest(".workout-name-input")) {
-        return;
+      if(selected===w.id){
+        document.getElementById("detailTitle").textContent=w.name;
       }
-
-      openWorkout(workout.id);
     });
 
-    grid.appendChild(box);
+    // Quantidade de exercícios
+
+    const count=document.createElement("div");
+    count.className="count";
+
+    count.textContent=
+      w.exercises.length+
+      (w.exercises.length===1?" EXERCÍCIO":" EXERCÍCIOS");
+
+    // Botão para abrir a ficha
+
+    const actions=document.createElement("div");
+    actions.className="actions";
+
+    const open=document.createElement("button");
+    open.className="open";
+    open.textContent="ABRIR FICHA ↗";
+
+    open.onclick=()=>{
+      openWorkout(w.id);
+    };
+
+    actions.append(open);
+
+    box.append(name,count,actions);
+    grid.append(box);
+
   });
 }
+
+// ABRIR TREINO
+
+function openWorkout(id){
+
+  selected=id;
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("detail").classList.remove("hidden");
+
+  renderExercises();
+}
+
+// VOLTAR PARA INÍCIO
+
+function goBack(){
+
+  selected=null;
+
+  document.getElementById("detail").classList.add("hidden");
+  document.getElementById("home").classList.remove("hidden");
+
+  render();
+}
+
+// ADICIONAR EXERCÍCIO
+
+function addExercise(){
+
+  const w=data.find(x=>x.id===selected);
+
+  w.exercises.push({
+    name:"",
+    series:"",
+    reps:"",
+    weight:""
+  });
+
+  persist();
+  renderExercises();
+}
+
+// MOSTRAR EXERCÍCIOS
+
+function renderExercises(){
+
+  const w=data.find(x=>x.id===selected);
+
+  document.getElementById("detailTitle").textContent=w.name;
+
+  const list=document.getElementById("exerciseList");
+  list.innerHTML="";
+
+  if(!w.exercises.length){
+
+    list.textContent="AINDA NÃO HÁ EXERCÍCIOS NESTA FICHA.";
+    list.style.color="#777";
+
+    return;
+  }
+
+  list.style.color="";
+
+  w.exercises.forEach((ex,i)=>{
+
+    const card=document.createElement("div");
+    card.className="exercise";
+
+    // NOME DO EXERCÍCIO
+
+    const name=document.createElement("input");
+    name.placeholder="Nome do exercício";
+    name.value=ex.name;
+
+    name.oninput=()=>{
+      ex.name=name.value;
+      persist();
+    };
+
+    // SÉRIES, REPETIÇÕES E CARGA
+
+    const fields=document.createElement("div");
+    fields.className="fields";
+
+    [
+      ["SÉRIES","series","4"],
+      ["REPS","reps","10"],
+      ["CARGA","weight","20kg"]
+    ].forEach(([label,key,placeholder])=>{
+
+      const div=document.createElement("div");
+
+      const title=document.createElement("label");
+      title.textContent=label;
+
+      const input=document.createElement("input");
+      input.placeholder=placeholder;
+      input.value=ex[key];
+
+      input.oninput=()=>{
+        ex[key]=input.value;
+        persist();
+      };
+
+      div.append(title,input);
+      fields.append(div);
+
+    });
+
+    // EXCLUIR EXERCÍCIO
+
+    const del=document.createElement("button");
+
+    del.className="delete";
+    del.textContent="EXCLUIR EXERCÍCIO";
+
+    del.onclick=()=>{
+
+      if(confirm("Excluir este exercício?")){
+
+        w.exercises.splice(i,1);
+
+        persist();
+        renderExercises();
+        render();
+      }
+    };
+
+    card.append(name,fields,del);
+    list.append(card);
+
+  });
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
