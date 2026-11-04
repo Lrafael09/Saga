@@ -3433,6 +3433,915 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 </script>
 
 <!-- FIM SAGA CALENDÁRIO INTELIGENTE -->
+/* ============================================================
+   SAGA NUTRITION SYSTEM — COMPLEMENTO APPEND-ONLY v1.0
+   Integra a alimentação existente (sagaFood) sem alterar seus dados.
+   Dados novos isolados em saga_nutrition_v1.
+============================================================ */
+(function () {
+  'use strict';
+  if (window.SAGA_NUTRITION_SYSTEM) return;
+
+  const STORE = 'saga_nutrition_v1';
+  const readState = () => {
+    try {
+      const v = JSON.parse(localStorage.getItem(STORE) || '{}');
+      return v && typeof v === 'object' ? v : {};
+    } catch (_) {
+      return {};
+    }
+  };
+
+  const state = readState();
+  state.profile = state.profile || {};
+  state.targets = state.targets || null;
+  state.weights = Array.isArray(state.weights) ? state.weights : [];
+  state.goal = state.goal || 'manutencao';
+
+  const save = () => {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(state));
+      return true;
+    } catch (_) {
+      alert('Não foi possível salvar. O armazenamento deste navegador pode estar cheio.');
+      return false;
+    }
+  };
+
+  const today = () => {
+    const d = new Date();
+    return key(d);
+  };
+
+  const key = d =>
+    d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+
+  const parseNum = v => {
+    const n = Number(String(v ?? '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const fmt = (v, digits = 0) =>
+    Number(v || 0).toLocaleString('pt-BR', {
+      maximumFractionDigits: digits,
+      minimumFractionDigits: digits
+    });
+
+  const esc = s =>
+    String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c]));
+
+  const norm = s =>
+    String(s || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+  const foods = [
+    {name:'Arroz branco cozido',portion:'100 g',kcal:128,p:2.5,c:28.1,f:0.2,fiber:1.6},
+    {name:'Feijão carioca cozido',portion:'100 g',kcal:76,p:4.8,c:13.6,f:0.5,fiber:8.5},
+    {name:'Peito de frango grelhado',portion:'100 g',kcal:159,p:32,c:0,f:2.5,fiber:0},
+    {name:'Ovo cozido',portion:'1 unidade média (50 g)',kcal:73,p:6.3,c:0.6,f:4.8,fiber:0},
+    {name:'Banana-prata',portion:'100 g',kcal:98,p:1.3,c:26,f:0.1,fiber:2},
+    {name:'Aveia em flocos',portion:'100 g',kcal:394,p:13.9,c:66.6,f:8.5,fiber:9.1},
+    {name:'Batata-doce cozida',portion:'100 g',kcal:77,p:0.6,c:18.4,f:0.1,fiber:2.2},
+    {name:'Patinho bovino grelhado',portion:'100 g',kcal:219,p:35.9,c:0,f:7.3,fiber:0},
+    {name:'Leite integral',portion:'100 ml',kcal:61,p:3.2,c:4.7,f:3.3,fiber:0},
+    {name:'Iogurte natural integral',portion:'100 g',kcal:61,p:4.1,c:5.8,f:3.0,fiber:0},
+    {name:'Pão francês',portion:'1 unidade (50 g)',kcal:150,p:4.5,c:29.3,f:1.5,fiber:1.2},
+    {name:'Azeite de oliva',portion:'10 g',kcal:88,p:0,c:0,f:10,fiber:0}
+  ];
+
+  const style = document.createElement('style');
+  style.id = 'saga-nutrition-styles';
+  style.textContent = `
+  #sagaNutritionPage{
+    max-width:600px;
+    margin:0 auto;
+    padding:4px 0 90px;
+    color:#f4f4f4
+  }
+  #sagaNutritionPage *{box-sizing:border-box}
+  .sn-hero{
+    background:linear-gradient(135deg,#142014,#101510 65%,#1c2818);
+    border:1px solid #39552f;
+    border-radius:16px;
+    padding:20px;
+    margin:4px 0 18px;
+    position:relative;
+    overflow:hidden
+  }
+  .sn-kicker{
+    font-size:9px;
+    letter-spacing:2.5px;
+    color:#a8f05a;
+    font-weight:800
+  }
+  .sn-hero h2{
+    font-size:25px;
+    line-height:1.1;
+    margin:9px 0
+  }
+  .sn-hero p{
+    font-size:11px;
+    line-height:1.6;
+    color:#aab6a5;
+    max-width:430px
+  }
+  .sn-tabs{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin:14px 0
+  }
+  .sn-tab{
+    background:#151515;
+    border:1px solid #303630;
+    color:#aaa;
+    border-radius:8px;
+    padding:11px 5px;
+    font-size:9px;
+    font-weight:800
+  }
+  .sn-tab.active{
+    border-color:#a8f05a;
+    color:#a8f05a;
+    background:#172016
+  }
+  .sn-panel{display:none}
+  .sn-panel.active{display:block}
+  .sn-card{
+    background:#111;
+    border:1px solid #292929;
+    border-radius:12px;
+    padding:15px;
+    margin:0 0 12px
+  }
+  .sn-card h3{font-size:13px;margin-bottom:7px}
+  .sn-muted{
+    font-size:10px;
+    color:#858585;
+    line-height:1.55
+  }
+  .sn-grid2{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px
+  }
+  .sn-grid3{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px
+  }
+  .sn-field{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    margin:8px 0
+  }
+  .sn-field label{
+    font-size:9px;
+    color:#999;
+    letter-spacing:.5px
+  }
+  .sn-field input,
+  .sn-field select,
+  .sn-field textarea,
+  .sn-input{
+    width:100%;
+    min-width:0;
+    background:#202020;
+    border:1px solid #383838;
+    border-radius:7px;
+    color:#fff;
+    padding:11px;
+    font-size:12px;
+    outline:none
+  }
+  .sn-field input:focus,
+  .sn-field select:focus,
+  .sn-field textarea:focus,
+  .sn-input:focus{border-color:#a8f05a}
+  .sn-btn{
+    background:#a8f05a;
+    color:#101510;
+    border:0;
+    border-radius:7px;
+    padding:12px 14px;
+    font-weight:900;
+    font-size:10px;
+    width:100%;
+    margin-top:7px
+  }
+  .sn-btn.secondary{
+    background:#202820;
+    border:1px solid #405b34;
+    color:#a8f05a
+  }
+  .sn-stat{
+    background:#1a1a1a;
+    border-radius:9px;
+    padding:11px
+  }
+  .sn-stat strong{
+    display:block;
+    font-size:19px;
+    margin:5px 0;
+    color:#a8f05a
+  }
+  .sn-stat span{
+    font-size:8px;
+    color:#888;
+    letter-spacing:1px
+  }
+  .sn-progress{
+    height:7px;
+    border-radius:10px;
+    background:#292929;
+    overflow:hidden;
+    margin-top:8px
+  }
+  .sn-progress i{
+    display:block;
+    height:100%;
+    background:#a8f05a;
+    border-radius:10px;
+    width:0
+  }
+  .sn-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px
+  }
+  .sn-pill{
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:20px;
+    background:#1b2818;
+    color:#a8f05a;
+    font-size:9px
+  }
+  .sn-warning{
+    background:#2a2113;
+    border:1px solid #70542a;
+    color:#e8c98d;
+    border-radius:8px;
+    padding:10px;
+    font-size:10px;
+    line-height:1.5;
+    margin-top:10px
+  }
+  .sn-ok{
+    background:#172418;
+    border:1px solid #385b36;
+    color:#bce6a9;
+    border-radius:8px;
+    padding:10px;
+    font-size:10px;
+    line-height:1.5;
+    margin-top:10px
+  }
+  .sn-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:10px
+  }
+  .sn-table td{
+    padding:9px 4px;
+    border-bottom:1px solid #292929
+  }
+  .sn-table td:last-child{
+    text-align:right;
+    color:#a8f05a;
+    font-weight:bold
+  }
+  .sn-chart{
+    width:100%;
+    height:190px;
+    display:block;
+    background:#0d0d0d;
+    border-radius:8px
+  }
+  .sn-food-result{
+    padding:10px 0;
+    border-bottom:1px solid #292929
+  }
+  .sn-food-result:last-child{border-bottom:0}
+  .sn-label-result{
+    border-left:3px solid #a8f05a;
+    padding:10px 12px;
+    background:#182018;
+    border-radius:0 8px 8px 0;
+    margin-top:8px;
+    font-size:10px;
+    line-height:1.6
+  }
+  .sn-rating{font-weight:900;color:#a8f05a}
+  .sn-meal{
+    background:#191919;
+    border-radius:8px;
+    padding:12px;
+    margin-top:9px
+  }
+  .sn-meal h4{
+    font-size:11px;
+    margin-bottom:7px;
+    color:#a8f05a
+  }
+  .sn-meal p{
+    font-size:10px;
+    line-height:1.6;
+    color:#ddd
+  }
+  .sn-foot{
+    font-size:9px;
+    color:#777;
+    line-height:1.5;
+    margin:12px 0
+  }
+  @media(max-width:390px){
+    .sn-grid3{grid-template-columns:1fr 1fr}
+    .sn-tabs{gap:5px}
+    .sn-tab{font-size:8px;padding:10px 3px}
+    .sn-hero h2{font-size:22px}
+  }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================================================
+     ESTRUTURA VISUAL DO SAGA NUTRITION SYSTEM
+  ========================================================= */
+
+  const root = document.createElement('section');
+  root.id = 'sagaNutritionPage';
+  root.style.display = 'none';
+
+  root.innerHTML = `
+    <div class="sn-hero">
+      <div class="sn-kicker">SAGA • INTELIGÊNCIA NUTRICIONAL</div>
+      <h2>Nutrition System</h2>
+      <p>
+        Sua alimentação, seus objetivos e sua evolução em um só lugar.
+        A SEXTA-FEIRA acompanha seus dados e ajuda você a entender
+        melhor sua nutrição.
+      </p>
+    </div>
+
+    <div class="sn-tabs">
+      <button class="sn-tab active" data-tab="dashboard">VISÃO GERAL</button>
+      <button class="sn-tab" data-tab="profile">MEU PERFIL</button>
+      <button class="sn-tab" data-tab="weight">MEU PESO</button>
+    </div>
+
+    <div class="sn-tabs">
+      <button class="sn-tab" data-tab="calendar">CALENDÁRIO</button>
+      <button class="sn-tab" data-tab="foods">ALIMENTOS</button>
+      <button class="sn-tab" data-tab="supplements">SUPLEMENTOS</button>
+    </div>
+
+    <!-- PAINEL PRINCIPAL -->
+    <div class="sn-panel active" id="sn-dashboard">
+      <div class="sn-card">
+        <div class="sn-row">
+          <h3>Seu objetivo atual</h3>
+          <span class="sn-pill" id="sn-goal-label">Manutenção</span>
+        </div>
+        <p class="sn-muted" id="sn-dashboard-description">
+          Configure seu perfil para receber metas nutricionais estimadas.
+        </p>
+      </div>
+
+      <div class="sn-grid2">
+        <div class="sn-stat">
+          <span>CALORIAS DE HOJE</span>
+          <strong id="sn-today-kcal">0</strong>
+          <span>kcal consumidas</span>
+        </div>
+        <div class="sn-stat">
+          <span>META CALÓRICA</span>
+          <strong id="sn-target-kcal">--</strong>
+          <span>kcal estimadas</span>
+        </div>
+        <div class="sn-stat">
+          <span>PROTEÍNAS</span>
+          <strong id="sn-today-protein">0 g</strong>
+          <span id="sn-target-protein">Meta não configurada</span>
+        </div>
+        <div class="sn-stat">
+          <span>CARBOIDRATOS</span>
+          <strong id="sn-today-carbs">0 g</strong>
+          <span id="sn-target-carbs">Meta não configurada</span>
+        </div>
+      </div>
+
+      <div class="sn-card" style="margin-top:12px">
+        <h3>Gorduras</h3>
+        <div class="sn-row">
+          <strong id="sn-today-fat">0 g</strong>
+          <span class="sn-muted" id="sn-target-fat">Meta não configurada</span>
+        </div>
+        <div class="sn-progress">
+          <i id="sn-fat-progress"></i>
+        </div>
+      </div>
+
+      <div class="sn-card">
+        <h3>Consumo de calorias</h3>
+        <div class="sn-progress">
+          <i id="sn-calorie-progress"></i>
+        </div>
+        <p class="sn-muted" id="sn-calorie-status" style="margin-top:9px">
+          Configure suas metas para acompanhar seu consumo.
+        </p>
+      </div>
+
+      <div class="sn-card">
+        <h3>Evolução do peso</h3>
+        <p class="sn-muted" id="sn-weight-summary">
+          Registre seu peso semanalmente para visualizar sua evolução.
+        </p>
+        <canvas id="sn-weight-chart" class="sn-chart"></canvas>
+      </div>
+
+      <div class="sn-card">
+        <h3>Consumo nutricional de hoje</h3>
+        <canvas id="sn-macro-chart" class="sn-chart"></canvas>
+      </div>
+
+      <div class="sn-card">
+        <h3>SEXTА-FEIRA • Análise nutricional</h3>
+        <p class="sn-muted">
+          A análise considera suas metas e os alimentos registrados.
+        </p>
+        <div id="sn-daily-analysis" class="sn-label-result">
+          Registre suas refeições e configure seu perfil para receber
+          uma análise personalizada.
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="sn-panel" id="sn-profile">
+      <div class="sn-card">
+        <h3>Meu perfil nutricional</h3>
+        <p class="sn-muted">
+          Essas informações ajudam a estimar suas necessidades nutricionais.
+        </p>
+
+        <div class="sn-grid2">
+          <div class="sn-field">
+            <label>IDADE</label>
+            <input id="sn-age" type="number" min="18" max="100" placeholder="Ex.: 25">
+          </div>
+          <div class="sn-field">
+            <label>ALTURA (CM)</label>
+            <input id="sn-height" type="number" min="100" max="230" placeholder="Ex.: 175">
+          </div>
+          <div class="sn-field">
+            <label>PESO ATUAL (KG)</label>
+            <input id="sn-current-weight" type="number" min="30" max="300" step="0.1" placeholder="Ex.: 75">
+          </div>
+          <div class="sn-field">
+            <label>SEXO PARA CÁLCULO METABÓLICO</label>
+            <select id="sn-sex">
+              <option value="">Selecione</option>
+              <option value="male">Masculino</option>
+              <option value="female">Feminino</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sn-field">
+          <label>NÍVEL DE ATIVIDADE FÍSICA</label>
+          <select id="sn-activity">
+            <option value="1.2">Sedentário ou pouca atividade</option>
+            <option value="1.375">Atividade leve (1 a 3 dias)</option>
+            <option value="1.55">Atividade moderada (3 a 5 dias)</option>
+            <option value="1.725">Atividade intensa (6 a 7 dias)</option>
+            <option value="1.9">Atividade muito intensa</option>
+          </select>
+        </div>
+
+        <div class="sn-field">
+          <label>OBJETIVO NUTRICIONAL</label>
+          <select id="sn-goal">
+            <option value="emagrecimento">Emagrecimento</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="ganho">Ganho de massa / peso</option>
+          </select>
+        </div>
+
+        <div class="sn-field">
+          <label>PESO DESEJADO (KG)</label>
+          <input id="sn-goal-weight" type="number" min="30" max="300" step="0.1" placeholder="Opcional">
+        </div>
+
+        <div class="sn-field">
+          <label>RESTRIÇÕES OU PREFERÊNCIAS ALIMENTARES</label>
+          <textarea id="sn-restrictions" rows="3" placeholder="Ex.: não consumo leite, tenho alergia a amendoim, prefiro refeições econômicas..."></textarea>
+        </div>
+
+        <button class="sn-btn" id="sn-save-profile">
+          SALVAR PERFIL E CALCULAR METAS
+        </button>
+
+        <div id="sn-profile-result"></div>
+      </div>
+
+      <div class="sn-card">
+        <h3>Metas nutricionais</h3>
+        <p class="sn-muted">
+          Você poderá utilizar metas estimadas ou informar metas
+          definidas por um profissional.
+        </p>
+
+        <div class="sn-field">
+          <label>MODO DE DEFINIÇÃO</label>
+          <select id="sn-target-mode">
+            <option value="auto">Calcular automaticamente</option>
+            <option value="manual">Definir manualmente</option>
+          </select>
+        </div>
+
+        <div id="sn-manual-target-fields" style="display:none">
+          <div class="sn-field">
+            <label>CALORIAS (KCAL)</label>
+            <input id="sn-manual-kcal" type="number" min="500" max="10000">
+          </div>
+          <div class="sn-grid3">
+            <div class="sn-field">
+              <label>PROTEÍNA (G)</label>
+              <input id="sn-manual-protein" type="number" min="0">
+            </div>
+            <div class="sn-field">
+              <label>CARBOIDRATO (G)</label>
+              <input id="sn-manual-carbs" type="number" min="0">
+            </div>
+            <div class="sn-field">
+              <label>GORDURA (G)</label>
+              <input id="sn-manual-fat" type="number" min="0">
+            </div>
+          </div>
+          <button class="sn-btn" id="sn-save-manual">
+            SALVAR METAS MANUAIS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESO -->
+    <div class="sn-panel" id="sn-weight">
+      <div class="sn-card">
+        <h3>Registro semanal de peso</h3>
+        <p class="sn-muted">
+          Registre seu peso uma vez por semana, preferencialmente
+          nas mesmas condições e em horário semelhante.
+        </p>
+
+        <div class="sn-field">
+          <label>DATA DA PESAGEM</label>
+          <input type="date" id="sn-weight-date">
+        </div>
+
+        <div class="sn-field">
+          <label>PESO (KG)</label>
+          <input type="number" id="sn-weight-value" min="20" max="400" step="0.1" placeholder="Ex.: 74,5">
+        </div>
+
+        <button class="sn-btn" id="sn-save-weight">
+          REGISTRAR PESO DA SEMANA
+        </button>
+
+        <div id="sn-weight-message"></div>
+      </div>
+
+      <div class="sn-grid2">
+        <div class="sn-stat">
+          <span>ÚLTIMO PESO</span>
+          <strong id="sn-last-weight">--</strong>
+          <span>kg</span>
+        </div>
+        <div class="sn-stat">
+          <span>VARIAÇÃO SEMANAL</span>
+          <strong id="sn-weight-change">--</strong>
+          <span>kg</span>
+        </div>
+      </div>
+
+      <div class="sn-card" style="margin-top:12px">
+        <h3>Histórico de peso</h3>
+        <canvas id="sn-weight-history-chart" class="sn-chart"></canvas>
+        <div id="sn-weight-history"></div>
+      </div>
+    </div>
+
+    <!-- CALENDÁRIO -->
+    <div class="sn-panel" id="sn-calendar">
+      <div class="sn-card">
+        <h3>Calendário nutricional</h3>
+        <p class="sn-muted">
+          Consulte os alimentos registrados em cada dia.
+        </p>
+        <div class="sn-field">
+          <label>ESCOLHA UMA DATA</label>
+          <input type="date" id="sn-calendar-date">
+        </div>
+        <div id="sn-calendar-result"></div>
+      </div>
+    </div>
+
+    <!-- ALIMENTOS -->
+    <div class="sn-panel" id="sn-foods">
+      <div class="sn-card">
+        <h3>Biblioteca de alimentos</h3>
+        <p class="sn-muted">
+          Consulte valores nutricionais aproximados por porção.
+          Os valores podem variar conforme preparo e origem.
+        </p>
+        <div class="sn-field">
+          <label>BUSCAR ALIMENTO</label>
+          <input id="sn-food-search" placeholder="Ex.: arroz, frango, banana...">
+        </div>
+        <div id="sn-food-results"></div>
+      </div>
+    </div>
+
+    <!-- SUPLEMENTOS -->
+    <div class="sn-panel" id="sn-supplements">
+      <div class="sn-card">
+        <h3>Avaliação de suplementos</h3>
+        <p class="sn-muted">
+          Informe os números da tabela nutricional. A SEXTA-FEIRA
+          avaliará a composição considerando o tipo de produto e seu objetivo.
+        </p>
+
+        <div class="sn-field">
+          <label>TIPO DE SUPLEMENTO</label>
+          <select id="sn-supp-type">
+            <option value="whey">Whey protein</option>
+            <option value="creatina">Creatina</option>
+            <option value="hipercalorico">Hipercalórico</option>
+            <option value="pretreino">Pré-treino</option>
+            <option value="outro">Outro suplemento</option>
+          </select>
+        </div>
+
+        <div class="sn-grid2">
+          <div class="sn-field">
+            <label>PORÇÃO (G)</label>
+            <input id="sn-supp-serving" type="number" min="1" placeholder="30">
+          </div>
+          <div class="sn-field">
+            <label>CALORIAS</label>
+            <input id="sn-supp-kcal" type="number" min="0">
+          </div>
+          <div class="sn-field">
+            <label>PROTEÍNAS (G)</label>
+            <input id="sn-supp-protein" type="number" min="0">
+          </div>
+          <div class="sn-field">
+            <label>CARBOIDRATOS (G)</label>
+            <input id="sn-supp-carbs" type="number" min="0">
+          </div>
+          <div class="sn-field">
+            <label>AÇÚCARES (G)</label>
+            <input id="sn-supp-sugar" type="number" min="0">
+          </div>
+          <div class="sn-field">
+            <label>GORDURAS (G)</label>
+            <input id="sn-supp-fat" type="number" min="0">
+          </div>
+        </div>
+
+        <div class="sn-field">
+          <label>INGREDIENTES / OUTRAS INFORMAÇÕES</label>
+          <textarea id="sn-supp-ingredients" rows="3" placeholder="Copie os ingredientes e outras informações do rótulo."></textarea>
+        </div>
+
+        <button class="sn-btn" id="sn-analyze-supplement">
+          ANALISAR COMPOSIÇÃO
+        </button>
+
+        <div id="sn-supp-result"></div>
+      </div>
+    </div>
+
+    <p class="sn-foot">
+      O SAGA fornece informações educativas e estimativas nutricionais.
+      Não substitui avaliação individual de nutricionista ou médico.
+    </p>
+  `;
+
+  const foodPage = document.getElementById('foodPage');
+  if (foodPage && foodPage.parentNode) {
+    foodPage.parentNode.insertBefore(root, foodPage.nextSibling);
+  } else {
+    document.querySelector('.container')?.appendChild(root);
+  }
+
+  /* ADICIONAR ACESSO AO MÓDULO NO MENU */
+  const menu = document.getElementById('menuDropdown');
+  if (menu && !document.getElementById('sn-menu-entry')) {
+    const item = document.createElement('button');
+    item.id = 'sn-menu-entry';
+    item.className = 'menu-item';
+    item.textContent = '◉ SAGA NUTRITION';
+    item.addEventListener('click', () => showNutritionPage());
+    menu.appendChild(item);
+  }
+
+  /* NAVEGAÇÃO DAS ABAS */
+  function switchTab(tab) {
+    root.querySelectorAll('.sn-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    root.querySelectorAll('.sn-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === 'sn-' + tab);
+    });
+
+    if (tab === 'dashboard') renderDashboard();
+    if (tab === 'weight') renderWeight();
+    if (tab === 'calendar') renderNutritionCalendar();
+    if (tab === 'foods') renderFoodLibrary();
+  }
+
+  root.querySelectorAll('.sn-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  function showNutritionPage() {
+    if (typeof closeMenu === 'function') closeMenu();
+    document.getElementById('trainingPage')?.classList.add('hidden');
+    document.getElementById('foodPage')?.classList.add('hidden');
+    root.style.display = 'block';
+    switchTab('dashboard');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  window.showNutritionPage = showNutritionPage;
+
+  /* INTERCEPTAR NAVEGAÇÃO EXISTENTE SEM APAGAR A FUNÇÃO ORIGINAL */
+  if (typeof window.showPage === 'function') {
+    const originalShowPage = window.showPage;
+    window.showPage = function(page) {
+      if (page === 'nutrition') {
+        showNutritionPage();
+        return;
+      }
+      root.style.display = 'none';
+      return originalShowPage.apply(this, arguments);
+    };
+  }
+
+  /* DATA PADRÃO */
+  const weightDate = document.getElementById('sn-weight-date');
+  const calendarDate = document.getElementById('sn-calendar-date');
+  if (weightDate) weightDate.value = today();
+  if (calendarDate) calendarDate.value = today();
+
+  /* EVENTOS DE NAVEGAÇÃO E ATUALIZAÇÃO */
+  document.getElementById('sn-calendar-date')
+    ?.addEventListener('change', renderNutritionCalendar);
+
+  document.getElementById('sn-food-search')
+    ?.addEventListener('input', renderFoodLibrary);
+
+  document.getElementById('sn-target-mode')
+    ?.addEventListener('change', e => {
+      document.getElementById('sn-manual-target-fields').style.display =
+        e.target.value === 'manual' ? 'block' : 'none';
+    });
+
+  /* FINAL DA ESTRUTURA VISUAL */
+
+    const out=document.getElementById('sn-label-output');let notes=[];
+    if(!portion){out.innerHTML='<div class="sn-warning">Informe o tamanho da porção para interpretar os números.</div>';return;}
+    if(type==='whey'){
+      const ratio=p/portion*100;
+      notes.push(`A porção fornece ${fmt(p,1)} g de proteína, equivalente a ${fmt(ratio,0)}% do peso da dose.`);
+      notes.push(ratio>=70?'A concentração de proteína é alta para um produto vendido como whey.':ratio>=50?'A concentração é intermediária; compare com a quantidade de proteína que deseja obter por dose.':'A concentração de proteína é baixa para a proposta principal de um whey; boa parte da porção é composta por outros componentes.');
+      if(c>10)notes.push('Carboidratos acima de 10 g por porção: pode ser menos interessante se você procura principalmente proteína com poucos carboidratos.');
+      if(s>5)notes.push('Açúcares acima de 5 g por porção: vale observar a quantidade e a lista de ingredientes, especialmente se isso não combina com sua meta.');
+      if(kcal>180)notes.push('A dose tem energia relativamente alta para um suplemento cujo foco costuma ser proteína; considere isso no total diário.');
+      if(ratio<50||s>5||c>10)notes.push('Conclusão: pode não ser a composição mais alinhada a quem procura um whey concentrado em proteína. Isso não torna o produto automaticamente ruim para todas as pessoas.');
+      else notes.push('Conclusão: composição aparentemente compatível com a finalidade de complementar proteína, dependendo das suas necessidades e do restante da dieta.');
+    } else if(type==='hipercalorico'){
+      notes.push(`A porção entrega ${fmt(kcal)} kcal, ${fmt(c,1)} g de carboidratos e ${fmt(p,1)} g de proteína.`);
+      if(kcal<200)notes.push('A porção tem pouca energia para um produto chamado hipercalórico; confira se a dose indicada na embalagem é maior.');
+      if(s>15)notes.push('Açúcares acima de 15 g por porção: quantidade elevada; avalie frequência, porção e qualidade geral da alimentação.');
+      if(p<10)notes.push('A proteína é relativamente baixa em relação à energia fornecida. O produto pode funcionar principalmente como fonte de calorias, não como principal fonte proteica.');
+      if(c>40)notes.push('A dose é rica em carboidratos. Isso pode ser esperado em hipercalóricos, mas deve caber na meta energética e na tolerância da pessoa.');
+      notes.push('Hipercalórico não garante ganho muscular: o excedente energético pode aumentar gordura corporal se for maior do que o necessário.');
+    } else if(type==='creatina'){
+      notes.push(`A porção declarada é de ${fmt(portion,1)} g e fornece ${fmt(p,1)} g de proteína, ${fmt(c,1)} g de carboidratos e ${fmt(kcal)} kcal.`);
+      if(ingredients.includes('creatina monohidratada'))notes.push('A lista informa creatina monohidratada, forma mais estudada e geralmente utilizada como referência.');
+      else notes.push('Confira se a lista de ingredientes informa claramente qual forma de creatina está presente e quantos gramas de creatina efetiva há por porção.');
+      if(portion>=3&&portion<=5)notes.push('Se a porção corresponder a 3–5 g de creatina efetiva, está dentro de uma faixa diária comum para adultos saudáveis. Confirme a quantidade de creatina, não apenas o peso total do scoop.');
+      else notes.push('O tamanho da porção, sozinho, não confirma a dose de creatina. Verifique quantos gramas de creatina efetiva ela fornece.');
+      if(s>0||c>2||f>2)notes.push('A presença de carboidratos, açúcares ou gorduras pode indicar saborizantes ou outros ingredientes; avalie a lista completa e a quantidade de creatina efetiva.');
+    } else {
+      notes.push(`Por porção: ${fmt(kcal)} kcal, ${fmt(p,1)} g de proteína, ${fmt(c,1)} g de carboidratos, ${fmt(s,1)} g de açúcares e ${fmt(f,1)} g de gorduras.`);
+      notes.push('Para avaliar este tipo de suplemento, é necessário saber a finalidade, a dose dos ingredientes ativos e a composição completa.');
+    }
+    if(ingredients.includes('lactose'))notes.push('A lista menciona lactose. Isso pode importar para pessoas com intolerância, conforme a quantidade e a sensibilidade individual.');
+    if(ingredients.includes('leite')||ingredients.includes('whey'))notes.push('A lista menciona derivados do leite: atenção para alergia à proteína do leite. Intolerância à lactose e alergia são situações diferentes.');
+    out.innerHTML='<div class="sn-label-result"><div class="sn-rating">ANÁLISE DO RÓTULO</div>'+notes.map(n=>'<p style="margin-top:7px">• '+esc(n)+'</p>').join('')+'</div>';
+  }
+
+  function generatePlan() {
+    const goal=document.getElementById('sn-plan-goal').value;
+    const intro=goal==='emagrecimento'?'A prioridade é uma alimentação saciante e equilibrada, com porções ajustadas ao gasto energético — sem cortar grupos alimentares.':goal==='ganho'?'A prioridade é facilitar o consumo de energia e proteína suficientes, distribuídos ao longo do dia.':'A prioridade é manter variedade e porções compatíveis com suas necessidades.';
+    const meals=[
+      ['Café da manhã','Opção 1: ovos mexidos + pão integral + fruta.','Opção 2: iogurte natural + aveia + banana.'],
+      ['Almoço','Opção 1: arroz + feijão + frango + salada.','Opção 2: batata ou mandioca + carne magra + legumes.'],
+      ['Lanche','Opção 1: fruta + iogurte natural.','Opção 2: pão com ovo ou queijo branco.'],
+      ['Jantar','Opção 1: arroz + feijão + peixe ou frango + legumes.','Opção 2: omelete com legumes + batata cozida.']
+    ];
+    const extra=goal==='ganho'?'<p>Para aumentar a energia, podem ser incluídas porções adicionais de arroz, aveia, azeite, leite ou outras opções que a pessoa tolere e tenha disponíveis.</p>':goal==='emagrecimento'?'<p>Para ajustar a saciedade, dê espaço a verduras, legumes, frutas, feijão e fontes de proteína. Não é necessário eliminar arroz ou carboidratos.</p>':'<p>Varie as fontes de proteína, carboidratos, gorduras, frutas e vegetais ao longo da semana.</p>';
+    document.getElementById('sn-plan-output').innerHTML='<div class="sn-ok" style="margin-top:12px">'+intro+'</div>'+meals.map(m=>`<div class="sn-meal"><h4>${m[0]}</h4><p>${m[1]}<br>${m[2]}</p></div>`).join('')+'<div class="sn-foot">'+extra+'<br>As opções são exemplos gerais, sem quantidades individualizadas. Ajuste porções com base nas metas calculadas e, se necessário, com nutricionista.</div>';
+  }
+
+  document.getElementById('sn-save-profile').addEventListener('click',()=>{
+    const p={age:parseNum(document.getElementById('sn-age').value),sex:document.getElementById('sn-sex').value,height:parseNum(document.getElementById('sn-height').value),weight:parseNum(document.getElementById('sn-weight').value),activity:parseNum(document.getElementById('sn-activity').value),budget:parseNum(document.getElementById('sn-budget').value)};
+    if(p.age<18){document.getElementById('sn-profile-message').textContent='Este cálculo automático é destinado somente a adultos. Para menores de 18 anos, procure acompanhamento de nutricionista ou médico.';return;}
+    if(!p.sex||!p.height||!p.weight){document.getElementById('sn-profile-message').textContent='Informe idade, sexo para a equação, altura e peso. Se preferir não informar sexo, use metas manuais.';return;}
+    state.profile=p;state.goal=document.getElementById('sn-goal').value;state.targets=null;if(!state.weights.length)state.weights.push({date:today(),value:p.weight});save();renderAll();document.getElementById('sn-profile-message').textContent='Perfil salvo. As metas exibidas são estimativas iniciais e devem ser ajustadas conforme evolução, rotina e orientação profissional.';
+  });
+  document.getElementById('sn-save-manual').addEventListener('click',()=>{
+    const t={manual:true,kcal:parseNum(document.getElementById('sn-manual-kcal').value),protein:parseNum(document.getElementById('sn-manual-p').value),carbs:parseNum(document.getElementById('sn-manual-c').value),fat:parseNum(document.getElementById('sn-manual-f').value)};
+    if(!t.kcal||!t.protein){alert('Informe pelo menos as calorias e a proteína das metas recebidas.');return;}
+    state.targets=t;save();renderAll();alert('Metas manuais salvas.');
+  });
+  document.getElementById('sn-clear-manual').addEventListener('click',()=>{state.targets=null;save();renderAll();});
+  document.getElementById('sn-add-weight').addEventListener('click',()=>{
+    const date=document.getElementById('sn-weight-date').value||today(),value=parseNum(document.getElementById('sn-weight-value').value);
+    if(!value||value<20||value>400){document.getElementById('sn-weight-message').textContent='Informe um peso válido em kg.';return;}
+    const existing=state.weights.findIndex(x=>x.date===date);if(existing>=0)state.weights[existing].value=value;else state.weights.push({date,value});
+    state.weights.sort((a,b)=>a.date.localeCompare(b.date));save();document.getElementById('sn-weight-message').textContent='Peso registrado. Para acompanhar tendência, tente manter um check-in semanal em condições semelhantes.';document.getElementById('sn-weight-value').value='';drawWeightChart();
+  });
+  document.getElementById('sn-food-search').addEventListener('input',renderFoods);
+  document.getElementById('sn-analyze-label').addEventListener('click',analyzeLabel);
+  document.getElementById('sn-generate-plan').addEventListener('click',generatePlan);
+  document.getElementById('sn-open-chat').addEventListener('click',()=>{const launcher=document.getElementById('jarvis-launcher');if(launcher)launcher.click();});
+
+  function renderAll(){renderProfile();renderOverview();drawWeightChart();renderFoods();}
+  document.getElementById('sn-weight-date').value=today();
+  renderAll();
+
+  // Biblioteca local de explicações: respostas determinísticas e transparentes.
+  function nutritionAnswer(raw) {
+    const t=norm(raw);
+    if(/(resumo|quanto comi|o que comi|minha alimentacao hoje|calorias de hoje|macros de hoje)/.test(t)){
+      const total=getFoodTotals(today());return `No diário de hoje há ${fmt(total.calories)} kcal, ${fmt(total.protein,1)} g de proteína, ${fmt(total.carbs,1)} g de carboidratos e ${fmt(total.fat,1)} g de gorduras registrados. Isso considera apenas os alimentos cadastrados no SAGA.`;
+    }
+    if(/(whey|proteina do soro)/.test(t)){
+      if(/emagrec|perder gordura/.test(t))return 'Whey não emagrece por si só. É uma fonte prática de proteína e pode ajudar a atingir a meta proteica sem acrescentar uma refeição grande. O que determina a perda de peso é o balanço energético ao longo do tempo. Se a alimentação já fornece proteína suficiente, talvez não haja necessidade de comprar whey.';
+      if(/quanto|dose|tomar|gramas/.test(t))return 'A dose deve ser definida pela quantidade de proteína que falta na alimentação, não por uma regra fixa. Confira quantos gramas de proteína há na porção do rótulo. Uma porção comum pode fornecer cerca de 20–25 g, mas produtos variam. Whey é opcional; alimentos também fornecem proteína.';
+      return 'Whey é uma proteína derivada do leite. Concentrado, isolado e hidrolisado diferem no processamento e na composição. Pode ser útil por praticidade para complementar proteína, mas não é obrigatório para ganhar músculos ou emagrecer. Atenção à alergia à proteína do leite e à lactose, conforme o produto.';
+    }
+    if(/creatina/.test(t)){
+      return 'A creatina monohidratada é a forma mais estudada. Para adultos saudáveis, uma faixa diária comum é 3–5 g, tomada regularmente; não é necessário fazer ciclos. Pode aumentar um pouco o peso no início por maior água dentro do músculo, o que não significa ganho equivalente de gordura. Quem tem doença renal, está grávida, usa medicamentos relevantes ou tem condição clínica deve conversar com profissional de saúde antes de usar.';
+    }
+    if(/hipercalorico|hiper calorico/.test(t)){
+      return 'Hipercalórico é um produto com muitas calorias, geralmente com carboidratos e alguma proteína. Pode ajudar quem tem dificuldade para consumir energia suficiente, mas não é obrigatório: uma vitamina caseira com leite ou bebida adequada, aveia, banana e pasta de amendoim pode cumprir função semelhante. Se o excedente calórico for grande, pode aumentar gordura corporal; excesso de açúcar e grandes porções também podem causar desconforto gastrointestinal.';
+    }
+    if(/carboidrato/.test(t))return 'Carboidratos são uma fonte importante de energia. Arroz, feijão, frutas, aveia, batata e pães fornecem carboidratos em quantidades diferentes. Eles não causam ganho de gordura automaticamente: o contexto é o consumo total de energia, a qualidade da alimentação e as necessidades da pessoa.';
+    if(/proteina/.test(t))return 'Proteínas são nutrientes usados na construção e manutenção de tecidos, incluindo músculos. Estão em carnes, ovos, leite, iogurte, feijão, lentilha, soja e outros alimentos. A necessidade varia com idade, saúde, atividade e objetivo; não existe uma dose única para todos.';
+    if(/gordura|lipidio/.test(t))return 'Gorduras participam da produção hormonal, absorção de vitaminas A, D, E e K e fornecimento de energia. Azeite, castanhas, sementes, abacate e peixes são exemplos de fontes. O tipo e a quantidade importam; não é necessário eliminar gorduras para emagrecer.';
+    if(/arroz/.test(t))return 'Arroz é uma fonte de carboidratos e pode fazer parte tanto de uma alimentação para emagrecimento quanto para ganho de massa. A porção e o conjunto da refeição importam. Combiná-lo com feijão, uma fonte de proteína e vegetais costuma formar uma refeição variada.';
+    if(/frango/.test(t))return 'Peito de frango sem pele é uma fonte de proteína e costuma ter pouca gordura, dependendo do preparo. Como referência aproximada, 100 g grelhados podem fornecer cerca de 30–32 g de proteína. O valor muda conforme corte, peso cru/cozido e preparo.';
+    if(/emagrec/.test(t))return 'Emagrecimento geralmente envolve um déficit energético sustentável, preservando qualidade alimentar, proteína adequada, fibras, sono e atividade física. Não é necessário cortar arroz, pão ou carboidratos. Evite dietas muito restritivas; metas devem considerar peso, altura, idade, saúde e rotina.';
+    if(/ganhar peso|ganho de massa|hipertrofia/.test(t))return 'Para ganhar massa muscular, normalmente é importante combinar treino resistido progressivo, recuperação e energia suficiente, com proteína distribuída ao longo do dia. Um superávit pequeno pode ajudar, mas a quantidade depende da pessoa e deve ser ajustada pela evolução do peso e desempenho.';
+    if(/creatina.*whey|whey.*creatina/.test(t))return 'Whey e creatina têm funções diferentes e podem ser usados juntos por adultos saudáveis quando fazem sentido: whey complementa proteína; creatina auxilia desempenho em esforços intensos repetidos. Nenhum dos dois é obrigatório. Avalie necessidades, rótulos, custo e condições de saúde.';
+    return null;
+  }
+  const previousExecute = window.jarvisExecute;
+  window.jarvisExecute = function(message,...args) {
+    try { const answer=nutritionAnswer(message); if(answer) return answer; }
+    catch(e){ console.warn('SAGA Nutrition:',e); }
+    return typeof previousExecute==='function' ? previousExecute.call(this,message,...args) : 'Ainda não tenho uma resposta local para isso.';
+  };
+
+  window.SAGA_NUTRITION_SYSTEM = {
+    version:'1.0.0', storageKey:STORE,
+    getProfile:()=>JSON.parse(JSON.stringify(state.profile)),
+    getWeights:()=>JSON.parse(JSON.stringify(state.weights)),
+    getTargets:()=>{const t=effectiveTargets();return t?JSON.parse(JSON.stringify(t)):null;},
+    getFoodTotals, nutritionAnswer, foods:()=>JSON.parse(JSON.stringify(foods))
+  };
+  console.log('SAGA NUTRITION SYSTEM carregado. Diário sagaFood integrado em modo de leitura.');
+})();
+ /* FIM SAGA NUTRITION SYSTEM — APPEND-ONLY */
+
 
 </body>
 </html>
