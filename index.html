@@ -2824,7 +2824,7 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
     function getAllPlans() {
         try {
             return typeof data !== "undefined" && Array.isArray(data)
-                ? data.filter(p => p && p.id && p.name)
+                ? data.filter(p => p && p.id !== undefined && p.id !== null)
                 : [];
         } catch (e) {
             return [];
@@ -2832,31 +2832,27 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
     }
 
     /*
-      O SAGA original mantém cinco fichas padrão.
-      Para reconhecer divisões ABC, ABCD ou ABCDE,
-      fichas padrão vazias e sem renomeação ficam fora
-      quando houver fichas personalizadas ou preenchidas.
+      BUSCA TODAS AS FICHAS DIRETAMENTE DAS CAIXAS ORIGINAIS.
+      Não filtra fichas vazias.
+      Os nomes são atualizados conforme o usuário edita as caixas.
+      A ordem das fichas é a mesma ordem de data.
     */
     function getPlans() {
-        const all = getAllPlans();
+        try {
+            if (typeof data === "undefined" || !Array.isArray(data)) {
+                return [];
+            }
 
-        const defaults = {
-            upper: "UPPER",
-            lower: "LOWER",
-            push: "PUSH",
-            pull: "PULL",
-            legs: "LEGS"
-        };
-
-        const active = all.filter(p => {
-            const exercises = Array.isArray(p.exercises) ? p.exercises : [];
-            const isCustom = !defaults[p.id] ||
-                normalize(p.name) !== normalize(defaults[p.id]);
-
-            return exercises.length > 0 || isCustom;
-        });
-
-        return active.length ? active : all;
+            return data
+                .filter(p => p && p.id !== undefined && p.id !== null)
+                .map(p => ({
+                    id: String(p.id),
+                    name: String(p.name || "SEM NOME").trim() || "SEM NOME"
+                }));
+        } catch (e) {
+            console.error("SAGA: erro ao carregar as fichas.", e);
+            return [];
+        }
     }
 
     function planSnapshot() {
