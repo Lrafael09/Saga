@@ -125,7 +125,7 @@ h2{font-size:27px;margin-bottom:8px}
  position:fixed;right:20px;bottom:22px;width:62px;height:62px;
  border-radius:50%;border:2px solid #a8f05a;background:#101810;
  color:#a8f05a;font-size:22px;font-weight:bold;z-index:200;
- box-shadow:0 0 22px #a8f05555, inset 0 0 15px #a8f02233;
+ box-shadow:0 0 22px #a8f05555,inset 0 0 15px #a8f02233;
  display:flex;align-items:center;justify-content:center;
 }
 #jarvis-launcher:after{
@@ -147,6 +147,7 @@ h2{font-size:27px;margin-bottom:8px}
 .jarvis-orb{width:34px;height:34px;border:1px solid #a8f05a;border-radius:50%;display:grid;place-items:center;color:#a8f05a;font-weight:bold;box-shadow:0 0 12px #a8f05555}
 .jarvis-title{font-size:13px;font-weight:bold;letter-spacing:2px;color:#a8f05a}
 .jarvis-status{font-size:9px;color:#79936e;margin-top:4px}
+.jarvis-header-actions{display:flex;align-items:center;gap:8px}
 .jarvis-close{background:transparent;color:#aaa;border:0;font-size:22px;padding:3px 7px}
 #jarvis-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .jarvis-message{max-width:88%;padding:11px 12px;border-radius:11px;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -159,6 +160,17 @@ h2{font-size:27px;margin-bottom:8px}
 .jarvis-input-row{display:flex;gap:8px}
 #jarvis-input{flex:1;min-width:0;background:#1b2419;border:1px solid #405b34;border-radius:8px;padding:12px;color:#fff;outline:none;font-size:12px}
 #jarvis-send{background:#a8f05a;color:#101510;border:0;border-radius:8px;padding:0 15px;font-size:18px}
+#jarvis-mic,#jarvis-voice-toggle{
+ background:#182218;color:#a8f05a;border:1px solid #405b34;
+ border-radius:8px;min-width:43px;height:43px;font-size:17px;flex-shrink:0;
+}
+#jarvis-mic.listening{
+ background:#a8f05a;color:#080808;
+ box-shadow:0 0 18px #a8f05599;
+ animation:jarvisListening 1s infinite alternate;
+}
+#jarvis-voice-toggle.voice-off{color:#777;border-color:#444}
+@keyframes jarvisListening{from{transform:scale(1)}to{transform:scale(1.08)}}
 .jarvis-disclaimer{text-align:center;color:#65735e;font-size:9px;margin-top:8px}
 @media(max-width:360px){.timer-display{font-size:35px}.timer-btn{padding:10px 12px}.day-number{width:27px;height:27px}}
 </style>
@@ -260,15 +272,21 @@ h2{font-size:27px;margin-bottom:8px}
   <div id="pinError" class="pin-error"></div>
  </div>
 </div>
-<!-- JARVIS: INTERFACE INTEGRADA -->
+<!-- JARVIS -->
 <button id="jarvis-launcher" onclick="toggleJarvis()" aria-label="Abrir JARVIS">J</button>
 <section id="jarvis-window" class="hidden">
  <div class="jarvis-header">
   <div class="jarvis-brand">
    <div class="jarvis-orb">J</div>
-   <div><div class="jarvis-title">J.A.R.V.I.S.</div><div class="jarvis-status">ASSISTENTE SAGA • LOCAL</div></div>
+   <div>
+    <div class="jarvis-title">J.A.R.V.I.S.</div>
+    <div class="jarvis-status">ASSISTENTE SAGA • LOCAL</div>
+   </div>
   </div>
-  <button class="jarvis-close" onclick="toggleJarvis()">×</button>
+  <div class="jarvis-header-actions">
+   <button id="jarvis-voice-toggle" onclick="toggleJarvisVoice()" title="Ativar ou desativar voz">🔊</button>
+   <button class="jarvis-close" onclick="toggleJarvis()">×</button>
+  </div>
  </div>
  <div id="jarvis-messages"></div>
  <div class="jarvis-suggestions">
@@ -278,6 +296,7 @@ h2{font-size:27px;margin-bottom:8px}
  </div>
  <div class="jarvis-input-area">
   <div class="jarvis-input-row">
+   <button id="jarvis-mic" onclick="toggleJarvisListening()" title="Falar com JARVIS">🎙</button>
    <input id="jarvis-input" placeholder="Fale com o JARVIS..." autocomplete="off">
    <button id="jarvis-send" onclick="sendJarvisMessage()">➤</button>
   </div>
@@ -594,19 +613,23 @@ function toggleJarvis(){
  if(!win.classList.contains("hidden")){
   if(!jarvisStarted){
    jarvisStarted=true;
-   jarvisReply("Olá. Sou o JARVIS, assistente do SAGA.\n\nPosso consultar suas fichas, adicionar exercícios, renomear treinos e registrar alimentos.\n\nDigite \"ajuda\" para ver os comandos disponíveis.");
+   jarvisReply("Olá, senhor. Sou o JARVIS, assistente do SAGA.\n\nPosso consultar suas fichas, adicionar exercícios, renomear treinos e registrar alimentos.\n\nDigite ou diga ajuda para conhecer meus comandos.");
   }
   setTimeout(()=>document.getElementById("jarvis-input").focus(),100);
  }
 }
-function jarvisQuick(text){document.getElementById("jarvis-input").value=text;sendJarvisMessage()}
+function jarvisQuick(text){
+ document.getElementById("jarvis-input").value=text;
+ sendJarvisMessage();
+}
 function jarvisMessage(text,type){
  const area=document.getElementById("jarvis-messages");
  const bubble=document.createElement("div");
  bubble.className="jarvis-message "+(type==="user"?"jarvis-user":"jarvis-bot");
- bubble.textContent=text;area.append(bubble);area.scrollTop=area.scrollHeight;
+ bubble.textContent=text;
+ area.append(bubble);
+ area.scrollTop=area.scrollHeight;
 }
-function jarvisReply(text){jarvisMessage(text,"bot")}
 function normalizeText(text){
  return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 }
@@ -618,7 +641,7 @@ function listWorkouts(){
  return data.map(w=>w.name+": "+w.exercises.length+" exercício(s)").join("\n");
 }
 function jarvisHelp(){
- return "POSSO AJUDAR COM:\n\n• \"Mostre minhas fichas\"\n• \"Resuma meu treino\"\n• \"Adicione supino reto na ficha PUSH\"\n• \"Renomeie a ficha PUSH para PEITO\"\n• \"Renomeie o exercício supino para supino máquina na ficha PUSH\"\n• \"Adicione arroz no almoço\"\n• \"Mostre minha alimentação\"\n\nOs comandos são executados neste navegador e os dados ficam salvos localmente.";
+ return "À SUA DISPOSIÇÃO, SENHOR.\n\nPOSSO AJUDAR COM:\n\n• Mostre minhas fichas\n• Resuma meu treino\n• Adicione supino reto na ficha PUSH\n• Renomeie a ficha PUSH para PEITO\n• Renomeie o exercício supino para supino máquina na ficha PUSH\n• Adicione arroz no almoço\n• Mostre minha alimentação\n\nMeus comandos são executados neste navegador. Seus dados permanecem salvos localmente.";
 }
 function jarvisFoodSummary(){
  const date=getFoodDate()||dateKey(new Date());
@@ -631,10 +654,11 @@ function jarvisFoodSummary(){
  return "ALIMENTAÇÃO DE "+date+"\n"+lines.join("\n");
 }
 function jarvisExecute(raw){
+ raw=raw.replace(/^\s*(jarvis|j\.a\.r\.v\.i\.s)[,:\s-]*/i,"");
  const text=normalizeText(raw);
- if(!text)return "Não entendi. Digite \"ajuda\" para ver os comandos.";
+ if(!text)return "Não entendi, senhor. Poderia repetir?";
  if(/^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala)\b/.test(text))
-  return "Olá! Estou pronto para ajudar com seu SAGA. O que vamos ajustar hoje?";
+  return "Olá, senhor. Estou à sua disposição. O que vamos ajustar hoje?";
  if(text.includes("ajuda")||text.includes("comandos")||text.includes("o que voce consegue"))
   return jarvisHelp();
  if(text.includes("ficha")&&(text.includes("mostr")||text.includes("list")||text.includes("quais")))
@@ -646,39 +670,45 @@ function jarvisExecute(raw){
  if(text.includes("alimentacao")&&(text.includes("mostr")||text.includes("resum")||text.includes("ver"))){
   return jarvisFoodSummary();
  }
- /* Renomear ficha: "renomeie a ficha PUSH para PEITO" */
+ /* RENOMEAR FICHA */
  let match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:a\s+)?ficha\s+(.+?)\s+para\s+(.+)/i);
  if(match){
   const workout=findWorkout(match[1]);
   if(!workout)return "Não encontrei a ficha \""+match[1]+"\". Suas fichas são:\n"+listWorkouts();
-  const old=workout.name;workout.name=match[2].trim().toUpperCase();persist();render();
+  const old=workout.name;
+  workout.name=match[2].trim().toUpperCase();
+  persist();
+  render();
   if(selected===workout.id)document.getElementById("detailTitle").textContent=workout.name;
-  return "Pronto. Renomeei a ficha "+old+" para "+workout.name+".";
+  return "Perfeitamente, senhor. Renomeei a ficha "+old+" para "+workout.name+".";
  }
- /* Adicionar exercício: "adicione supino reto na ficha PUSH" */
+ /* ADICIONAR EXERCÍCIO */
  match=raw.match(/(?:adicione|adicionar|inclua|incluir)\s+(.+?)\s+(?:na|no|em)\s+(?:ficha\s+)?(.+)/i);
  if(match){
   const exerciseName=match[1].trim();
   const workout=findWorkout(match[2].trim().replace(/[.!?]+$/,""));
   if(workout){
    workout.exercises.push({name:exerciseName,series:"",reps:"",weight:"",image:""});
-   persist();render();
+   persist();
+   render();
    if(selected===workout.id)renderExercises();
-   return "Exercício adicionado!\n\n"+exerciseName+" foi incluído na ficha "+workout.name+".";
+   return "Exercício adicionado, senhor.\n\n"+exerciseName+" foi incluído na ficha "+workout.name+".";
   }
  }
- /* Renomear exercício */
+ /* RENOMEAR EXERCÍCIO */
  match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:o\s+)?exercicio\s+(.+?)\s+para\s+(.+?)\s+(?:na|no)\s+(?:ficha\s+)?(.+)/i);
  if(match){
   const workout=findWorkout(match[3].trim());
   if(!workout)return "Não encontrei essa ficha. Confira o nome e tente novamente.";
   const exercise=workout.exercises.find(e=>normalizeText(e.name)===normalizeText(match[1]));
   if(!exercise)return "Não encontrei o exercício \""+match[1]+"\" na ficha "+workout.name+".";
-  const old=exercise.name;exercise.name=match[2].trim();persist();
+  const old=exercise.name;
+  exercise.name=match[2].trim();
+  persist();
   if(selected===workout.id)renderExercises();
-  return "Exercício renomeado de "+old+" para "+exercise.name+".";
+  return "Concluído. O exercício "+old+" agora se chama "+exercise.name+".";
  }
- /* Adicionar alimento */
+ /* ADICIONAR ALIMENTO */
  match=raw.match(/(?:adicione|adicionar|registre|registrar)\s+(.+?)\s+(?:no|na)\s+(cafe da manha|almoco|cafe da tarde|jantar|ceia)/i);
  if(match){
   const mealIndex=mealNames.findIndex(n=>normalizeText(n)===normalizeText(match[2]));
@@ -686,26 +716,177 @@ function jarvisExecute(raw){
    const date=getFoodDate()||dateKey(new Date());
    if(!foodData[date])foodData[date]={};
    if(!Array.isArray(foodData[date][mealIndex]))foodData[date][mealIndex]=[];
-   foodData[date][mealIndex].push({name:match[1].trim(),quantity:"",calories:0,protein:0,carbs:0,fat:0});
-   saveFood();renderFood();
-   return "Registrei "+match[1].trim()+" em "+mealNames[mealIndex]+".\n\nAs calorias e os macros ficaram zerados porque você ainda não informou os valores. Você pode editar os dados na área de alimentação.";
+   foodData[date][mealIndex].push({
+    name:match[1].trim(),
+    quantity:"",
+    calories:0,
+    protein:0,
+    carbs:0,
+    fat:0
+   });
+   saveFood();
+   renderFood();
+   return "Registrei "+match[1].trim()+" em "+mealNames[mealIndex]+", senhor.\n\nAs calorias e os macros ficaram zerados porque você ainda não informou os valores.";
   }
  }
- return "Ainda não tenho um comando para fazer isso. Digite \"ajuda\" para consultar o que consigo executar nesta versão.";
+ return "Ainda não tenho um comando para executar isso, senhor. Digite ou diga ajuda para consultar minhas funções.";
 }
+/* ENVIAR MENSAGEM */
 function sendJarvisMessage(){
  const input=document.getElementById("jarvis-input");
- const message=input.value.trim();if(!message)return;
- jarvisMessage(message,"user");input.value="";
+ const message=input.value.trim();
+ if(!message)return;
+ jarvisMessage(message,"user");
+ input.value="";
  const response=jarvisExecute(message);
  setTimeout(()=>jarvisReply(response),180);
 }
 document.getElementById("jarvis-input").addEventListener("keydown",e=>{
  if(e.key==="Enter")sendJarvisMessage();
 });
+/* ==========================================
+   JARVIS - VOZ E RECONHECIMENTO
+========================================== */
+let jarvisVoiceEnabled=true;
+let jarvisVoice=null;
+let jarvisRecognition=null;
+let jarvisListening=false;
+function loadJarvisVoice(){
+ if(!("speechSynthesis" in window))return;
+ const voices=window.speechSynthesis.getVoices();
+ jarvisVoice=
+  voices.find(v=>v.lang.toLowerCase()==="pt-br")||
+  voices.find(v=>v.lang.toLowerCase().startsWith("pt"))||
+  null;
+}
+/* CARREGAR VOZES DISPONÍVEIS */
+if("speechSynthesis" in window){
+ loadJarvisVoice();
+ window.speechSynthesis.onvoiceschanged=loadJarvisVoice;
+}
+/* FAZER O JARVIS FALAR */
+function speakJarvis(text){
+ if(!jarvisVoiceEnabled)return;
+ if(!("speechSynthesis" in window))return;
+ window.speechSynthesis.cancel();
+ const speech=new SpeechSynthesisUtterance(text);
+ speech.lang="pt-BR";
+ speech.rate=0.88;
+ speech.pitch=0.72;
+ speech.volume=1;
+ if(jarvisVoice){
+  speech.voice=jarvisVoice;
+ }
+ window.speechSynthesis.speak(speech);
+}
+/* RESPOSTAS DO JARVIS */
+function jarvisReply(text){
+ jarvisMessage(text,"bot");
+ speakJarvis(text);
+}
+/* ATIVAR OU DESATIVAR VOZ */
+function toggleJarvisVoice(){
+ jarvisVoiceEnabled=!jarvisVoiceEnabled;
+ const button=document.getElementById("jarvis-voice-toggle");
+ if(jarvisVoiceEnabled){
+  button.textContent="🔊";
+  button.classList.remove("voice-off");
+  speakJarvis("Sistema de voz ativado, senhor.");
+ }else{
+  button.textContent="🔇";
+  button.classList.add("voice-off");
+  if("speechSynthesis" in window){
+   window.speechSynthesis.cancel();
+  }
+ }
+}
+/* CONFIGURAR RECONHECIMENTO DE VOZ */
+function setupJarvisVoice(){
+ const SpeechRecognition=
+  window.SpeechRecognition||
+  window.webkitSpeechRecognition;
+ const mic=document.getElementById("jarvis-mic");
+ if(!SpeechRecognition){
+  mic.title="Reconhecimento de voz não disponível neste navegador";
+  return;
+ }
+ jarvisRecognition=new SpeechRecognition();
+ jarvisRecognition.lang="pt-BR";
+ jarvisRecognition.continuous=false;
+ jarvisRecognition.interimResults=true;
+ jarvisRecognition.maxAlternatives=1;
+ jarvisRecognition.onstart=function(){
+  jarvisListening=true;
+  mic.classList.add("listening");
+  mic.textContent="●";
+  document.getElementById("jarvis-input").placeholder="Estou ouvindo, senhor...";
+ };
+ jarvisRecognition.onresult=function(event){
+  let finalText="";
+  let interimText="";
+  for(let i=event.resultIndex;i<event.results.length;i++){
+   const transcript=event.results[i][0].transcript;
+   if(event.results[i].isFinal){
+    finalText+=transcript;
+   }else{
+    interimText+=transcript;
+   }
+  }
+  const input=document.getElementById("jarvis-input");
+  if(finalText.trim()){
+   input.value=finalText.trim();
+   sendJarvisMessage();
+  }else if(interimText){
+   input.value=interimText;
+  }
+ };
+ jarvisRecognition.onerror=function(event){
+  let message="";
+  if(event.error==="not-allowed"){
+   message="Preciso da sua autorização para acessar o microfone, senhor.";
+  }else if(event.error==="no-speech"){
+   message="Não consegui identificar sua fala. Poderia repetir?";
+  }else if(event.error==="network"){
+   message="O reconhecimento de voz apresentou uma falha de conexão.";
+  }else if(event.error!=="aborted"){
+   message="Ocorreu uma falha no sistema de reconhecimento de voz.";
+  }
+  if(message)jarvisReply(message);
+ };
+ jarvisRecognition.onend=function(){
+  jarvisListening=false;
+  mic.classList.remove("listening");
+  mic.textContent="🎙";
+  document.getElementById("jarvis-input").placeholder="Fale com o JARVIS...";
+ };
+}
+/* LIGAR O MICROFONE */
+function toggleJarvisListening(){
+ if(!jarvisRecognition){
+  jarvisReply("Lamento, senhor. Este navegador não oferece suporte ao reconhecimento de voz. A função de resposta falada ainda pode funcionar.");
+  return;
+ }
+ if(jarvisListening){
+  jarvisRecognition.stop();
+  return;
+ }
+ if("speechSynthesis" in window){
+  window.speechSynthesis.cancel();
+ }
+ try{
+  jarvisRecognition.start();
+ }catch(error){
+  jarvisReply("O microfone está ocupado. Aguarde um instante, senhor.");
+ }
+}
 /* INICIALIZAÇÃO */
 document.getElementById("foodDate").value=dateKey(new Date());
-renderCalendar();render();updateTimer();renderFood();updateLockMenu();
+renderCalendar();
+render();
+updateTimer();
+renderFood();
+updateLockMenu();
+setupJarvisVoice();
 if(startedAt)timerInterval=setInterval(updateTimer,250);
 </script>
 </body>
