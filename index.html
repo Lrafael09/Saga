@@ -1912,7 +1912,805 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 })();
 </script>
 <!-- FIM SAGA KNOWLEDGE CORE -->
+<script>
+/* ============================================================
+   SAGA WORKOUT INTELLIGENCE — SEXTA-FEIRA
+   COMPLEMENTO INDEPENDENTE — APPEND ONLY
+============================================================ */
+(function () {
+  'use strict';
 
+  if (window.SAGA_WORKOUT_INTELLIGENCE) return;
+
+  const STORE = 'saga_workout_intelligence_v1';
+
+  const todayKey = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  };
+
+  const safeRead = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(STORE) || '{}');
+      return value && typeof value === 'object' ? value : {};
+    } catch (_) {
+      return {};
+    }
+  };
+
+  let state = safeRead();
+
+  state.profile = state.profile || {};
+  state.sessions = Array.isArray(state.sessions) ? state.sessions : [];
+  state.changes = Array.isArray(state.changes) ? state.changes : [];
+  state.preferences = state.preferences || {};
+
+  const save = () => {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(state));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const norm = value =>
+    String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+
+  const number = value => {
+    if (typeof value === 'number') return value;
+    const match = String(value || '')
+      .replace(',', '.')
+      .match(/-?\d+(?:\.\d+)?/);
+    return match ? Number(match[0]) : 0;
+  };
+
+  const dateObj = key => {
+    const parts = String(key).split('-').map(Number);
+    return new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  };
+
+  const fmtDate = key => dateObj(key).toLocaleDateString('pt-BR');
+
+  const profile = () => state.profile;
+
+  const aliases = {
+    peito: ['peito', 'peitoral', 'supino', 'crucifixo'],
+    costas: ['costas', 'dorsal', 'remada', 'puxada'],
+    ombros: ['ombro', 'ombros', 'deltoide', 'desenvolvimento'],
+    triceps: ['triceps', 'testa', 'pulley'],
+    biceps: ['biceps', 'rosca'],
+    quadriceps: ['quadriceps', 'coxa', 'extensora', 'agachamento', 'leg press'],
+    posterior: ['posterior', 'isquiotibiais', 'flexora', 'stiff'],
+    gluteos: ['gluteo', 'gluteos'],
+    panturrilha: ['panturrilha', 'gemeos'],
+    abdomen: ['abdomen', 'abdominal', 'core']
+  };
+
+  const exerciseMap = [
+    ['supino reto', 'peito', 1, 0.5],
+    ['supino inclinado', 'peito', 1, 0.5],
+    ['crucifixo', 'peito', 1, 0],
+    ['crossover', 'peito', 1, 0],
+    ['puxada alta', 'costas', 1, 0.5],
+    ['barra fixa', 'costas', 1, 0.5],
+    ['remada curvada', 'costas', 1, 0.5],
+    ['remada baixa', 'costas', 1, 0.5],
+    ['desenvolvimento', 'ombros', 1, 0.5],
+    ['elevacao lateral', 'ombros', 1, 0],
+    ['face pull', 'ombros', 1, 0.25],
+    ['triceps pulley', 'triceps', 1, 0],
+    ['triceps testa', 'triceps', 1, 0],
+    ['mergulho', 'triceps', 1, 0.5],
+    ['rosca direta', 'biceps', 1, 0],
+    ['rosca martelo', 'biceps', 1, 0],
+    ['rosca alternada', 'biceps', 1, 0],
+    ['agachamento', 'quadriceps', 1, 0.5],
+    ['leg press', 'quadriceps', 1, 0.5],
+    ['cadeira extensora', 'quadriceps', 1, 0],
+    ['mesa flexora', 'posterior', 1, 0],
+    ['cadeira flexora', 'posterior', 1, 0],
+    ['stiff', 'posterior', 1, 0.5],
+    ['levantamento terra romeno', 'posterior', 1, 0.5],
+    ['hip thrust', 'gluteos', 1, 0],
+    ['elevacao pelvica', 'gluteos', 1, 0],
+    ['panturrilha em pe', 'panturrilha', 1, 0],
+    ['panturrilha sentado', 'panturrilha', 1, 0],
+    ['abdominal', 'abdomen', 1, 0],
+    ['prancha', 'abdomen', 1, 0]
+  ];
+
+  const classify = name => {
+    const normalized = norm(name);
+    const found = exerciseMap.find(item =>
+      normalized.includes(norm(item[0])) ||
+      norm(item[0]).includes(normalized)
+    );
+
+    return found
+      ? {
+          muscle: found[1],
+          direct: found[2],
+          indirect: found[3]
+        }
+      : null;
+  };
+
+  const getPlans = () => {
+    try {
+      return typeof data !== 'undefined' && Array.isArray(data)
+        ? data
+        : [];
+    } catch (_) {
+      return [];
+    }
+  };
+
+  const pushCalendarDay = key => {
+    try {
+      if (
+        typeof trainedDays !== 'undefined' &&
+        Array.isArray(trainedDays) &&
+        typeof toggleDay === 'function' &&
+        !trainedDays.includes(key)
+      ) {
+        toggleDay(key);
+      }
+    } catch (_) {}
+  };
+
+  const listCurrentPlans = () => {
+    const plans = getPlans();
+
+    if (!plans.length) {
+      return 'Não consegui acessar as fichas atuais do SAGA.';
+    }
+
+    return 'Fichas atuais:\n' +
+      plans.map(plan =>
+        '- ' + plan.name + ': ' +
+        (Array.isArray(plan.exercises) ? plan.exercises.length : 0) +
+        ' exercícios'
+      ).join('\n');
+  };
+
+  const splitFor = days => {
+    if (days <= 2) {
+      return ['FULL BODY A', 'FULL BODY B'];
+    }
+
+    if (days === 3) {
+      return ['FULL BODY A', 'FULL BODY B', 'FULL BODY C'];
+    }
+
+    if (days === 4) {
+      return ['UPPER A', 'LOWER A', 'UPPER B', 'LOWER B'];
+    }
+
+    if (days === 5) {
+      return ['PUSH', 'PULL', 'LEGS', 'UPPER', 'LOWER'];
+    }
+
+    return ['PUSH', 'PULL', 'LEGS', 'PUSH B', 'PULL B', 'LEGS B'];
+  };
+
+  const catalog = {
+    peito: [
+      ['Supino reto', '3', '6-10'],
+      ['Supino inclinado com halteres', '3', '8-12'],
+      ['Crucifixo máquina', '2', '10-15']
+    ],
+
+    costas: [
+      ['Puxada alta', '3', '8-12'],
+      ['Remada baixa', '3', '8-12'],
+      ['Remada unilateral', '2', '10-12']
+    ],
+
+    ombros: [
+      ['Desenvolvimento', '3', '6-10'],
+      ['Elevação lateral', '3', '12-20']
+    ],
+
+    triceps: [
+      ['Tríceps pulley', '3', '10-15'],
+      ['Tríceps testa', '2', '10-12']
+    ],
+
+    biceps: [
+      ['Rosca direta', '3', '8-12'],
+      ['Rosca martelo', '2', '10-15']
+    ],
+
+    quadriceps: [
+      ['Agachamento', '3', '6-10'],
+      ['Leg press', '3', '10-15'],
+      ['Cadeira extensora', '2', '12-15']
+    ],
+
+    posterior: [
+      ['Stiff', '3', '8-12'],
+      ['Mesa flexora', '3', '10-15']
+    ],
+
+    gluteos: [
+      ['Elevação pélvica', '3', '8-12']
+    ],
+
+    panturrilha: [
+      ['Panturrilha em pé', '3', '10-15']
+    ],
+
+    abdomen: [
+      ['Abdominal', '3', '12-20']
+    ]
+  };
+
+  const templates = {
+    'PUSH': ['peito', 'ombros', 'triceps'],
+    'PULL': ['costas', 'biceps'],
+    'LEGS': ['quadriceps', 'posterior', 'gluteos', 'panturrilha', 'abdomen'],
+    'PUSH B': ['peito', 'ombros', 'triceps'],
+    'PULL B': ['costas', 'biceps'],
+    'LEGS B': ['quadriceps', 'posterior', 'gluteos', 'panturrilha'],
+    'UPPER A': ['peito', 'costas', 'ombros', 'triceps', 'biceps'],
+    'UPPER B': ['peito', 'costas', 'ombros', 'biceps', 'triceps'],
+    'LOWER A': ['quadriceps', 'posterior', 'gluteos', 'panturrilha', 'abdomen'],
+    'LOWER B': ['quadriceps', 'posterior', 'gluteos', 'panturrilha'],
+    'FULL BODY A': ['quadriceps', 'peito', 'costas', 'ombros', 'abdomen'],
+    'FULL BODY B': ['posterior', 'peito', 'costas', 'biceps', 'triceps'],
+    'FULL BODY C': ['quadriceps', 'posterior', 'peito', 'costas', 'panturrilha']
+  };
+
+  const makeExercises = (name, priority) => {
+    let groups = (templates[name] || templates['FULL BODY A']).slice();
+
+    if (priority && groups.includes(priority)) {
+      groups = [priority].concat(groups.filter(group => group !== priority));
+    }
+
+    const exercises = [];
+
+    groups.forEach(group => {
+      (catalog[group] || []).forEach(exercise => {
+        exercises.push({
+          name: exercise[0],
+          series: exercise[1],
+          reps: exercise[2],
+          weight: '',
+          image: ''
+        });
+      });
+    });
+
+    return exercises;
+  };
+
+  const createPlan = () => {
+    const p = profile();
+    const days = Math.max(2, Math.min(6, Math.round(number(p.days) || 4)));
+    const names = splitFor(days);
+
+    const priority = norm(p.priority || '');
+
+    const priorityKey = Object.keys(aliases).find(key =>
+      aliases[key].some(alias => priority.includes(norm(alias)))
+    ) || '';
+
+    const newPlans = names.map((name, index) => ({
+      id: 'saga_ai_' + Date.now() + '_' + index,
+      name: 'SF ' + name,
+      exercises: makeExercises(name, priorityKey)
+    }));
+
+    try {
+      if (
+        typeof data !== 'undefined' &&
+        Array.isArray(data) &&
+        typeof persist === 'function'
+      ) {
+        data.push(...newPlans);
+
+        if (!persist()) {
+          data.splice(-newPlans.length, newPlans.length);
+          return 'Não consegui salvar as fichas. O armazenamento pode estar cheio.';
+        }
+
+        if (typeof render === 'function') render();
+
+      } else {
+        state.generatedPlans = newPlans;
+        save();
+      }
+
+    } catch (_) {
+      state.generatedPlans = newPlans;
+      save();
+    }
+
+    state.changes.push({
+      date: todayKey(),
+      type: 'criação de ficha',
+      reason: 'Divisão sugerida conforme dias disponíveis',
+      plans: names
+    });
+
+    save();
+
+    return 'Montei uma divisão de ' + days +
+      ' dias e salvei ' + names.length + ' fichas no SAGA.\n\n' +
+      newPlans.map(plan =>
+        plan.name + ' — ' + plan.exercises.length + ' exercícios'
+      ).join('\n') +
+      '\n\nCritério: distribuição de grupos musculares e recuperação entre sessões. ' +
+      'As séries são uma sugestão inicial; ajuste conforme experiência, esforço, recuperação e orientação profissional. ' +
+      'Informe suas limitações ou equipamentos para eu adaptar.';
+  };
+
+  const recordSession = raw => {
+    const text = String(raw || '');
+    const dateMatch = text.match(/(\d{4}-\d{2}-\d{2})/);
+    const date = dateMatch ? dateMatch[1] : todayKey();
+
+    const body = text
+      .replace(/registre\s+(?:meu\s+)?treino(?:\s+de\s+hoje)?\s*:?/i, '')
+      .replace(/(\d{4}-\d{2}-\d{2})/, '')
+      .trim();
+
+    const chunks = body
+      .split(/[;\n]+/)
+      .map(item => item.trim())
+      .filter(Boolean);
+
+    const exercises = [];
+
+    chunks.forEach(chunk => {
+      const match = chunk.match(
+        /^(.+?)\s+(\d+)\s*[x×]\s*(\d+(?:[-–]\d+)?)\s*(?:reps?)?\s*(?:[,\- ]*\s*(\d+(?:[.,]\d+)?)\s*kg)?(?:\s*(?:rir\s*[:=]?\s*(\d+)))?$/i
+      );
+
+      if (match) {
+        exercises.push({
+          name: match[1].trim(),
+          sets: Number(match[2]),
+          reps: match[3],
+          weight: match[4] ? Number(match[4].replace(',', '.')) : null,
+          rir: match[5] ? Number(match[5]) : null
+        });
+      } else if (chunk) {
+        exercises.push({
+          name: chunk,
+          sets: null,
+          reps: null,
+          weight: null,
+          rir: null,
+          unstructured: true
+        });
+      }
+    });
+
+    if (!exercises.length) {
+      return 'Não identifiquei os exercícios. Envie assim: ' +
+        'Registre treino: supino reto 3x10 40kg RIR2; remada baixa 3x12 35kg.';
+    }
+
+    const session = {
+      id: 'sess_' + Date.now(),
+      date,
+      exercises
+    };
+
+    state.sessions.push(session);
+    save();
+    pushCalendarDay(date);
+
+    const count = exercises.filter(item => !item.unstructured).length;
+
+    return 'Treino registrado em ' + fmtDate(date) + '. ' +
+      exercises.length + ' exercício(s) anotado(s); ' +
+      count + ' com séries e repetições estruturadas.' +
+      (exercises.some(item => item.unstructured)
+        ? ' Alguns itens ficaram sem detalhes porque não consegui interpretar a série/repetição.'
+        : '') +
+      '\nO dia também foi marcado no calendário. Para registrar carga e RIR, use: exercício 3x10 40kg RIR2.';
+  };
+
+  const volume = (fromDays = 28) => {
+    const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - fromDays + 1);
+
+    const totals = {};
+    let known = 0;
+
+    state.sessions
+      .filter(session => dateObj(session.date) >= cutoff)
+      .forEach(session => {
+        session.exercises.forEach(exercise => {
+          if (!exercise.sets || exercise.unstructured) return;
+
+          const classification = classify(exercise.name);
+          if (!classification) return;
+
+          known++;
+
+          totals[classification.muscle] =
+            (totals[classification.muscle] || 0) +
+            exercise.sets * classification.direct;
+
+          if (classification.indirect) {
+            const key = classification.muscle + '_indireto';
+
+            totals[key] =
+              (totals[key] || 0) +
+              exercise.sets * classification.indirect;
+          }
+        });
+      });
+
+    if (!known) {
+      return 'Ainda não há registros estruturados suficientes para calcular volume. ' +
+        'Registre exercícios com séries, por exemplo: supino reto 3x10 40kg.';
+    }
+
+    return 'Volume estimado nos últimos ' + fromDays +
+      ' dias (séries diretas; indiretas aparecem separadas):\n' +
+      Object.keys(totals)
+        .map(key =>
+          '- ' + key.replace('_indireto', ' (indireto)') +
+          ': ' + totals[key].toFixed(1)
+        )
+        .join('\n') +
+      '\n\nA classificação é aproximada e cobre apenas exercícios reconhecidos pela biblioteca local. Não equivale a uma avaliação completa de estímulo muscular.';
+  };
+
+  const evolution = () => {
+    const all = [];
+
+    state.sessions.forEach(session => {
+      session.exercises.forEach(exercise => {
+        if (
+          exercise.weight !== null &&
+          exercise.weight !== undefined &&
+          !exercise.unstructured
+        ) {
+          all.push({
+            ...exercise,
+            date: session.date
+          });
+        }
+      });
+    });
+
+    if (!all.length) {
+      return 'Ainda não tenho cargas registradas para comparar. ' +
+        'Registre o mesmo exercício em sessões diferentes com carga, séries e repetições.';
+    }
+
+    const groups = {};
+
+    all.forEach(exercise => {
+      const key = norm(exercise.name);
+
+      if (!groups[key]) {
+        groups[key] = {
+          name: exercise.name,
+          items: []
+        };
+      }
+
+      groups[key].items.push(exercise);
+    });
+
+    const rows = Object.values(groups)
+      .filter(group => group.items.length >= 2)
+      .map(group => {
+        group.items.sort((a, b) => a.date.localeCompare(b.date));
+
+        const first = group.items[0];
+        const last = group.items[group.items.length - 1];
+
+        return '- ' + group.name + ': ' +
+          first.weight + ' kg (' + fmtDate(first.date) + ') → ' +
+          last.weight + ' kg (' + fmtDate(last.date) + ')' +
+          (last.weight > first.weight
+            ? ' — carga aumentou'
+            : last.weight < first.weight
+              ? ' — carga diminuiu'
+              : ' — mesma carga');
+      });
+
+    return rows.length
+      ? 'Comparação entre primeiro e último registro disponível:\n' +
+        rows.join('\n')
+      : 'Há registros, mas ainda não existem dois registros do mesmo exercício para comparar.';
+  };
+
+  const frequency = (days = 28) => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days + 1);
+
+    const dates = [
+      ...new Set(
+        state.sessions
+          .filter(session => dateObj(session.date) >= cutoff)
+          .map(session => session.date)
+      )
+    ].sort();
+
+    return 'Nos últimos ' + days +
+      ' dias, você registrou ' + dates.length + ' dia(s) de treino.\n' +
+      (dates.length
+        ? dates.map(fmtDate).join(', ')
+        : 'Nenhum treino registrado neste histórico.') +
+      '\n\nSó conto sessões registradas pela SEXTA-FEIRA; o calendário antigo pode conter marcações sem detalhes de sessão.';
+  };
+
+  const getSchedule = () => {
+    const days = Number(profile().days) || 4;
+
+    const names = [
+      'domingo',
+      'segunda',
+      'terça',
+      'quarta',
+      'quinta',
+      'sexta',
+      'sábado'
+    ];
+
+    return 'Sua frequência configurada é ' + days +
+      ' dias por semana.' +
+      (profile().unavailable
+        ? ' Dias indisponíveis: ' + profile().unavailable + '.'
+        : '') +
+      '\nSugestão de organização: ' +
+      names
+        .filter(day => !(profile().unavailable || '').includes(day))
+        .slice(0, days)
+        .join(', ') +
+      '. Confirme os dias que realmente consegue treinar para eu distribuir a recuperação corretamente.';
+  };
+
+  const setProfile = raw => {
+    const text = String(raw || '');
+
+    const pairs = [
+      ['age', /(?:idade)\s*[:=]?\s*(\d+)/i],
+      ['weight', /(?:peso)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i],
+      ['height', /(?:altura)\s*[:=]?\s*(\d+(?:[.,]\d+)?)/i],
+      ['days', /(?:dias|frequencia)\s*[:=]?\s*(\d+)/i],
+      ['minutes', /(?:tempo|duracao)\s*[:=]?\s*(\d+)/i]
+    ];
+
+    pairs.forEach(([key, regex]) => {
+      const match = text.match(regex);
+      if (match) profile()[key] = number(match[1]);
+    });
+
+    const goal = text.match(
+      /objetivo\s*[:=]?\s*(hipertrofia|emagrecimento|perda de gordura|forca|condicionamento)/i
+    );
+
+    if (goal) profile().goal = goal[1].toLowerCase();
+
+    const experience = text.match(
+      /experiencia\s*[:=]?\s*(iniciante|intermediario|intermediaria|avancado|avancada)/i
+    );
+
+    if (experience) profile().experience = experience[1].toLowerCase();
+
+    const equipment = text.match(/equipamentos?\s*[:=]?\s*([^;]+)/i);
+    if (equipment) profile().equipment = equipment[1].trim();
+
+    const preference = text.match(/preferencia\s*[:=]?\s*([^;]+)/i);
+    if (preference) profile().preferences = preference[1].trim();
+
+    const injury = text.match(
+      /(?:lesao|dor|limitacao)\s*[:=]?\s*([^;]+)/i
+    );
+
+    if (injury) profile().limitations = injury[1].trim();
+
+    const priority = text.match(
+      /(?:prioridade|foco)\s*[:=]?\s*([^;]+)/i
+    );
+
+    if (priority) profile().priority = priority[1].trim();
+
+    const unavailable = text.match(
+      /(?:nao posso|indisponivel|nao consigo treinar)\s*(?:na|no)?\s*([^;]+)/i
+    );
+
+    if (unavailable) profile().unavailable = unavailable[1].trim();
+
+    save();
+
+    return 'Perfil atualizado com os dados que consegui identificar.\n' +
+      Object.entries(profile())
+        .map(([key, value]) => '- ' + key + ': ' + value)
+        .join('\n') +
+      '\n\nPara completar, informe os campos que faltam. Não vou presumir idade, limitações ou equipamentos.';
+  };
+
+  const explain = raw => {
+    const match = String(raw).match(
+      /(?:por que|porque|explique)\s+(?:voce escolheu\s+)?(.+)/i
+    );
+
+    if (!match) return null;
+
+    const name = match[1].replace(/[?!.]+$/, '').trim();
+    const classification = classify(name);
+
+    if (!classification) {
+      return 'Não tenho uma classificação confiável para esse exercício na biblioteca local. Diga o nome exato e posso explicar com base no grupo muscular reconhecido.';
+    }
+
+    return name + ': classificado principalmente para ' +
+      classification.muscle +
+      '. O volume direto é contado como 1 série por série realizada; ' +
+      'a contribuição indireta depende da execução e não deve ser tratada como uma série completa. ' +
+      'A escolha final também depende de objetivo, técnica, conforto articular e equipamento disponível.';
+  };
+
+  const respond = raw => {
+    const text = String(raw || '').trim();
+    const normalized = norm(text);
+
+    if (!text) return null;
+
+    if (/^(meu perfil|configurar perfil|atualizar perfil)/.test(normalized)) {
+      return setProfile(text);
+    }
+
+    if (
+      /\b(idade|peso|altura|objetivo|experiencia|equipamentos|limitacao|lesao|prioridade|foco|dias por semana|nao consigo treinar|nao posso treinar)\b/.test(normalized) &&
+      /[:=]/.test(text)
+    ) {
+      return setProfile(text);
+    }
+
+    if (
+      /^(crie|criar|monte|montar|gere|gerar).*(ficha|treino|programa)/.test(normalized) ||
+      /crie uma ficha|monte uma ficha|criar ficha/.test(normalized)
+    ) {
+      const missing = [];
+
+      if (!profile().days) {
+        missing.push('quantos dias por semana você consegue treinar');
+      }
+
+      if (!profile().goal) {
+        missing.push('seu objetivo (hipertrofia, força, emagrecimento ou condicionamento)');
+      }
+
+      if (!profile().experience) {
+        missing.push('seu nível (iniciante, intermediário ou avançado)');
+      }
+
+      if (!profile().limitations) {
+        missing.push('se existe dor, lesão ou limitação (ou diga “nenhuma”)');
+      }
+
+      if (missing.length) {
+        return 'Antes de montar uma ficha responsável, preciso destas informações: ' +
+          missing.join('; ') +
+          '.\nVocê pode enviar em uma mensagem, por exemplo: dias=4; objetivo=hipertrofia; experiencia=intermediário; limitacao=nenhuma; equipamentos=academia completa.';
+      }
+
+      return createPlan();
+    }
+
+    if (/^(registre|registrar|anote|anotar)\s+(meu\s+)?treino/.test(normalized)) {
+      return recordSession(text);
+    }
+
+    if (/(volume|series semanais)/.test(normalized)) {
+      return volume(/mes|30 dias/.test(normalized) ? 30 : 28);
+    }
+
+    if (/(evolucao|evolui|evoluindo|progresso|pr|recorde)/.test(normalized)) {
+      return evolution();
+    }
+
+    if (/(frequencia|quantas vezes treinei|dias que treinei)/.test(normalized)) {
+      return frequency();
+    }
+
+    if (/(qual treino tenho hoje|treino de hoje|ficha de hoje)/.test(normalized)) {
+      const plans = getPlans();
+      const active = plans.filter(plan =>
+        Array.isArray(plan.exercises) && plan.exercises.length
+      );
+
+      return active.length
+        ? 'Encontrei estas fichas com exercícios: ' +
+          active.map(plan => plan.name).join(', ') +
+          '. O calendário não define sozinho qual ficha corresponde ao dia de hoje. Diga sua sequência semanal para eu identificar a sessão correta.'
+        : listCurrentPlans();
+    }
+
+    if (/(minhas fichas|listar fichas|quais fichas)/.test(normalized)) {
+      return listCurrentPlans();
+    }
+
+    if (
+      /(nao consigo treinar|nao posso treinar|mudar.*quarta|trocar.*dia)/.test(normalized)
+    ) {
+      const day = (
+        normalized.match(/(segunda|terca|quarta|quinta|sexta|sabado|domingo)/) || []
+      )[1];
+
+      if (day) {
+        profile().unavailable = day;
+        save();
+
+        return 'Registrei ' + day +
+          ' como dia indisponível. Sua ficha atual não foi alterada automaticamente. ' +
+          'Posso reorganizar a divisão quando você confirmar quantos dias continuará treinando.';
+      }
+
+      return 'Qual dia da semana ficou indisponível?';
+    }
+
+    if (/(troque|substitua|substituir|alternativa).*(supino|exercicio)/.test(normalized)) {
+      return 'Posso sugerir substituição, mas preciso do exercício exato e do motivo (equipamento ocupado, desconforto ou preferência). Não alterei sua ficha atual.';
+    }
+
+    const explanation = explain(text);
+    if (explanation) return explanation;
+
+    if (/(ajustar carga|aumentar carga|devo aumentar)/.test(normalized)) {
+      return 'Só recomendo aumentar quando você completa o topo da faixa de repetições em todas as séries, com técnica estável e esforço compatível, sem dor. Ainda não tenho seus registros suficientes para decidir por você. Registre carga, reps e RIR nas sessões.';
+    }
+
+    return null;
+  };
+
+  /* Mantém a cadeia de execução da SEXTA-FEIRA original. */
+  const previous =
+    typeof window.jarvisExecute === 'function'
+      ? window.jarvisExecute
+      : null;
+
+  window.SAGA_WORKOUT_INTELLIGENCE = {
+    version: '1.0.0',
+    storageKey: STORE,
+    getProfile: () => JSON.parse(JSON.stringify(state.profile)),
+    getSessions: () => JSON.parse(JSON.stringify(state.sessions)),
+    registerSession: recordSession,
+    calculateVolume: volume,
+    compareProgress: evolution,
+    generatePlan: createPlan,
+    setProfile,
+    respond
+  };
+
+  window.jarvisExecute = function (message, ...args) {
+    try {
+      const answer = respond(message);
+      if (answer) return answer;
+    } catch (error) {
+      console.warn('SAGA Workout Intelligence:', error);
+    }
+
+    return previous
+      ? previous.call(this, message, ...args)
+      : 'Não consegui processar esse comando.';
+  };
+
+  console.log('SAGA WORKOUT INTELLIGENCE carregado.');
+
+})();
+</script>
 
 </body>
 </html>
