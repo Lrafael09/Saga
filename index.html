@@ -2084,23 +2084,31 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
       ).join('\n');  
   };  
   
-  const splitFor = days => {  
-    if (days <= 2) {  
-      return ['FULL BODY A', 'FULL BODY B'];  
-    }  
-  
+  const isAdvanced = () => {  
+    const experience = norm(profile().experience || '');  
+    const years = number(profile().experienceYears || profile().yearsTraining);  
+    return /avancad/.test(experience) || years >= 2 || profile().advanced === true;  
+  };  
+
+  const splitFor = (days, requestedStyle) => {  
+    const advanced = isAdvanced();  
+    const style = norm(requestedStyle || profile().splitPreference || '');  
+
+    if (days <= 2) return ['FULL BODY A', 'FULL BODY B'];  
+
     if (days === 3) {  
+      if (style === 'abc' || style.includes('abc')) return ['ABC A', 'ABC B', 'ABC C'];  
       return ['FULL BODY A', 'FULL BODY B', 'FULL BODY C'];  
     }  
-  
+
     if (days === 4) {  
       return ['UPPER A', 'LOWER A', 'UPPER B', 'LOWER B'];  
     }  
-  
-    if (days === 5) {  
-      return ['PUSH', 'PULL', 'LEGS', 'UPPER', 'LOWER'];  
+
+    if ((days === 5 && advanced) || (days === 6 && advanced)) {  
+      return ['UPPER A', 'LOWER A', 'PUSH', 'PULL', 'LOWER B'];  
     }  
-  
+
     return ['PUSH', 'PULL', 'LEGS', 'PUSH B', 'PULL B', 'LEGS B'];  
   };  
   
@@ -2148,7 +2156,21 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
     ],  
   
     panturrilha: [  
-      ['Panturrilha em pé', '3', '10-15']  
+      ['Panturrilha em pé', '3', '10-15'],  
+      ['Panturrilha sentado', '2', '12-20']  
+    ],  
+
+    antebraco: [  
+      ['Rosca inversa', '2', '10-15'],  
+      ['Flexão de punho', '2', '12-20']  
+    ],  
+
+    abdutora: [  
+      ['Cadeira abdutora', '2', '12-20']  
+    ],  
+
+    adutora: [  
+      ['Cadeira adutora', '2', '12-20']  
     ],  
   
     abdomen: [  
@@ -2158,18 +2180,21 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
   
   const templates = {  
     'PUSH': ['peito', 'ombros', 'triceps'],  
-    'PULL': ['costas', 'biceps'],  
+    'PULL': ['costas', 'biceps', 'antebraco'],  
     'LEGS': ['quadriceps', 'posterior', 'gluteos', 'panturrilha', 'abdomen'],  
+    'LOWER B': ['posterior', 'gluteos', 'adutora', 'abdutora', 'panturrilha'],  
     'PUSH B': ['peito', 'ombros', 'triceps'],  
-    'PULL B': ['costas', 'biceps'],  
+    'PULL B': ['costas', 'biceps', 'antebraco'],  
     'LEGS B': ['quadriceps', 'posterior', 'gluteos', 'panturrilha'],  
     'UPPER A': ['peito', 'costas', 'ombros', 'triceps', 'biceps'],  
     'UPPER B': ['peito', 'costas', 'ombros', 'biceps', 'triceps'],  
     'LOWER A': ['quadriceps', 'posterior', 'gluteos', 'panturrilha', 'abdomen'],  
-    'LOWER B': ['quadriceps', 'posterior', 'gluteos', 'panturrilha'],  
     'FULL BODY A': ['quadriceps', 'peito', 'costas', 'ombros', 'abdomen'],  
     'FULL BODY B': ['posterior', 'peito', 'costas', 'biceps', 'triceps'],  
-    'FULL BODY C': ['quadriceps', 'posterior', 'peito', 'costas', 'panturrilha']  
+    'FULL BODY C': ['quadriceps', 'posterior', 'peito', 'costas', 'panturrilha'],  
+    'ABC A': ['peito', 'ombros', 'triceps'],  
+    'ABC B': ['costas', 'biceps', 'antebraco'],  
+    'ABC C': ['quadriceps', 'posterior', 'gluteos', 'panturrilha', 'abdomen']  
   };  
   
   const makeExercises = (name, priority) => {  
@@ -2196,10 +2221,11 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
     return exercises;  
   };  
   
-  const createPlan = () => {  
+  const createPlan = requestedStyle => {  
     const p = profile();  
     const days = Math.max(2, Math.min(6, Math.round(number(p.days) || 4)));  
-    const names = splitFor(days);  
+    if (requestedStyle) p.splitPreference = requestedStyle;  
+    const names = splitFor(days, requestedStyle);  
   
     const priority = norm(p.priority || '');  
   
@@ -2252,6 +2278,7 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
       newPlans.map(plan =>  
         plan.name + ' — ' + plan.exercises.length + ' exercícios'  
       ).join('\n') +  
+      scheduleNote +  
       '\n\nCritério: distribuição de grupos musculares e recuperação entre sessões. ' +  
       'As séries são uma sugestão inicial; ajuste conforme experiência, esforço, recuperação e orientação profissional. ' +  
       'Informe suas limitações ou equipamentos para eu adaptar.';  
@@ -2509,6 +2536,12 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
     );  
   
     if (experience) profile().experience = experience[1].toLowerCase();  
+
+    const years = text.match(/(?:mais de\s*)?(\d+(?:[.,]\d+)?)\s*anos?\s*(?:de\s*)?(?:academia|treino|treinando)?/i);  
+    if (years) {  
+      profile().experienceYears = number(years[1]);  
+      if (profile().experienceYears >= 2) profile().experience = 'avancado';  
+    }  
   
     const equipment = text.match(/equipamentos?\s*[:=]?\s*([^;]+)/i);  
     if (equipment) profile().equipment = equipment[1].trim();  
@@ -2581,6 +2614,15 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
       return setProfile(text);  
     }  
   
+    if (/\b(upper lower|upper\s*\/\s*lower|ppl|push pull legs|abc|full body)\b/.test(normalized) && /(mont|cr|ger|quero|prefiro|escolho)/.test(normalized)) {  
+      const style = /\babc\b/.test(normalized) ? 'ABC' : /full body/.test(normalized) ? 'FULL BODY' : /ppl|push pull legs/.test(normalized) ? 'UPPER LOWER PPL' : 'UPPER LOWER';  
+      if (!profile().days) return 'Quantos dias por semana você consegue treinar? Assim escolho a divisão sem montar algo incompatível com sua rotina.';  
+      if (!profile().goal) return 'Qual é seu objetivo principal: hipertrofia, força, emagrecimento ou condicionamento?';  
+      if (!profile().experience) return 'Qual é seu nível de experiência: iniciante, intermediário ou avançado? Se preferir, diga há quantos anos treina.';  
+      if (!profile().limitations) return 'Você tem alguma dor, lesão ou limitação? Se não tiver, diga “nenhuma”.';  
+      return createPlan(style);  
+    }  
+
     if (  
       /^(crie|criar|monte|montar|gere|gerar).*(ficha|treino|programa)/.test(normalized) ||  
       /crie uma ficha|monte uma ficha|criar ficha/.test(normalized)  
@@ -4892,5 +4934,4 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
   
 </body>  
 </html>  
-  
   
