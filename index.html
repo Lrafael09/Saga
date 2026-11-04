@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SAGA Workout System</title>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#080808;color:#fff;font-family:Arial;padding:25px 16px}
@@ -16,13 +17,13 @@ header{margin-bottom:25px;display:flex;align-items:center;justify-content:space-
 .label{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:14px;font-weight:bold}
 .page-heading{font-size:25px;font-weight:900;margin-bottom:7px}
 .page-description{font-size:10px;color:#777;letter-spacing:2px;margin-bottom:25px}
-/* MENU */
+
 .menu-area{position:relative}
 .menu-toggle{background:#151515;border:1px solid #333;color:#a8f05a;border-radius:7px;width:43px;height:43px;font-size:23px}
 .menu-dropdown{position:absolute;right:0;top:52px;width:210px;background:#151515;border:1px solid #333;border-radius:9px;padding:8px;z-index:20}
 .menu-item{display:block;width:100%;text-align:left;padding:13px;background:transparent;border:0;color:#ddd;font-size:11px}
 .menu-item:hover{background:#252525;color:#a8f05a}
-/* CALENDÁRIO */
+
 .calendar-section{margin-bottom:28px}
 .calendar{background:#111;border:1px solid #292929;border-radius:12px;padding:16px}
 .calendar-top,.calendar-footer{display:flex;align-items:center;justify-content:space-between}
@@ -40,7 +41,7 @@ header{margin-bottom:25px;display:flex;align-items:center;justify-content:space-
 .calendar-info,.legend{font-size:9px;color:#777}
 .legend{display:flex;align-items:center;gap:6px}
 .legend-dot{width:7px;height:7px;background:#a8f05a;border-radius:50%}
-/* TEMPORIZADOR */
+
 .timer-section{margin-bottom:30px}
 .timer{background:#111;border:1px solid #292929;border-radius:12px;padding:20px;text-align:center}
 .timer-label{color:#777;font-size:9px;letter-spacing:2px;margin-bottom:12px}
@@ -50,7 +51,7 @@ header{margin-bottom:25px;display:flex;align-items:center;justify-content:space-
 .timer-start{background:#a8f05a;color:#080808}
 .timer-pause{background:#252525;color:#fff}
 .timer-reset{background:transparent;border:1px solid #333;color:#888}
-/* FICHAS */
+
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .box{background:#111;border:1px solid #292929;border-radius:12px;padding:16px;min-height:145px;display:flex;flex-direction:column;justify-content:space-between}
 .box-name-input{width:100%;background:transparent;color:#fff;border:0;border-bottom:1px solid transparent;outline:none;font-size:20px;font-weight:900;padding:3px 0}
@@ -59,7 +60,7 @@ header{margin-bottom:25px;display:flex;align-items:center;justify-content:space-
 .actions{display:flex;justify-content:flex-end;margin-top:15px}
 .open{background:#a8f05a;color:#080808;border:0;border-radius:5px;padding:9px;font-size:9px}
 .last{grid-column:1/-1}
-/* EXERCÍCIOS */
+
 .back{background:transparent;color:#aaa;border:1px solid #333;padding:10px 14px;border-radius:6px;margin-bottom:25px}
 h2{font-size:27px;margin-bottom:8px}
 .sub{color:#777;font-size:10px;letter-spacing:2px;margin-bottom:20px}
@@ -76,7 +77,7 @@ h2{font-size:27px;margin-bottom:8px}
 .image-input{display:none}
 .add{width:100%;padding:15px;background:#a8f05a;border:0;border-radius:7px;margin-top:10px}
 .delete{background:transparent;color:#b77;border:0;font-size:10px;margin-top:12px}
-/* ALIMENTAÇÃO */
+
 .food-date-area{display:flex;gap:10px;margin-bottom:18px}
 .food-date{flex:1;background:#151515;border:1px solid #333;color:#fff;padding:12px;border-radius:7px;color-scheme:dark}
 .today-btn{background:#252525;color:#a8f05a;border:1px solid #444;padding:12px;border-radius:7px;font-size:9px}
@@ -104,7 +105,7 @@ h2{font-size:27px;margin-bottom:8px}
 .cancel-food{width:100%;background:transparent;color:#888;border:0;padding:10px}
 .empty-meal{font-size:10px;color:#666;margin-bottom:10px}
 .food-note{font-size:9px;color:#666;line-height:1.5;margin-top:15px}
-/* MODAL E PIN */
+
 .modal-backdrop{position:fixed;inset:0;background:#000d;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal{width:100%;max-width:380px;background:#151515;border:1px solid #383838;border-radius:12px;padding:20px}
 .modal h3{font-size:18px;margin-bottom:8px}
@@ -114,816 +115,2099 @@ h2{font-size:27px;margin-bottom:8px}
 .modal-actions button{flex:1;padding:12px;border-radius:6px;border:0;font-size:10px}
 .modal-confirm{background:#a8f05a;color:#080808}
 .modal-cancel{background:#292929;color:#fff}
+
 .pin-screen{position:fixed;inset:0;background:#080808;z-index:100;display:flex;align-items:center;justify-content:center;padding:25px}
 .pin-card{width:100%;max-width:340px;text-align:center}
 .pin-card p{font-size:10px;color:#777;margin:18px 0}
 .pin-card input{text-align:center;font-size:25px;letter-spacing:12px;background:#151515;border:1px solid #444;color:#a8f05a;padding:14px;width:100%;margin-bottom:12px}
 .pin-card button{width:100%;padding:14px;background:#a8f05a;border:0;border-radius:6px}
 .pin-error{color:#e88;font-size:10px;margin-top:12px}
-/* JARVIS */
-#jarvis-launcher{
- position:fixed;right:20px;bottom:22px;width:62px;height:62px;
- border-radius:50%;border:2px solid #a8f05a;background:#101810;
- color:#a8f05a;font-size:22px;font-weight:bold;z-index:200;
- box-shadow:0 0 22px #a8f05555,inset 0 0 15px #a8f02233;
- display:flex;align-items:center;justify-content:center;
-}
-#jarvis-launcher:after{
- content:"";position:absolute;inset:-6px;border:1px solid #a8f05566;
- border-radius:50%;animation:jarvisPulse 2s infinite;
-}
+
+/* J.A.R.V.I.S. */
+#jarvis-launcher{position:fixed;right:20px;bottom:22px;width:62px;height:62px;border-radius:50%;border:2px solid #a8f05a;background:#101810;color:#a8f05a;font-size:22px;font-weight:bold;z-index:200;box-shadow:0 0 22px #a8f05555,inset 0 0 15px #a8f02233;display:flex;align-items:center;justify-content:center}
+#jarvis-launcher:after{content:"";position:absolute;inset:-6px;border:1px solid #a8f05566;border-radius:50%;animation:jarvisPulse 2s infinite}
 @keyframes jarvisPulse{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.3);opacity:0}}
-#jarvis-window{
- position:fixed;right:16px;bottom:96px;width:min(370px,calc(100vw - 28px));
- height:min(570px,calc(100dvh - 125px));background:#0d110d;
- border:1px solid #426b35;border-radius:15px;z-index:199;
- box-shadow:0 15px 55px #000c;display:flex;flex-direction:column;overflow:hidden;
-}
-.jarvis-header{
- padding:16px;background:#111a10;border-bottom:1px solid #304b28;
- display:flex;align-items:center;justify-content:space-between;
-}
+
+#jarvis-window{position:fixed;right:16px;bottom:96px;width:min(390px,calc(100vw - 28px));height:min(620px,calc(100dvh - 125px));background:#0d110d;border:1px solid #426b35;border-radius:15px;z-index:199;box-shadow:0 15px 55px #000c;display:flex;flex-direction:column;overflow:hidden}
+.jarvis-header{padding:16px;background:#111a10;border-bottom:1px solid #304b28;display:flex;align-items:center;justify-content:space-between}
 .jarvis-brand{display:flex;align-items:center;gap:10px}
 .jarvis-orb{width:34px;height:34px;border:1px solid #a8f05a;border-radius:50%;display:grid;place-items:center;color:#a8f05a;font-weight:bold;box-shadow:0 0 12px #a8f05555}
 .jarvis-title{font-size:13px;font-weight:bold;letter-spacing:2px;color:#a8f05a}
 .jarvis-status{font-size:9px;color:#79936e;margin-top:4px}
 .jarvis-header-actions{display:flex;align-items:center;gap:8px}
 .jarvis-close{background:transparent;color:#aaa;border:0;font-size:22px;padding:3px 7px}
-#jarvis-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
-.jarvis-message{max-width:88%;padding:11px 12px;border-radius:11px;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-.jarvis-bot{align-self:flex-start;background:#182218;border:1px solid #304b28;color:#e2eedc;border-bottom-left-radius:3px}
-.jarvis-user{align-self:flex-end;background:#a8f05a;color:#101510;border-bottom-right-radius:3px}
-.jarvis-time{font-size:9px;color:#74836e;margin-top:5px}
-.jarvis-suggestions{display:flex;gap:7px;flex-wrap:wrap;padding:0 12px 10px}
-.jarvis-suggestions button{background:#151e13;color:#a8f05a;border:1px solid #405b34;border-radius:20px;padding:7px 10px;font-size:10px}
-.jarvis-input-area{padding:12px;border-top:1px solid #304b28;background:#101610}
-.jarvis-input-row{display:flex;gap:8px}
-#jarvis-input{flex:1;min-width:0;background:#1b2419;border:1px solid #405b34;border-radius:8px;padding:12px;color:#fff;outline:none;font-size:12px}
-#jarvis-send{background:#a8f05a;color:#101510;border:0;border-radius:8px;padding:0 15px;font-size:18px}
-#jarvis-mic,#jarvis-voice-toggle{
- background:#182218;color:#a8f05a;border:1px solid #405b34;
- border-radius:8px;min-width:43px;height:43px;font-size:17px;flex-shrink:0;
-}
-#jarvis-mic.listening{
- background:#a8f05a;color:#080808;
- box-shadow:0 0 18px #a8f05599;
- animation:jarvisListening 1s infinite alternate;
-}
-#jarvis-voice-toggle.voice-off{color:#777;border-color:#444}
-@keyframes jarvisListening{from{transform:scale(1)}to{transform:scale(1.08)}}
-.jarvis-disclaimer{text-align:center;color:#65735e;font-size:9px;margin-top:8px}
-@media(max-width:360px){.timer-display{font-size:35px}.timer-btn{padding:10px 12px}.day-number{width:27px;height:27px}}
+.jarvis-tool{background:#1b2818;border:1px solid #38532f;color:#a8f05a;padding:7px 9px;border-radius:5px;font-size:9px}
+.jarvis-tools{display:flex;gap:7px;padding:10px 13px;border-bottom:1px solid #263323}
+.jarvis-tool.active{background:#a8f05a;color:#080808}
+.jarvis-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.jarvis-message{max-width:90%;padding:11px 13px;border-radius:10px;font-size:11px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.jarvis-message.bot{align-self:flex-start;background:#182118;border:1px solid #30452b;color:#dce8d7}
+.jarvis-message.user{align-self:flex-end;background:#263b20;border:1px solid #496a3a;color:#fff}
+.jarvis-input-area{padding:12px;border-top:1px solid #263323;display:flex;gap:7px;align-items:center}
+.jarvis-input{flex:1;min-width:0;background:#171e16;border:1px solid #34452e;border-radius:7px;padding:12px;color:#fff;font-size:11px;outline:none}
+.jarvis-input:focus{border-color:#a8f05a}
+.jarvis-send,.jarvis-mic,.jarvis-voice{width:40px;height:40px;border-radius:7px;border:1px solid #49633d;background:#1c2a19;color:#a8f05a}
+.jarvis-send{background:#a8f05a;color:#080808;border:0}
+.jarvis-mic.listening{background:#633;color:#fff;border-color:#a55;animation:jarvisPulse 1s infinite}
+.voice-off{opacity:.5}
+.jarvis-panel{position:absolute;inset:60px 0 0;background:#0d110d;z-index:5;overflow:auto;padding:16px}
+.jarvis-panel h3{font-size:15px;color:#a8f05a;margin-bottom:12px}
+.jarvis-panel textarea,.jarvis-panel input{width:100%;background:#171e16;border:1px solid #34452e;border-radius:6px;padding:11px;color:#fff;margin-bottom:10px;font:11px Arial}
+.jarvis-panel textarea{min-height:130px;resize:vertical}
+.jarvis-panel button{background:#a8f05a;color:#080808;border:0;border-radius:5px;padding:10px;font-size:10px;margin:3px}
+.jarvis-panel .secondary{background:#202820;color:#a8f05a;border:1px solid #3a5034}
+.knowledge-item{background:#182118;border:1px solid #30452b;border-radius:7px;padding:12px;margin:10px 0;font-size:10px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.knowledge-item button{float:right;background:#422;color:#f99}
+.jarvis-small{font-size:9px;color:#83917e;line-height:1.5;margin-bottom:12px}
 </style>
 </head>
+
 <body>
 <div class="container">
+
 <header>
- <div><div class="logo">SAGA</div><div class="subtitle">WORKOUT SYSTEM</div></div>
- <div class="menu-area">
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-  <div id="menuDropdown" class="menu-dropdown hidden">
-   <button class="menu-item" onclick="showPage('training')">▣ TREINO</button>
-   <button class="menu-item" onclick="showPage('food')">◈ ALIMENTAÇÃO</button>
-   <button class="menu-item" onclick="editProfile()">♙ MEU PERFIL</button>
-   <button class="menu-item" onclick="configurePin()">♧ CONFIGURAR PIN</button>
-   <button class="menu-item" id="lockMenuItem" onclick="lockApp()">⌑ BLOQUEAR / SAIR</button>
+  <div>
+    <div class="logo">SAGA</div>
+    <div class="subtitle">WORKOUT SYSTEM</div>
   </div>
- </div>
+
+  <div class="menu-area">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    <div id="menuDropdown" class="menu-dropdown hidden">
+      <button class="menu-item" onclick="showPage('training')">▣ TREINO</button>
+      <button class="menu-item" onclick="showPage('food')">▣ ALIMENTAÇÃO</button>
+      <button class="menu-item" onclick="showPage('profile')">▣ PERFIL</button>
+      <button class="menu-item" onclick="toggleLock()">▣ BLOQUEIO POR PIN</button>
+      <button class="menu-item" onclick="exportBackup()">▣ EXPORTAR BACKUP</button>
+      <button class="menu-item" onclick="document.getElementById('importFile').click()">▣ IMPORTAR BACKUP</button>
+    </div>
+  </div>
 </header>
+
 <section id="trainingPage">
- <div id="home">
   <div class="calendar-section">
-   <div class="label">FREQUÊNCIA DE TREINO</div>
-   <div class="calendar">
-    <div class="calendar-top">
-     <div class="calendar-title" id="calendarTitle">SEMANA</div>
-     <div class="calendar-nav">
-      <button class="nav-btn" onclick="changeWeek(-1)">‹</button>
-      <button class="nav-btn" onclick="changeWeek(1)">›</button>
-     </div>
+    <div class="label">CONSISTÊNCIA</div>
+
+    <div class="calendar">
+      <div class="calendar-top">
+        <div class="calendar-title" id="calendarMonth"></div>
+
+        <div class="calendar-nav">
+          <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+          <button class="nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+
+      <div class="week" id="calendarDays"></div>
+
+      <div class="calendar-footer">
+        <div class="calendar-info" id="calendarInfo">Marque os dias em que treinou</div>
+        <div class="legend">
+          <span class="legend-dot"></span>
+          Treino realizado
+        </div>
+      </div>
     </div>
-    <div class="week" id="week"></div>
-    <div class="calendar-footer">
-     <div class="calendar-info" id="weekInfo">SEUS TREINOS</div>
-     <div class="legend"><div class="legend-dot"></div>DIA TREINADO</div>
-    </div>
-   </div>
   </div>
+
   <div class="timer-section">
-   <div class="label">TEMPORIZADOR</div>
-   <div class="timer">
-    <div class="timer-label">TEMPO DE TREINO</div>
-    <div class="timer-display" id="timerDisplay">00:00:00</div>
-    <div class="timer-actions">
-     <button class="timer-btn timer-start" onclick="startTimer()">INICIAR</button>
-     <button class="timer-btn timer-pause" onclick="pauseTimer()">PAUSAR</button>
-     <button class="timer-btn timer-reset" onclick="resetTimer()">ZERAR</button>
+    <div class="label">CRONÔMETRO DE DESCANSO</div>
+
+    <div class="timer">
+      <div class="timer-label">TEMPO DE DESCANSO</div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+
+      <div class="timer-actions">
+        <button class="timer-btn timer-start" onclick="startTimer()">INICIAR</button>
+        <button class="timer-btn timer-pause" onclick="pauseTimer()">PAUSAR</button>
+        <button class="timer-btn timer-reset" onclick="resetTimer()">ZERAR</button>
+      </div>
     </div>
-   </div>
   </div>
-  <div class="label">MINHAS FICHAS</div>
-  <div class="grid" id="grid"></div>
- </div>
- <section id="detail" class="hidden">
-  <button class="back" onclick="goBack()">← VOLTAR</button>
-  <h2 id="detailTitle"></h2>
-  <div class="sub">EXERCÍCIOS DO TREINO</div>
+
+  <div class="label">SUAS FICHAS DE TREINO</div>
+  <div class="grid" id="workoutGrid"></div>
+</section>
+
+<section id="detailPage" class="hidden">
+  <button class="back" onclick="showPage('training')">← VOLTAR</button>
+  <h2 id="detailTitle">TREINO</h2>
+  <div class="sub">EXERCÍCIOS CADASTRADOS</div>
   <div id="exerciseList"></div>
   <button class="add" onclick="addExercise()">+ ADICIONAR EXERCÍCIO</button>
- </section>
 </section>
+
 <section id="foodPage" class="hidden">
- <div class="page-heading">ALIMENTAÇÃO</div>
- <div class="page-description">ACOMPANHAMENTO NUTRICIONAL</div>
- <div class="food-date-area">
-  <input type="date" id="foodDate" class="food-date" onchange="renderFood()">
-  <button class="today-btn" onclick="setTodayFood()">HOJE</button>
- </div>
- <div class="macro-summary">
-  <div class="calorie-caption">CONSUMO TOTAL DO DIA</div>
-  <div class="calorie-number"><span id="totalCalories">0</span> <span style="font-size:13px">kcal</span></div>
-  <div class="macro-grid">
-   <div class="macro-item"><div class="macro-value" id="totalProtein">0 g</div><div class="macro-name">PROTEÍNA</div></div>
-   <div class="macro-item"><div class="macro-value" id="totalCarbs">0 g</div><div class="macro-name">CARBOIDRATOS</div></div>
-   <div class="macro-item"><div class="macro-value" id="totalFat">0 g</div><div class="macro-name">GORDURAS</div></div>
+  <button class="back" onclick="showPage('training')">← VOLTAR</button>
+  <div class="page-heading">ALIMENTAÇÃO</div>
+  <div class="page-description">ACOMPANHAMENTO DIÁRIO</div>
+
+  <div class="food-date-area">
+    <input class="food-date" type="date" id="foodDate" onchange="renderFood()">
+    <button class="today-btn" onclick="setFoodToday()">HOJE</button>
   </div>
- </div>
- <div class="label">MINHAS REFEIÇÕES</div>
- <div id="mealList"></div>
- <div class="food-note">Os valores nutricionais são preenchidos manualmente por alimento. Confira os rótulos ou uma fonte nutricional confiável.</div>
+
+  <div class="macro-summary">
+    <div class="calorie-caption">TOTAL DE CALORIAS</div>
+    <div class="calorie-number" id="totalCalories">0 kcal</div>
+
+    <div class="macro-grid">
+      <div class="macro-item">
+        <div class="macro-value" id="totalProtein">0g</div>
+        <div class="macro-name">PROTEÍNA</div>
+      </div>
+
+      <div class="macro-item">
+        <div class="macro-value" id="totalCarbs">0g</div>
+        <div class="macro-name">CARBOIDRATOS</div>
+      </div>
+
+      <div class="macro-item">
+        <div class="macro-value" id="totalFat">0g</div>
+        <div class="macro-name">GORDURAS</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mealList"></div>
+
+  <div class="food-note">
+    Os valores nutricionais são preenchidos manualmente. O SAGA soma os dados que você cadastrar; ele não consulta automaticamente tabelas nutricionais.
+  </div>
 </section>
-</div>
-<div id="modalBackdrop" class="modal-backdrop hidden">
- <div class="modal">
-  <h3 id="modalTitle">SAGA</h3><p id="modalDescription"></p>
-  <div id="modalFields"></div>
-  <div class="modal-actions">
-   <button class="modal-cancel" onclick="closeModal()">CANCELAR</button>
-   <button class="modal-confirm" id="modalConfirm">SALVAR</button>
+
+<section id="profilePage" class="hidden">
+  <button class="back" onclick="showPage('training')">← VOLTAR</button>
+  <div class="page-heading">PERFIL</div>
+  <div class="page-description">SUAS INFORMAÇÕES</div>
+
+  <div class="exercise">
+    <label class="label">SEU NOME</label>
+    <input id="profileName" placeholder="Como deseja ser chamado?">
+    <button class="add" onclick="saveProfile()">SALVAR PERFIL</button>
   </div>
- </div>
+</section>
+
 </div>
+
+<button id="jarvis-launcher" onclick="toggleJarvis()">J</button>
+
+<div id="jarvis-window" class="hidden">
+  <div class="jarvis-header">
+    <div class="jarvis-brand">
+      <div class="jarvis-orb">J</div>
+      <div>
+        <div class="jarvis-title">J.A.R.V.I.S.</div>
+        <div class="jarvis-status">SAGA INTELLIGENCE SYSTEM</div>
+      </div>
+    </div>
+
+    <div class="jarvis-header-actions">
+      <button class="jarvis-voice" id="jarvis-voice-toggle" onclick="toggleJarvisVoice()">🔊</button>
+      <button class="jarvis-close" onclick="toggleJarvis()">×</button>
+    </div>
+  </div>
+
+  <div class="jarvis-tools">
+    <button class="jarvis-tool" id="jarvis-teach-toggle" onclick="toggleJarvisTeaching()">ENSINAR: OFF</button>
+    <button class="jarvis-tool" onclick="openJarvisPanel('memory')">MEMÓRIA / CONFIG.</button>
+    <button class="jarvis-tool" onclick="openJarvisPanel('knowledge')">BIBLIOTECA</button>
+  </div>
+
+  <div class="jarvis-messages" id="jarvis-messages">
+    <div class="jarvis-message bot">Olá, senhor. J.A.R.V.I.S. à sua disposição.</div>
+  </div>
+
+  <div class="jarvis-input-area">
+    <button class="jarvis-mic" id="jarvis-mic" onclick="toggleJarvisListening()">🎙</button>
+    <input class="jarvis-input" id="jarvis-input" placeholder="Fale com o JARVIS..." autocomplete="off">
+    <button class="jarvis-send" onclick="sendJarvisMessage()">➤</button>
+  </div>
+
+  <div id="jarvis-panel" class="jarvis-panel hidden"></div>
+</div>
+
 <div id="pinScreen" class="pin-screen hidden">
- <div class="pin-card">
-  <div class="logo">SAGA</div><div class="subtitle">WORKOUT SYSTEM</div>
-  <p>INSIRA SEU PIN DE ACESSO</p>
-  <input id="pinLoginInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-  <button onclick="checkPin()">ENTRAR</button>
-  <div id="pinError" class="pin-error"></div>
- </div>
+  <div class="pin-card">
+    <div class="logo">SAGA</div>
+    <p>Digite seu PIN para acessar o sistema.</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="4">
+    <button onclick="unlockApp()">DESBLOQUEAR</button>
+    <div id="pinError" class="pin-error"></div>
+  </div>
 </div>
-<!-- JARVIS -->
-<button id="jarvis-launcher" onclick="toggleJarvis()" aria-label="Abrir JARVIS">J</button>
-<section id="jarvis-window" class="hidden">
- <div class="jarvis-header">
-  <div class="jarvis-brand">
-   <div class="jarvis-orb">J</div>
-   <div>
-    <div class="jarvis-title">J.A.R.V.I.S.</div>
-    <div class="jarvis-status">ASSISTENTE SAGA • LOCAL</div>
-   </div>
-  </div>
-  <div class="jarvis-header-actions">
-   <button id="jarvis-voice-toggle" onclick="toggleJarvisVoice()" title="Ativar ou desativar voz">🔊</button>
-   <button class="jarvis-close" onclick="toggleJarvis()">×</button>
-  </div>
- </div>
- <div id="jarvis-messages"></div>
- <div class="jarvis-suggestions">
-  <button onclick="jarvisQuick('Mostre minhas fichas')">Minhas fichas</button>
-  <button onclick="jarvisQuick('Resuma meu treino')">Resumo</button>
-  <button onclick="jarvisQuick('O que você consegue fazer?')">Ajuda</button>
- </div>
- <div class="jarvis-input-area">
-  <div class="jarvis-input-row">
-   <button id="jarvis-mic" onclick="toggleJarvisListening()" title="Falar com JARVIS">🎙</button>
-   <input id="jarvis-input" placeholder="Fale com o JARVIS..." autocomplete="off">
-   <button id="jarvis-send" onclick="sendJarvisMessage()">➤</button>
-  </div>
-  <div class="jarvis-disclaimer">Modo local • Seus dados ficam neste dispositivo</div>
- </div>
-</section>
+
+<input type="file" id="importFile" accept="application/json" class="hidden" onchange="importBackup(event)">
+
 <script>
-/* NAVEGAÇÃO */
-function toggleMenu(){document.getElementById("menuDropdown").classList.toggle("hidden")}
-function closeMenu(){document.getElementById("menuDropdown").classList.add("hidden")}
-function showPage(page){
- closeMenu();
- document.getElementById("trainingPage").classList.toggle("hidden",page!=="training");
- document.getElementById("foodPage").classList.toggle("hidden",page!=="food");
- if(page==="food")renderFood();
+/* ==========================================
+   SAGA WORKOUT SYSTEM
+   SISTEMA PRINCIPAL
+========================================== */
+
+const STORAGE = {
+  workouts: "sagaDemo",
+  days: "sagaTrainingDays",
+  timer: "sagaTimer",
+  food: "sagaFood",
+  profile: "sagaProfile"
+};
+
+function loadData(key, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch (error) {
+    console.warn("Erro ao carregar:", key, error);
+    return fallback;
+  }
 }
-/* DADOS DAS FICHAS */
-const defaults=[
- {id:"upper",name:"UPPER",exercises:[]},
- {id:"lower",name:"LOWER",exercises:[]},
- {id:"push",name:"PUSH",exercises:[]},
- {id:"pull",name:"PULL",exercises:[]},
- {id:"legs",name:"LEGS",exercises:[]}
+
+function saveData(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    alert("Não foi possível salvar. O armazenamento pode estar cheio.");
+    console.error(error);
+  }
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+/* ==========================================
+   FICHAS DE TREINO
+========================================== */
+
+const defaultWorkouts = {
+  UPPER: { name: "UPPER", exercises: [] },
+  LOWER: { name: "LOWER", exercises: [] },
+  PUSH: { name: "PUSH", exercises: [] },
+  PULL: { name: "PULL", exercises: [] },
+  LEGS: { name: "LEGS", exercises: [] }
+};
+
+let workouts = loadData(STORAGE.workouts, defaultWorkouts);
+
+Object.keys(defaultWorkouts).forEach(key => {
+  if (!workouts[key]) workouts[key] = defaultWorkouts[key];
+
+  if (!Array.isArray(workouts[key].exercises)) {
+    workouts[key].exercises = [];
+  }
+});
+
+let currentWorkout = null;
+
+function saveWorkouts() {
+  saveData(STORAGE.workouts, workouts);
+}
+
+function renderWorkouts() {
+  const grid = document.getElementById("workoutGrid");
+
+  grid.innerHTML = Object.keys(workouts).map(key => {
+    const workout = workouts[key];
+
+    return `
+      <div class="box ${key === "LEGS" ? "last" : ""}">
+        <div>
+          <input class="box-name-input"
+            value="${escapeHTML(workout.name)}"
+            onchange="renameWorkout('${key}',this.value)">
+
+          <div class="count">
+            ${workout.exercises.length} exercício(s)
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="open" onclick="openWorkout('${key}')">
+            ABRIR FICHA →
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renameWorkout(key, newName) {
+  if (!newName.trim()) return;
+
+  workouts[key].name = newName.trim();
+  saveWorkouts();
+  renderWorkouts();
+
+  if (currentWorkout === key) {
+    document.getElementById("detailTitle").textContent =
+      workouts[key].name;
+  }
+}
+
+function openWorkout(key) {
+  currentWorkout = key;
+
+  document.getElementById("detailTitle").textContent =
+    workouts[key].name;
+
+  showPage("detail");
+  renderExercises();
+}
+
+function renderExercises() {
+  const list = document.getElementById("exerciseList");
+  const exercises = workouts[currentWorkout].exercises;
+
+  if (!exercises.length) {
+    list.innerHTML = `
+      <div class="exercise">
+        <div class="empty-meal">
+          Nenhum exercício cadastrado nesta ficha.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = exercises.map((exercise, index) => `
+    <div class="exercise">
+
+      <div class="image-area">
+        ${
+          exercise.image
+          ? `<img class="image-preview"
+               src="${exercise.image}" alt="Imagem do exercício">`
+          : `<div class="image-placeholder">
+               IMAGEM DO EXERCÍCIO
+             </div>`
+        }
+
+        <div class="image-actions">
+          <label class="image-upload">
+            ADICIONAR / TROCAR IMAGEM
+            <input class="image-input" type="file"
+              accept="image/*"
+              onchange="handleExerciseImage(event,${index})">
+          </label>
+
+          ${
+            exercise.image
+            ? `<button class="image-remove"
+                onclick="removeExerciseImage(${index})">
+                REMOVER
+              </button>`
+            : ""
+          }
+        </div>
+      </div>
+
+      <input value="${escapeHTML(exercise.name)}"
+        placeholder="Nome do exercício"
+        onchange="updateExercise(${index},'name',this.value)">
+
+      <div class="fields">
+        <label>
+          SÉRIES
+          <input type="number" min="0"
+            value="${escapeHTML(exercise.sets)}"
+            onchange="updateExercise(${index},'sets',this.value)">
+        </label>
+
+        <label>
+          REPETIÇÕES
+          <input type="text"
+            value="${escapeHTML(exercise.reps)}"
+            onchange="updateExercise(${index},'reps',this.value)">
+        </label>
+
+        <label>
+          CARGA (KG)
+          <input type="number" min="0" step="0.5"
+            value="${escapeHTML(exercise.weight)}"
+            onchange="updateExercise(${index},'weight',this.value)">
+        </label>
+      </div>
+
+      <button class="delete"
+        onclick="deleteExercise(${index})">
+        EXCLUIR EXERCÍCIO
+      </button>
+
+    </div>
+  `).join("");
+}
+
+function addExercise() {
+  if (!currentWorkout) return;
+
+  workouts[currentWorkout].exercises.push({
+    name: "",
+    sets: 3,
+    reps: "8-12",
+    weight: 0,
+    image: ""
+  });
+
+  saveWorkouts();
+  renderExercises();
+}
+
+function updateExercise(index, field, value) {
+  if (!currentWorkout) return;
+
+  if (field === "sets" || field === "weight") {
+    value = Number(value) || 0;
+  }
+
+  workouts[currentWorkout].exercises[index][field] = value;
+  saveWorkouts();
+}
+
+function deleteExercise(index) {
+  if (!confirm("Deseja excluir este exercício?")) return;
+
+  workouts[currentWorkout].exercises.splice(index, 1);
+
+  saveWorkouts();
+  renderExercises();
+}
+
+function removeExerciseImage(index) {
+  workouts[currentWorkout].exercises[index].image = "";
+
+  saveWorkouts();
+  renderExercises();
+}
+
+function handleExerciseImage(event, index) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Selecione um arquivo de imagem.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const image = new Image();
+
+    image.onload = function() {
+      const canvas = document.createElement("canvas");
+      const maxSize = 1000;
+
+      let width = image.width;
+      let height = image.height;
+
+      if (width > maxSize || height > maxSize) {
+        const ratio = Math.min(
+          maxSize / width,
+          maxSize / height
+        );
+
+        width *= ratio;
+        height *= ratio;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const context = canvas.getContext("2d");
+      context.drawImage(image, 0, 0, width, height);
+
+      const compressed = canvas.toDataURL("image/jpeg", 0.72);
+
+      workouts[currentWorkout].exercises[index].image = compressed;
+
+      saveWorkouts();
+      renderExercises();
+    };
+
+    image.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+/* ==========================================
+   NAVEGAÇÃO
+========================================== */
+
+function showPage(page) {
+  const pages = {
+    training: "trainingPage",
+    detail: "detailPage",
+    food: "foodPage",
+    profile: "profilePage"
+  };
+
+  Object.values(pages).forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
+
+  if (pages[page]) {
+    document.getElementById(pages[page])
+      .classList.remove("hidden");
+  }
+
+  document.getElementById("menuDropdown")
+    .classList.add("hidden");
+
+  if (page === "training") renderWorkouts();
+  if (page === "food") renderFood();
+  if (page === "profile") loadProfile();
+}
+
+function toggleMenu() {
+  document.getElementById("menuDropdown")
+    .classList.toggle("hidden");
+}
+
+/* ==========================================
+   CALENDÁRIO
+========================================== */
+
+let trainingDays = loadData(STORAGE.days, []);
+let calendarDate = new Date();
+
+function dateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function renderCalendar() {
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+
+  const monthName = calendarDate.toLocaleDateString(
+    "pt-BR",
+    { month: "long", year: "numeric" }
+  );
+
+  document.getElementById("calendarMonth").textContent =
+    monthName.toUpperCase();
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const names = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+
+  let html = "";
+
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div></div>`;
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const key = dateKey(date);
+
+    const trained = trainingDays.includes(key);
+    const today = key === dateKey(new Date());
+
+    html += `
+      <div class="day
+        ${trained ? "trained" : ""}
+        ${today ? "today" : ""}"
+        onclick="toggleTrainingDay('${key}')">
+
+        <span class="day-name">${names[date.getDay()]}</span>
+        <span class="day-number">${day}</span>
+      </div>
+    `;
+  }
+
+  document.getElementById("calendarDays").innerHTML = html;
+
+  const total = trainingDays.filter(key =>
+    key.startsWith(
+      `${year}-${String(month + 1).padStart(2, "0")}`
+    )
+  ).length;
+
+  document.getElementById("calendarInfo").textContent =
+    `${total} dia(s) de treino neste mês`;
+}
+
+function toggleTrainingDay(key) {
+  if (trainingDays.includes(key)) {
+    trainingDays = trainingDays.filter(day => day !== key);
+  } else {
+    trainingDays.push(key);
+  }
+
+  saveData(STORAGE.days, trainingDays);
+  renderCalendar();
+}
+
+function changeMonth(amount) {
+  calendarDate.setMonth(calendarDate.getMonth() + amount);
+  renderCalendar();
+}
+
+/* ==========================================
+   CRONÔMETRO
+========================================== */
+
+let timerSeconds = loadData(STORAGE.timer, 0);
+let timerInterval = null;
+let timerRunning = false;
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timerSeconds / 60);
+  const seconds = timerSeconds % 60;
+
+  document.getElementById("timerDisplay").textContent =
+    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function startTimer() {
+  if (timerRunning) return;
+
+  timerRunning = true;
+
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    updateTimerDisplay();
+    saveData(STORAGE.timer, timerSeconds);
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+
+  timerInterval = null;
+  timerRunning = false;
+
+  saveData(STORAGE.timer, timerSeconds);
+}
+
+function resetTimer() {
+  pauseTimer();
+
+  timerSeconds = 0;
+
+  updateTimerDisplay();
+  saveData(STORAGE.timer, timerSeconds);
+}
+
+/* ==========================================
+   ALIMENTAÇÃO
+========================================== */
+
+const mealNames = [
+  "Café da manhã",
+  "Almoço",
+  "Café da tarde",
+  "Jantar",
+  "Ceia"
 ];
-let data;
-try{
- const saved=JSON.parse(localStorage.getItem("sagaDemo"));
- data=Array.isArray(saved)?saved:JSON.parse(JSON.stringify(defaults));
- defaults.forEach(d=>{
-  if(!data.some(w=>w.id===d.id))data.push(JSON.parse(JSON.stringify(d)));
-  const w=data.find(w=>w.id===d.id);
-  if(!Array.isArray(w.exercises))w.exercises=[];
- });
-}catch(e){data=JSON.parse(JSON.stringify(defaults))}
-let selected=null;
-function persist(){
- try{localStorage.setItem("sagaDemo",JSON.stringify(data));return true}
- catch(e){alert("Armazenamento cheio. Tente uma imagem menor.");return false}
+
+let foodData = loadData(STORAGE.food, {});
+let openFoodForm = null;
+
+function getSelectedFoodDate() {
+  return document.getElementById("foodDate").value ||
+    dateKey(new Date());
 }
-/* CALENDÁRIO */
-const DAY_NAMES=["SEG","TER","QUA","QUI","SEX","SÁB","DOM"];
-let trainedDays=[];
-try{const s=JSON.parse(localStorage.getItem("sagaTrainingDays"));trainedDays=Array.isArray(s)?s:[]}catch(e){}
-let weekOffset=0;
-function dateKey(d){
- return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-}
-function getMonday(date){
- const d=new Date(date);d.setHours(0,0,0,0);
- d.setDate(d.getDate()+(d.getDay()===0?-6:1-d.getDay()));return d;
-}
-function changeWeek(n){weekOffset+=n;renderCalendar()}
-function toggleDay(key){
- trainedDays=trainedDays.includes(key)?trainedDays.filter(x=>x!==key):[...trainedDays,key];
- localStorage.setItem("sagaTrainingDays",JSON.stringify(trainedDays));renderCalendar();
-}
-function renderCalendar(){
- const today=new Date();today.setHours(0,0,0,0);
- const monday=getMonday(today);monday.setDate(monday.getDate()+weekOffset*7);
- const months=["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
- const days=Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(monday.getDate()+i);return d});
- const unique=[...new Set(days.map(d=>d.getMonth()))];
- document.getElementById("calendarTitle").textContent=unique.map(m=>months[m]).join(" / ")+" "+days[0].getFullYear();
- const week=document.getElementById("week");week.innerHTML="";
- days.forEach((d,i)=>{
-  const key=dateKey(d),el=document.createElement("div");el.className="day";
-  if(trainedDays.includes(key))el.classList.add("trained");
-  if(key===dateKey(today))el.classList.add("today");
-  const n=document.createElement("div");n.className="day-name";n.textContent=DAY_NAMES[i];
-  const v=document.createElement("div");v.className="day-number";v.textContent=d.getDate();
-  el.append(n,v);el.onclick=()=>toggleDay(key);week.append(el);
- });
- document.getElementById("weekInfo").textContent=days.filter(d=>trainedDays.includes(dateKey(d))).length+" DE 7 DIAS TREINADOS";
-}
-/* TEMPORIZADOR */
-let timerInterval=null,elapsed=0,startedAt=null;
-try{
- const saved=JSON.parse(localStorage.getItem("sagaTimer"));
- if(saved){elapsed=Number(saved.elapsed)||0;startedAt=saved.startedAt||null;if(startedAt)elapsed+=Date.now()-startedAt}
-}catch(e){}
-function saveTimer(){localStorage.setItem("sagaTimer",JSON.stringify({elapsed,startedAt}))}
-function formatTime(ms){
- const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;
- return [h,m,s].map(n=>String(n).padStart(2,"0")).join(":");
-}
-function updateTimer(){
- document.getElementById("timerDisplay").textContent=formatTime(elapsed+(startedAt?Date.now()-startedAt:0));
-}
-function startTimer(){
- if(startedAt)return;startedAt=Date.now();saveTimer();
- if(timerInterval)clearInterval(timerInterval);
- timerInterval=setInterval(updateTimer,250);updateTimer();
-}
-function pauseTimer(){
- if(!startedAt)return;elapsed+=Date.now()-startedAt;startedAt=null;
- clearInterval(timerInterval);timerInterval=null;saveTimer();updateTimer();
-}
-function resetTimer(){
- if(!confirm("Zerar o temporizador?"))return;
- elapsed=0;startedAt=null;clearInterval(timerInterval);timerInterval=null;saveTimer();updateTimer();
-}
-/* FICHAS E EXERCÍCIOS */
-function render(){
- const grid=document.getElementById("grid");grid.innerHTML="";
- data.forEach((w,index)=>{
-  const box=document.createElement("div");box.className="box"+(index===4?" last":"");
-  const name=document.createElement("input");name.className="box-name-input";name.value=w.name;name.maxLength=25;
-  name.addEventListener("input",()=>{w.name=name.value;persist();if(selected===w.id)document.getElementById("detailTitle").textContent=w.name});
-  name.addEventListener("blur",()=>{w.name=name.value.trim().toUpperCase()||"SEM NOME";name.value=w.name;persist()});
-  const count=document.createElement("div");count.className="count";count.textContent=w.exercises.length+(w.exercises.length===1?" EXERCÍCIO":" EXERCÍCIOS");
-  const actions=document.createElement("div");actions.className="actions";
-  const open=document.createElement("button");open.className="open";open.textContent="ABRIR FICHA ↗";open.onclick=()=>openWorkout(w.id);
-  actions.append(open);box.append(name,count,actions);grid.append(box);
- });
-}
-function openWorkout(id){
- selected=id;document.getElementById("home").classList.add("hidden");
- document.getElementById("detail").classList.remove("hidden");renderExercises();
-}
-function goBack(){
- selected=null;document.getElementById("detail").classList.add("hidden");
- document.getElementById("home").classList.remove("hidden");render();
-}
-function addExercise(){
- const w=data.find(x=>x.id===selected);if(!w)return;
- w.exercises.push({name:"",series:"",reps:"",weight:"",image:""});persist();renderExercises();render();
-}
-function compressImage(file){
- return new Promise((resolve,reject)=>{
-  if(!file.type.startsWith("image/"))return reject(new Error("Imagem inválida"));
-  const reader=new FileReader();
-  reader.onload=()=>{
-   const img=new Image();
-   img.onload=()=>{
-    let width=img.width,height=img.height,max=1000;
-    if(width>height&&width>max){height=Math.round(height*max/width);width=max}
-    else if(height>max){width=Math.round(width*max/height);height=max}
-    const canvas=document.createElement("canvas");canvas.width=width;canvas.height=height;
-    canvas.getContext("2d").drawImage(img,0,0,width,height);
-    resolve(canvas.toDataURL("image/jpeg",.72));
-   };
-   img.onerror=reject;img.src=reader.result;
-  };
-  reader.onerror=reject;reader.readAsDataURL(file);
- });
-}
-function renderExercises(){
- const w=data.find(x=>x.id===selected);if(!w)return;
- document.getElementById("detailTitle").textContent=w.name;
- const list=document.getElementById("exerciseList");list.innerHTML="";
- if(!w.exercises.length){list.textContent="AINDA NÃO HÁ EXERCÍCIOS NESTA FICHA.";list.style.color="#777";return}
- list.style.color="";
- w.exercises.forEach((ex,i)=>{
-  const card=document.createElement("div");card.className="exercise";
-  const area=document.createElement("div");area.className="image-area";
-  if(ex.image){
-   const img=document.createElement("img");img.className="image-preview";img.src=ex.image;img.alt="Exercício";area.append(img);
-  }else{
-   const placeholder=document.createElement("div");placeholder.className="image-placeholder";placeholder.textContent="ADICIONE UMA FOTO DO EXERCÍCIO";area.append(placeholder);
+
+function getDayFood() {
+  const key = getSelectedFoodDate();
+
+  if (!foodData[key]) {
+    foodData[key] = {};
   }
-  const file=document.createElement("input");file.type="file";file.accept="image/*";file.className="image-input";
-  const actions=document.createElement("div");actions.className="image-actions";
-  const upload=document.createElement("label");upload.className="image-upload";upload.textContent=ex.image?"TROCAR IMAGEM":"＋ ADICIONAR IMAGEM";
-  upload.append(file);actions.append(upload);
-  if(ex.image){
-   const remove=document.createElement("button");remove.className="image-remove";remove.textContent="REMOVER";
-   remove.onclick=()=>{ex.image="";persist();renderExercises()};actions.append(remove);
-  }
-  area.append(actions);
-  file.onchange=async()=>{
-   const f=file.files[0];if(!f)return;
-   if(f.size>15*1024*1024){alert("Escolha uma imagem de até 15 MB.");return}
-   try{const old=ex.image;ex.image=await compressImage(f);if(!persist())ex.image=old;renderExercises()}
-   catch(e){alert("Não foi possível carregar a imagem")}
+
+  mealNames.forEach((name, index) => {
+    if (!Array.isArray(foodData[key][index])) {
+      foodData[key][index] = [];
+    }
+  });
+
+  return foodData[key];
+}
+
+function setFoodToday() {
+  document.getElementById("foodDate").value =
+    dateKey(new Date());
+
+  renderFood();
+}
+
+function renderFood() {
+  const dayFood = getDayFood();
+
+  let totals = {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
   };
-  const name=document.createElement("input");name.placeholder="Nome do exercício";name.value=ex.name||"";
-  name.oninput=()=>{ex.name=name.value;persist()};
-  const fields=document.createElement("div");fields.className="fields";
-  [["SÉRIES","series","4"],["REPS","reps","10"],["CARGA","weight","20kg"]].forEach(([label,key,placeholder])=>{
-   const div=document.createElement("div"),title=document.createElement("label"),input=document.createElement("input");
-   title.textContent=label;input.placeholder=placeholder;input.value=ex[key]||"";
-   input.oninput=()=>{ex[key]=input.value;persist()};
-   div.append(title,input);fields.append(div);
+
+  let html = "";
+
+  mealNames.forEach((mealName, mealIndex) => {
+    const foods = dayFood[mealIndex] || [];
+
+    let mealCalories = 0;
+
+    foods.forEach(food => {
+      totals.calories += Number(food.calories) || 0;
+      totals.protein += Number(food.protein) || 0;
+      totals.carbs += Number(food.carbs) || 0;
+      totals.fat += Number(food.fat) || 0;
+
+      mealCalories += Number(food.calories) || 0;
+    });
+
+    html += `
+      <div class="meal">
+        <div class="meal-header">
+          <div class="meal-title">${mealName}</div>
+          <div class="meal-total">${mealCalories.toFixed(0)} kcal</div>
+        </div>
+
+        ${
+          foods.length
+          ? foods.map((food, foodIndex) => `
+              <div class="food-entry">
+                <div class="food-entry-top">
+                  <div class="food-name">
+                    ${escapeHTML(food.name)}
+                  </div>
+
+                  <button class="food-delete"
+                    onclick="deleteFood(${mealIndex},${foodIndex})">
+                    EXCLUIR
+                  </button>
+                </div>
+
+                <div class="food-description">
+                  ${escapeHTML(food.portion || "")}
+                  · ${Number(food.calories) || 0} kcal
+                  · P ${Number(food.protein) || 0}g
+                  · C ${Number(food.carbs) || 0}g
+                  · G ${Number(food.fat) || 0}g
+                </div>
+              </div>
+            `).join("")
+          : `<div class="empty-meal">Nenhum alimento cadastrado.</div>`
+        }
+
+        <button class="meal-add"
+          onclick="showFoodForm(${mealIndex})">
+          + ADICIONAR ALIMENTO
+        </button>
+
+        <div id="foodForm${mealIndex}"></div>
+      </div>
+    `;
   });
-  const del=document.createElement("button");del.className="delete";del.textContent="EXCLUIR EXERCÍCIO";
-  del.onclick=()=>{if(confirm("Excluir este exercício?")){w.exercises.splice(i,1);persist();renderExercises();render()}};
-  card.append(area,name,fields,del);list.append(card);
- });
+
+  document.getElementById("mealList").innerHTML = html;
+
+  document.getElementById("totalCalories").textContent =
+    `${totals.calories.toFixed(0)} kcal`;
+
+  document.getElementById("totalProtein").textContent =
+    `${totals.protein.toFixed(1)}g`;
+
+  document.getElementById("totalCarbs").textContent =
+    `${totals.carbs.toFixed(1)}g`;
+
+  document.getElementById("totalFat").textContent =
+    `${totals.fat.toFixed(1)}g`;
 }
-/* ALIMENTAÇÃO */
-const mealNames=["CAFÉ DA MANHÃ","ALMOÇO","CAFÉ DA TARDE","JANTAR","CEIA"];
-let foodData={};
-try{const s=JSON.parse(localStorage.getItem("sagaFood"));if(s&&typeof s==="object")foodData=s}catch(e){}
-function saveFood(){try{localStorage.setItem("sagaFood",JSON.stringify(foodData));return true}catch(e){alert("Armazenamento cheio.");return false}}
-function getFoodDate(){return document.getElementById("foodDate").value}
-function getDayMeals(){
- const date=getFoodDate();if(!foodData[date])foodData[date]={};
- mealNames.forEach((_,i)=>{if(!Array.isArray(foodData[date][i]))foodData[date][i]=[]});
- return foodData[date];
+
+function showFoodForm(mealIndex) {
+  const area = document.getElementById(`foodForm${mealIndex}`);
+
+  if (openFoodForm === mealIndex) {
+    openFoodForm = null;
+    area.innerHTML = "";
+    return;
+  }
+
+  if (openFoodForm !== null) {
+    const previous = document.getElementById(`foodForm${openFoodForm}`);
+
+    if (previous) previous.innerHTML = "";
+  }
+
+  openFoodForm = mealIndex;
+
+  area.innerHTML = `
+    <div class="food-form">
+      <input id="foodName${mealIndex}" placeholder="Nome do alimento">
+
+      <input id="foodPortion${mealIndex}"
+        placeholder="Porção (ex.: 100g, 1 unidade)">
+
+      <div class="food-form-grid">
+        <input id="foodCalories${mealIndex}"
+          type="number" min="0" placeholder="Calorias">
+
+        <input id="foodProtein${mealIndex}"
+          type="number" min="0" step="0.1" placeholder="Proteína (g)">
+
+        <input id="foodCarbs${mealIndex}"
+          type="number" min="0" step="0.1" placeholder="Carboidratos (g)">
+
+        <input id="foodFat${mealIndex}"
+          type="number" min="0" step="0.1" placeholder="Gorduras (g)">
+      </div>
+
+      <button class="save-food" onclick="saveFood(${mealIndex})">
+        SALVAR ALIMENTO
+      </button>
+
+      <button class="cancel-food" onclick="cancelFoodForm(${mealIndex})">
+        CANCELAR
+      </button>
+    </div>
+  `;
 }
-function setTodayFood(){document.getElementById("foodDate").value=dateKey(new Date());renderFood()}
-function addFood(mealIndex){
- const meals=getDayMeals(),meal=document.getElementById("meal-"+mealIndex);
- if(meal.querySelector(".food-form"))return;
- const form=document.createElement("div");form.className="food-form";
- const name=document.createElement("input");name.placeholder="Nome do alimento";
- const quantity=document.createElement("input");quantity.placeholder="Quantidade / porção";
- const macros=document.createElement("div");macros.className="food-form-grid";
- const fields=[["Calorias (kcal)","calories"],["Proteína (g)","protein"],["Carboidratos (g)","carbs"],["Gorduras (g)","fat"]];
- const inputs={};
- fields.forEach(([label,key])=>{const input=document.createElement("input");input.placeholder=label;input.inputMode="decimal";inputs[key]=input;macros.append(input)});
- const save=document.createElement("button");save.className="save-food";save.textContent="SALVAR ALIMENTO";
- save.onclick=()=>{
-  if(!name.value.trim()){alert("Digite o nome do alimento.");return}
-  const item={name:name.value.trim(),quantity:quantity.value.trim()};
-  fields.forEach(([label,key])=>{const n=Number(inputs[key].value.replace(",","."));item[key]=Number.isFinite(n)&&n>=0?n:0});
-  meals[mealIndex].push(item);if(saveFood())renderFood();else meals[mealIndex].pop();
- };
- const cancel=document.createElement("button");cancel.className="cancel-food";cancel.textContent="CANCELAR";cancel.onclick=()=>form.remove();
- form.append(name,quantity,macros,save,cancel);meal.append(form);name.focus();
-}
-function deleteFood(mealIndex,foodIndex){
- if(!confirm("Excluir este alimento?"))return;
- const meals=getDayMeals();meals[mealIndex].splice(foodIndex,1);if(saveFood())renderFood();
-}
-function renderFood(){
- const date=getFoodDate();if(!date)return;
- const meals=getDayMeals(),list=document.getElementById("mealList");list.innerHTML="";
- let totals={calories:0,protein:0,carbs:0,fat:0};
- mealNames.forEach((mealName,index)=>{
-  const meal=document.createElement("div");meal.className="meal";meal.id="meal-"+index;
-  const foods=meals[index];let mealCalories=0;
-  foods.forEach(f=>{["calories","protein","carbs","fat"].forEach(k=>{const n=Number(f[k])||0;totals[k]+=n;if(k==="calories")mealCalories+=n})});
-  const header=document.createElement("div");header.className="meal-header";
-  const title=document.createElement("div");title.className="meal-title";title.textContent=mealName;
-  const total=document.createElement("div");total.className="meal-total";total.textContent=Math.round(mealCalories)+" KCAL";
-  header.append(title,total);meal.append(header);
-  if(!foods.length){const empty=document.createElement("div");empty.className="empty-meal";empty.textContent="Nenhum alimento cadastrado.";meal.append(empty)}
-  foods.forEach((f,i)=>{
-   const entry=document.createElement("div");entry.className="food-entry";
-   const top=document.createElement("div");top.className="food-entry-top";
-   const name=document.createElement("div");name.className="food-name";name.textContent=f.name;
-   const del=document.createElement("button");del.className="food-delete";del.textContent="EXCLUIR";del.onclick=()=>deleteFood(index,i);
-   top.append(name,del);
-   const desc=document.createElement("div");desc.className="food-description";
-   desc.textContent=(f.quantity?f.quantity+" • ":"")+Math.round(f.calories||0)+" kcal • "+(f.protein||0)+" g proteína • "+(f.carbs||0)+" g carboidratos • "+(f.fat||0)+" g gorduras";
-   entry.append(top,desc);meal.append(entry);
+
+function saveFood(mealIndex) {
+  const name = document.getElementById(`foodName${mealIndex}`).value.trim();
+
+  if (!name) {
+    alert("Digite o nome do alimento.");
+    return;
+  }
+
+  const dayFood = getDayFood();
+
+  dayFood[mealIndex].push({
+    name,
+    portion: document.getElementById(`foodPortion${mealIndex}`).value,
+    calories: Number(document.getElementById(`foodCalories${mealIndex}`).value) || 0,
+    protein: Number(document.getElementById(`foodProtein${mealIndex}`).value) || 0,
+    carbs: Number(document.getElementById(`foodCarbs${mealIndex}`).value) || 0,
+    fat: Number(document.getElementById(`foodFat${mealIndex}`).value) || 0
   });
-  const add=document.createElement("button");add.className="meal-add";add.textContent="+ ADICIONAR ALIMENTO";add.onclick=()=>addFood(index);
-  meal.append(add);list.append(meal);
- });
- document.getElementById("totalCalories").textContent=Math.round(totals.calories);
- document.getElementById("totalProtein").textContent=totals.protein.toFixed(1)+" g";
- document.getElementById("totalCarbs").textContent=totals.carbs.toFixed(1)+" g";
- document.getElementById("totalFat").textContent=totals.fat.toFixed(1)+" g";
+
+  saveData(STORAGE.food, foodData);
+
+  openFoodForm = null;
+  renderFood();
 }
-/* PERFIL E PIN */
-function openModal(title,description,fields,onSave){
- document.getElementById("modalTitle").textContent=title;
- document.getElementById("modalDescription").textContent=description;
- const area=document.getElementById("modalFields");area.innerHTML="";
- fields.forEach(f=>{
-  const input=document.createElement("input");input.id=f.id;input.placeholder=f.placeholder;
-  input.value=f.value||"";input.type=f.type||"text";if(f.maxLength)input.maxLength=f.maxLength;
-  if(f.inputMode)input.inputMode=f.inputMode;area.append(input);
- });
- document.getElementById("modalConfirm").onclick=()=>{
-  const values={};fields.forEach(f=>values[f.id]=document.getElementById(f.id).value);onSave(values);
- };
- document.getElementById("modalBackdrop").classList.remove("hidden");
+
+function cancelFoodForm(mealIndex) {
+  openFoodForm = null;
+
+  document.getElementById(`foodForm${mealIndex}`).innerHTML = "";
 }
-function closeModal(){document.getElementById("modalBackdrop").classList.add("hidden")}
-function editProfile(){
- closeMenu();let p={};try{p=JSON.parse(localStorage.getItem("sagaProfile")||"{}")}catch(e){}
- openModal("MEU PERFIL","Personalize seu espaço SAGA.",[{id:"profileName",placeholder:"Seu nome",value:p.name||""}],v=>{
-  localStorage.setItem("sagaProfile",JSON.stringify({name:v.profileName.trim()}));closeModal();alert("Perfil atualizado!");
- });
+
+function deleteFood(mealIndex, foodIndex) {
+  if (!confirm("Deseja excluir este alimento?")) return;
+
+  const dayFood = getDayFood();
+
+  dayFood[mealIndex].splice(foodIndex, 1);
+
+  saveData(STORAGE.food, foodData);
+  renderFood();
 }
-function configurePin(){
- closeMenu();
- openModal("CONFIGURAR PIN","Crie um PIN de 4 números.",[
-  {id:"newPin",placeholder:"Novo PIN de 4 números",type:"password",maxLength:4,inputMode:"numeric"},
-  {id:"confirmPin",placeholder:"Confirme o PIN",type:"password",maxLength:4,inputMode:"numeric"}
- ],v=>{
-  if(!/^\d{4}$/.test(v.newPin)){alert("O PIN precisa ter 4 números.");return}
-  if(v.newPin!==v.confirmPin){alert("Os PINs não são iguais.");return}
-  localStorage.setItem("sagaPin",v.newPin);closeModal();updateLockMenu();alert("PIN configurado!");
- });
-}
-function updateLockMenu(){
- const item=document.getElementById("lockMenuItem");const has=!!localStorage.getItem("sagaPin");
- item.textContent=has?"⌑ BLOQUEAR / SAIR":"⌑ BLOQUEIO DESATIVADO";item.disabled=!has;item.style.opacity=has?"1":".4";
-}
-function lockApp(){
- closeMenu();if(!localStorage.getItem("sagaPin")){alert("Configure um PIN primeiro.");return}
- document.getElementById("pinScreen").classList.remove("hidden");
- document.getElementById("pinLoginInput").value="";document.getElementById("pinError").textContent="";
-}
-function checkPin(){
- if(document.getElementById("pinLoginInput").value===localStorage.getItem("sagaPin")){
-  document.getElementById("pinScreen").classList.add("hidden");document.getElementById("pinError").textContent="";
- }else{
-  document.getElementById("pinError").textContent="PIN incorreto. Tente novamente.";
-  document.getElementById("pinLoginInput").value="";
- }
-}
+
 /* ==========================================
-   J.A.R.V.I.S. - NÚCLEO CONVERSACIONAL LOCAL
-   Arquitetura B: preparado para um provedor de IA local futuro.
-   Nesta etapa, funciona sem API, servidor ou conexão externa.
+   PERFIL
 ========================================== */
-let jarvisStarted=false;
-let jarvisContext={lastIntent:null,lastTopic:null,lastWorkout:null,lastMeal:null};
-let jarvisTurnCount=0;
-const jarvisPersonality={
- name:"J.A.R.V.I.S.",
- greeting:"Olá, senhor. J.A.R.V.I.S. à sua disposição.",
- address:"senhor"
+
+function saveProfile() {
+  const name = document.getElementById("profileName").value.trim();
+
+  saveData(STORAGE.profile, { name });
+
+  alert("Perfil salvo com sucesso.");
+}
+
+function loadProfile() {
+  const profile = loadData(STORAGE.profile, { name: "" });
+
+  document.getElementById("profileName").value =
+    profile.name || "";
+}
+
+/* ==========================================
+   INICIALIZAÇÃO DO SAGA
+========================================== */
+
+function initializeSaga() {
+  document.getElementById("foodDate").value =
+    dateKey(new Date());
+
+  renderWorkouts();
+  renderCalendar();
+  updateTimerDisplay();
+  renderFood();
+  loadProfile();
+}
+
+initializeSaga();
+</script>
+
+<script>
+/* ==========================================
+   J.A.R.V.I.S. — MEMÓRIA E INTELIGÊNCIA
+========================================== */
+
+const JARVIS_STORAGE = {
+  memory: "sagaJarvisMemory",
+  knowledge: "sagaJarvisKnowledge",
+  conversation: "sagaJarvisConversation",
+  settings: "sagaJarvisSettings"
 };
-/* Ponto de extensão: um provedor local futuro poderá ser conectado aqui.
-   O núcleo atual permanece totalmente funcional sem esse provedor. */
-const jarvisEngine={
- mode:"local-rules",
- respond(message){return jarvisLocalResponse(message)}
-};
-function toggleJarvis(){
- const win=document.getElementById("jarvis-window");
- win.classList.toggle("hidden");
- if(!win.classList.contains("hidden")){
-  if(!jarvisStarted){
-   jarvisStarted=true;
-   jarvisReply(jarvisPersonality.greeting+"\n\nComo posso ajudá-lo hoje, senhor?");
+
+let jarvisMemory = loadData(JARVIS_STORAGE.memory, {
+  personal: {
+    name: "",
+    age: 20,
+    weight: 65,
+    height: 175,
+    goalWeight: 80,
+    goal: "Hipertrofia e ganho de massa muscular",
+    trainingFrequency: "5 a 6 vezes por semana",
+    preferences: "",
+    restrictions: "",
+    budget: ""
+  },
+  notes: []
+});
+
+let jarvisKnowledge = loadData(JARVIS_STORAGE.knowledge, []);
+let jarvisConversation = loadData(JARVIS_STORAGE.conversation, []);
+
+let jarvisSettings = loadData(JARVIS_STORAGE.settings, {
+  teaching: false,
+  voice: true
+});
+
+let jarvisRecognition = null;
+let jarvisListening = false;
+
+/* ==========================================
+   SALVAMENTO DA MEMÓRIA
+========================================== */
+
+function saveJarvisMemory() {
+  saveData(JARVIS_STORAGE.memory, jarvisMemory);
+}
+
+function saveJarvisKnowledge() {
+  saveData(JARVIS_STORAGE.knowledge, jarvisKnowledge);
+}
+
+function saveJarvisConversation() {
+  jarvisConversation = jarvisConversation.slice(-40);
+  saveData(JARVIS_STORAGE.conversation, jarvisConversation);
+}
+
+function saveJarvisSettings() {
+  saveData(JARVIS_STORAGE.settings, jarvisSettings);
+}
+
+/* ==========================================
+   CONVERSA
+========================================== */
+
+function jarvisAddMessage(text, type = "bot", save = true) {
+  const messages = document.getElementById("jarvis-messages");
+
+  const message = document.createElement("div");
+  message.className = `jarvis-message ${type}`;
+  message.textContent = text;
+
+  messages.appendChild(message);
+  messages.scrollTop = messages.scrollHeight;
+
+  if (save) {
+    jarvisConversation.push({
+      type,
+      text,
+      date: new Date().toISOString()
+    });
+
+    saveJarvisConversation();
   }
-  setTimeout(()=>document.getElementById("jarvis-input").focus(),100);
- }
 }
-function jarvisQuick(text){
- document.getElementById("jarvis-input").value=text;
- sendJarvisMessage();
+
+function restoreJarvisConversation() {
+  const messages = document.getElementById("jarvis-messages");
+
+  messages.innerHTML = "";
+
+  if (!jarvisConversation.length) {
+    jarvisAddMessage(
+      "Olá, senhor. J.A.R.V.I.S. à sua disposição.",
+      "bot",
+      false
+    );
+    return;
+  }
+
+  jarvisConversation.slice(-20).forEach(item => {
+    const message = document.createElement("div");
+
+    message.className = `jarvis-message ${item.type}`;
+    message.textContent = item.text;
+
+    messages.appendChild(message);
+  });
+
+  messages.scrollTop = messages.scrollHeight;
 }
-function jarvisMessage(text,type){
- const area=document.getElementById("jarvis-messages");
- const bubble=document.createElement("div");
- bubble.className="jarvis-message "+(type==="user"?"jarvis-user":"jarvis-bot");
- bubble.textContent=text;
- area.append(bubble);
- area.scrollTop=area.scrollHeight;
+
+function toggleJarvis() {
+  const windowElement = document.getElementById("jarvis-window");
+
+  windowElement.classList.toggle("hidden");
+
+  if (!windowElement.classList.contains("hidden")) {
+    restoreJarvisConversation();
+    document.getElementById("jarvis-input").focus();
+  }
 }
-function normalizeText(text){
- return String(text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+
+/* ==========================================
+   MODO ENSINAR
+========================================== */
+
+function toggleJarvisTeaching() {
+  jarvisSettings.teaching = !jarvisSettings.teaching;
+
+  saveJarvisSettings();
+  updateJarvisTeachingButton();
+
+  if (jarvisSettings.teaching) {
+    jarvisAddMessage(
+      "Modo ENSINAR ativado, senhor. As próximas mensagens serão armazenadas na biblioteca local. Desative o modo para voltar à conversa normal."
+    );
+  } else {
+    jarvisAddMessage(
+      "Modo ENSINAR desativado. Voltamos à conversa normal, senhor."
+    );
+  }
 }
-function findWorkout(name){
- const target=normalizeText(name);
- return data.find(w=>normalizeText(w.name)===target||w.id===target);
+
+function updateJarvisTeachingButton() {
+  const button = document.getElementById("jarvis-teach-toggle");
+
+  button.textContent = jarvisSettings.teaching
+    ? "ENSINAR: ON"
+    : "ENSINAR: OFF";
+
+  button.classList.toggle("active", jarvisSettings.teaching);
 }
-function listWorkouts(){
- return data.map(w=>w.name+": "+w.exercises.length+" exercício(s)").join("\n");
+
+function teachJarvis(content) {
+  jarvisKnowledge.push({
+    id: Date.now() + Math.random(),
+    content,
+    category: "Geral",
+    date: new Date().toISOString()
+  });
+
+  saveJarvisKnowledge();
+
+  jarvisAddMessage(
+    "Conteúdo recebido e salvo na biblioteca local, senhor. Posso consultá-lo posteriormente."
+  );
 }
-function jarvisHelp(){
- return "À SUA DISPOSIÇÃO, SENHOR.\n\nPOSSO AJUDAR COM:\n\n• Conversar sobre assuntos do dia a dia\n• Consultar suas fichas e resumir seu treino\n• Adicionar exercícios e renomear fichas ou exercícios\n• Consultar sua alimentação\n• Registrar alimentos nas refeições (os macros precisam ser informados no SAGA)\n\nEXEMPLOS:\n“Mostre minhas fichas”\n“Adicione supino reto na ficha PUSH”\n“Como posso melhorar meu treino?”\n“Hoje estou meio desanimado”\n“Quero conversar sobre carros”\n\nSou uma versão local, senhor. Quando não souber algo, direi com clareza em vez de inventar.";
+
+/* ==========================================
+   BIBLIOTECA
+========================================== */
+
+function openJarvisPanel(panel) {
+  const area = document.getElementById("jarvis-panel");
+
+  area.classList.remove("hidden");
+
+  if (panel === "knowledge") {
+    renderJarvisKnowledge();
+  }
+
+  if (panel === "memory") {
+    renderJarvisMemory();
+  }
 }
-function jarvisFoodSummary(){
- const date=getFoodDate()||dateKey(new Date());
- const meals=foodData[date]||{};
- let lines=[];
- mealNames.forEach((name,i)=>{
-  const items=meals[i]||[];
-  lines.push(name+": "+(items.length?items.map(x=>x.name).join(", "):"vazio"));
- });
- return "ALIMENTAÇÃO DE "+date+"\n"+lines.join("\n");
+
+function closeJarvisPanel() {
+  document.getElementById("jarvis-panel").classList.add("hidden");
 }
-function jarvisWorkoutSummary(){
- const total=data.reduce((n,w)=>n+w.exercises.length,0);
- return "RESUMO DO SAGA\n\nFichas cadastradas: "+data.length+"\nExercícios cadastrados: "+total+"\n\n"+listWorkouts();
+
+function renderJarvisKnowledge() {
+  const area = document.getElementById("jarvis-panel");
+
+  let html = `
+    <button class="secondary" onclick="closeJarvisPanel()">← VOLTAR</button>
+
+    <h3>Biblioteca de conhecimentos</h3>
+
+    <p class="jarvis-small">
+      Aqui ficam os conteúdos enviados no modo ENSINAR.
+      As informações são armazenadas neste navegador.
+    </p>
+  `;
+
+  if (!jarvisKnowledge.length) {
+    html += `
+      <div class="knowledge-item">
+        A biblioteca ainda está vazia.
+        Ative o modo ENSINAR para adicionar conhecimentos.
+      </div>
+    `;
+  }
+
+  jarvisKnowledge.forEach(item => {
+    html += `
+      <div class="knowledge-item">
+        <button onclick="deleteJarvisKnowledge('${item.id}')">
+          EXCLUIR
+        </button>
+
+        <strong>${escapeHTML(item.category || "Geral")}</strong>
+
+        <p>${escapeHTML(item.content)}</p>
+
+        <p class="jarvis-small">
+          ${new Date(item.date).toLocaleDateString("pt-BR")}
+        </p>
+      </div>
+    `;
+  });
+
+  area.innerHTML = html;
 }
-function jarvisConversationResponse(text,raw){
- const t=text;
- if(/\b(obrigad[oa]|valeu|agradeco)\b/.test(t))return "Sempre às ordens, senhor. Fico satisfeito em ser útil.";
- if(/\b(quem e voce|seu nome|o que e voce)\b/.test(t))return "Sou o J.A.R.V.I.S., seu assistente local integrado ao SAGA. Posso conversar, ajudar com informações e consultar os dados que o senhor cadastrou neste sistema.";
- if(/\b(como voce esta|tudo bem com voce|como vai)\b/.test(t))return "Em pleno funcionamento, senhor. Obrigado por perguntar. E quanto ao senhor, como está?";
- if(/\b(quem sou eu|o que sabe sobre mim)\b/.test(t))return "Neste momento, só conheço o que está disponível nos dados do SAGA neste navegador e o que o senhor me conta durante esta conversa. Ainda não tenho uma memória pessoal completa configurada.";
- if(/\b(triste|desanimad[oa]|pra baixo|sozinh[oa]|mal hoje|dia dificil|ansios[oa]|preocupad[oa])\b/.test(t)){
-  jarvisContext.lastIntent="support";jarvisContext.lastTopic="sentimentos";
-  return "Lamento que esteja se sentindo assim, senhor. Não vou presumir que sei exatamente o que está acontecendo, mas posso ouvi-lo sem julgamentos. Quer me contar o que deixou seu dia mais pesado?";
- }
- if(/\b(feliz|animad[oa]|empolgad[oa]|consegui|deu certo|orgulhos[oa])\b/.test(t)){
-  jarvisContext.lastIntent="positive";jarvisContext.lastTopic="conquista";
-  return "Excelente notícia, senhor. Gosto de ouvir que as coisas estão caminhando bem. O que aconteceu?";
- }
- if(/\b(carro|carros|celta|moto|veiculo|veiculos|mecanica|motor|embreagem|freio)\b/.test(t)){
-  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="automoveis";
-  return "Certamente, senhor. Podemos falar sobre carros, manutenção, desempenho ou comparar modelos. Se for uma questão mecânica, descreva os sintomas e o veículo; vou separar o que é hipótese do que pode ser confirmado.";
- }
- if(/\b(fome|comer|alimentacao|dieta|refeicao|nutricao|ganhar peso|engordar|emagrecer)\b/.test(t)){
-  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="alimentacao";
-  return "Podemos tratar disso, senhor. Posso consultar os alimentos registrados no SAGA, mas ainda não calculo automaticamente suas necessidades nutricionais. Se a questão é fome agora, diga o que comeu hoje e que tipo de alimento tem disponível.";
- }
- if(/\b(treino|musculacao|hipertrofia|musculo|exercicio|academia|serie|repeticao)\b/.test(t)){
-  jarvisContext.lastIntent="topic";jarvisContext.lastTopic="treinamento";
-  return "À disposição, senhor. Posso consultar suas fichas cadastradas e conversar sobre princípios de treinamento. Para avaliar seu treino com precisão, preciso dos exercícios, séries, repetições, cargas e frequência que o senhor utiliza.";
- }
- if(/\b(cansad[oa]|com sono|exaust[oa])\b/.test(t)){
-  jarvisContext.lastIntent="support";jarvisContext.lastTopic="cansaco";
-  return "Entendido, senhor. Cansaço pode ter várias causas, desde uma noite mal dormida até rotina intensa. Foi um dia puxado ou essa sensação vem se repetindo?";
- }
- if(/\b(conte uma curiosidade|curiosidade|me surpreenda|assunto aleatorio|vamos conversar|conversar)\b/.test(t)){
-  const curiosities=[
-   "Uma curiosidade, senhor: polvo tem três corações. Dois movimentam sangue pelas brânquias e um pelo restante do corpo.",
-   "Um fato interessante: um dia em Vênus dura mais que um ano venusiano. O planeta demora mais para girar em torno do próprio eixo do que para orbitar o Sol.",
-   "A memória humana não funciona como uma gravação de vídeo. Ao recordar, o cérebro reconstrói a experiência — por isso detalhes podem mudar com o tempo."
+
+function deleteJarvisKnowledge(id) {
+  if (!confirm("Deseja excluir este conhecimento da biblioteca?")) {
+    return;
+  }
+
+  jarvisKnowledge = jarvisKnowledge.filter(
+    item => String(item.id) !== String(id)
+  );
+
+  saveJarvisKnowledge();
+  renderJarvisKnowledge();
+}
+
+function searchJarvisKnowledge(query) {
+  const terms = normalizeText(query)
+    .split(" ")
+    .filter(term => term.length > 2);
+
+  if (!terms.length) return [];
+
+  return jarvisKnowledge
+    .map(item => {
+      const content = normalizeText(
+        item.category + " " + item.content
+      );
+
+      const score = terms.filter(term =>
+        content.includes(term)
+      ).length;
+
+      return { item, score };
+    })
+    .filter(result => result.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+    .map(result => result.item);
+}
+
+/* ==========================================
+   MEMÓRIA PESSOAL
+========================================== */
+
+function renderJarvisMemory() {
+  const area = document.getElementById("jarvis-panel");
+  const person = jarvisMemory.personal;
+
+  area.innerHTML = `
+    <button class="secondary" onclick="closeJarvisPanel()">← VOLTAR</button>
+
+    <h3>Memória pessoal</h3>
+
+    <p class="jarvis-small">
+      Edite as informações que o J.A.R.V.I.S. utiliza para contextualizar
+      suas conversas. São dados informados por você, não medições automáticas.
+    </p>
+
+    <label class="jarvis-small">NOME</label>
+    <input id="jm-name" value="${escapeHTML(person.name)}">
+
+    <label class="jarvis-small">IDADE</label>
+    <input id="jm-age" type="number" value="${escapeHTML(person.age)}">
+
+    <label class="jarvis-small">PESO ATUAL (KG)</label>
+    <input id="jm-weight" type="number" step="0.1" value="${escapeHTML(person.weight)}">
+
+    <label class="jarvis-small">ALTURA (CM)</label>
+    <input id="jm-height" type="number" value="${escapeHTML(person.height)}">
+
+    <label class="jarvis-small">PESO DESEJADO (KG)</label>
+    <input id="jm-goal-weight" type="number" step="0.1" value="${escapeHTML(person.goalWeight)}">
+
+    <label class="jarvis-small">OBJETIVO</label>
+    <input id="jm-goal" value="${escapeHTML(person.goal)}">
+
+    <label class="jarvis-small">FREQUÊNCIA DE TREINO</label>
+    <input id="jm-frequency" value="${escapeHTML(person.trainingFrequency)}">
+
+    <label class="jarvis-small">PREFERÊNCIAS</label>
+    <textarea id="jm-preferences">${escapeHTML(person.preferences)}</textarea>
+
+    <label class="jarvis-small">RESTRIÇÕES ALIMENTARES</label>
+    <textarea id="jm-restrictions">${escapeHTML(person.restrictions)}</textarea>
+
+    <label class="jarvis-small">ORÇAMENTO ALIMENTAR</label>
+    <input id="jm-budget" value="${escapeHTML(person.budget)}">
+
+    <button onclick="saveJarvisPersonalMemory()">
+      SALVAR MEMÓRIA
+    </button>
+  `;
+}
+
+function saveJarvisPersonalMemory() {
+  jarvisMemory.personal = {
+    name: document.getElementById("jm-name").value,
+    age: Number(document.getElementById("jm-age").value) || 0,
+    weight: Number(document.getElementById("jm-weight").value) || 0,
+    height: Number(document.getElementById("jm-height").value) || 0,
+    goalWeight: Number(document.getElementById("jm-goal-weight").value) || 0,
+    goal: document.getElementById("jm-goal").value,
+    trainingFrequency: document.getElementById("jm-frequency").value,
+    preferences: document.getElementById("jm-preferences").value,
+    restrictions: document.getElementById("jm-restrictions").value,
+    budget: document.getElementById("jm-budget").value
+  };
+
+  saveJarvisMemory();
+  closeJarvisPanel();
+
+  jarvisAddMessage(
+    "Memória pessoal atualizada, senhor. As informações foram salvas localmente."
+  );
+}
+
+/* ==========================================
+   CONTEXTO DOS DADOS DO SAGA
+========================================== */
+
+function getTrainingSummary() {
+  let result = "RESUMO DAS FICHAS:\n";
+
+  Object.keys(workouts).forEach(key => {
+    const workout = workouts[key];
+
+    result += `\n${workout.name}:\n`;
+
+    if (!workout.exercises.length) {
+      result += "Nenhum exercício cadastrado.\n";
+      return;
+    }
+
+    workout.exercises.forEach(exercise => {
+      result += `- ${exercise.name || "Sem nome"}: `;
+      result += `${exercise.sets} séries, `;
+      result += `${exercise.reps} repetições, `;
+      result += `${exercise.weight} kg.\n`;
+    });
+  });
+
+  return result;
+}
+
+function getFoodSummary() {
+  const dayFood = getDayFood();
+
+  let totals = {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  };
+
+  mealNames.forEach((name, index) => {
+    (dayFood[index] || []).forEach(food => {
+      totals.calories += Number(food.calories) || 0;
+      totals.protein += Number(food.protein) || 0;
+      totals.carbs += Number(food.carbs) || 0;
+      totals.fat += Number(food.fat) || 0;
+    });
+  });
+
+  return `
+Resumo da alimentação de ${getSelectedFoodDate()}:
+
+Calorias: ${totals.calories.toFixed(0)} kcal
+Proteínas: ${totals.protein.toFixed(1)} g
+Carboidratos: ${totals.carbs.toFixed(1)} g
+Gorduras: ${totals.fat.toFixed(1)} g
+  `.trim();
+}
+
+function getPersonalSummary() {
+  const p = jarvisMemory.personal;
+
+  return `
+Informações pessoais cadastradas:
+
+Idade: ${p.age} anos
+Peso: ${p.weight} kg
+Altura: ${p.height} cm
+Meta de peso: ${p.goalWeight} kg
+Objetivo: ${p.goal}
+Frequência: ${p.trainingFrequency}
+Preferências: ${p.preferences || "Não informadas"}
+Restrições: ${p.restrictions || "Não informadas"}
+Orçamento: ${p.budget || "Não informado"}
+  `.trim();
+}
+
+/* ==========================================
+   INTERPRETAÇÃO DE TEXTO
+========================================== */
+
+function normalizeText(text) {
+  return String(text)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function jarvisResponse(input) {
+  const text = normalizeText(input);
+
+  /* Saudação: palavras inteiras, sem falsos positivos */
+  if (
+    /\b(oi|ola|eai|opa)\b/.test(text) ||
+    /\b(bom dia|boa tarde|boa noite)\b/.test(text)
+  ) {
+    return "À sua disposição, senhor. O que vamos resolver hoje?";
+  }
+
+  if (
+    text.includes("quem e voce") ||
+    text.includes("seu nome") ||
+    text.includes("quem e jarvis")
+  ) {
+    return "Sou o J.A.R.V.I.S., assistente do SAGA Workout System. Minha função é ajudar a organizar seus treinos, acompanhar seus registros e utilizar os conhecimentos armazenados no sistema.";
+  }
+
+  if (
+    text.includes("como voce esta") ||
+    text.includes("tudo bem")
+  ) {
+    return "Operacional e aguardando instruções, senhor. Espero que o treino esteja tão em dia quanto meus sistemas.";
+  }
+
+  if (
+    text.includes("minhas fichas") ||
+    text.includes("listar treinos") ||
+    text.includes("quais treinos") ||
+    text.includes("meu treino") ||
+    text.includes("resumo do treino") ||
+    text.includes("exercicios cadastrados")
+  ) {
+    return getTrainingSummary();
+  }
+
+  if (
+    text.includes("minha alimentacao") ||
+    text.includes("minha dieta") ||
+    text.includes("macros") ||
+    text.includes("calorias de hoje")
+  ) {
+    return getFoodSummary();
+  }
+
+  if (
+    text.includes("minha memoria") ||
+    text.includes("meus dados") ||
+    text.includes("meu perfil")
+  ) {
+    return getPersonalSummary();
+  }
+
+  if (
+    text.includes("meu peso") ||
+    text.includes("minha altura") ||
+    text.includes("meu objetivo")
+  ) {
+    const p = jarvisMemory.personal;
+
+    return `Segundo os dados cadastrados, senhor:
+Peso: ${p.weight} kg
+Altura: ${p.height} cm
+Meta: ${p.goalWeight} kg
+Objetivo: ${p.goal}.`;
+  }
+
+  if (
+    text.includes("quantos exercicios") ||
+    text.includes("quantos exercícios")
+  ) {
+    const total = Object.values(workouts).reduce(
+      (sum, workout) => sum + workout.exercises.length,
+      0
+    );
+
+    return `Temos ${total} exercício(s) cadastrados em suas fichas, senhor.`;
+  }
+
+  if (
+    text.includes("quantos dias") ||
+    text.includes("dias que treinei")
+  ) {
+    return `Há ${trainingDays.length} dia(s) marcados como treino realizado no calendário.`;
+  }
+
+  if (
+    text.includes("biblioteca") ||
+    text.includes("o que voce aprendeu")
+  ) {
+    return `Minha biblioteca possui ${jarvisKnowledge.length} conteúdo(s) armazenado(s). Você pode consultá-los no botão BIBLIOTECA.`;
+  }
+
+  if (
+    text.includes("ajuda") ||
+    text.includes("o que voce consegue fazer")
+  ) {
+    return `Posso ajudar com:
+
+- Consultar suas fichas e exercícios.
+- Consultar sua alimentação registrada.
+- Consultar seus dados pessoais.
+- Consultar os conteúdos da biblioteca.
+- Renomear fichas e adicionar exercícios com sua confirmação.
+- Armazenar conhecimentos no modo ENSINAR.
+
+Ainda estou evoluindo, senhor.`;
+  }
+
+  const knowledge = searchJarvisKnowledge(input);
+
+  if (knowledge.length) {
+    return "Encontrei estes conteúdos na minha biblioteca, senhor:\n\n" +
+      knowledge.map((item, index) =>
+        `${index + 1}. ${item.content}`
+      ).join("\n\n");
+  }
+
+  return "Não encontrei uma resposta confiável para isso na minha base atual, senhor. Se desejar, ative o modo ENSINAR e forneça um conteúdo para minha biblioteca.";
+}
+
+/* ==========================================
+   COMANDOS DE ALTERAÇÃO
+========================================== */
+
+function executeJarvisCommand(input) {
+  const text = normalizeText(input);
+
+  let match = text.match(
+    /renomear ficha (upper|lower|push|pull|legs) para (.+)/
+  );
+
+  if (match) {
+    const key = match[1].toUpperCase();
+    const newName = input.match(/para\s+(.+)$/i)?.[1]?.trim();
+
+    if (!newName) {
+      return "Não consegui identificar o novo nome da ficha.";
+    }
+
+    if (!confirm(
+      `Senhor, confirma renomear a ficha ${workouts[key].name} para ${newName}?`
+    )) {
+      return "Alteração cancelada, senhor.";
+    }
+
+    workouts[key].name = newName;
+
+    saveWorkouts();
+    renderWorkouts();
+
+    return `Ficha renomeada para ${newName} com sucesso.`;
+  }
+
+  match = input.match(
+    /adicionar exercicio (.+) na ficha (upper|lower|push|pull|legs)/i
+  );
+
+  if (match) {
+    const exerciseName = match[1].trim();
+    const key = match[2].toUpperCase();
+
+    if (!confirm(
+      `Adicionar ${exerciseName} à ficha ${workouts[key].name}?`
+    )) {
+      return "Operação cancelada, senhor.";
+    }
+
+    workouts[key].exercises.push({
+      name: exerciseName,
+      sets: 3,
+      reps: "8-12",
+      weight: 0,
+      image: ""
+    });
+
+    saveWorkouts();
+    renderWorkouts();
+
+    return `Exercício ${exerciseName} adicionado à ficha ${workouts[key].name}.`;
+  }
+
+  return null;
+}
+
+/* ==========================================
+   ENVIO DE MENSAGENS
+========================================== */
+
+function sendJarvisMessage() {
+  const input = document.getElementById("jarvis-input");
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  input.value = "";
+
+  jarvisAddMessage(message, "user");
+
+  if (jarvisSettings.teaching) {
+    teachJarvis(message);
+    return;
+  }
+
+  const command = executeJarvisCommand(message);
+
+  if (command) {
+    jarvisAddMessage(command);
+    speakJarvis(command);
+    return;
+  }
+
+  const response = jarvisResponse(message);
+
+  jarvisAddMessage(response);
+  speakJarvis(response);
+}
+
+/* ==========================================
+   VOZ MASCULINA DO J.A.R.V.I.S.
+========================================== */
+
+/*
+  O navegador não oferece um identificador universal
+  de gênero para vozes. Por isso, usamos os nomes das
+  vozes como indicação e priorizamos opções masculinas
+  em português quando disponíveis.
+*/
+
+let jarvisSelectedVoice = null;
+
+function chooseJarvisVoice() {
+  if (!("speechSynthesis" in window)) return null;
+
+  const voices = speechSynthesis.getVoices();
+
+  if (!voices.length) return null;
+
+  const portugueseVoices = voices.filter(voice =>
+    voice.lang && voice.lang.toLowerCase().startsWith("pt")
+  );
+
+  if (!portugueseVoices.length) return null;
+
+  const maleIndicators = [
+    "male",
+    "mascul",
+    "homem",
+    "daniel",
+    "ricardo",
+    "antonio",
+    "antônio",
+    "jorge",
+    "paulo",
+    "felipe",
+    "carlos",
+    "bruno",
+    "guilherme",
+    "microsoft antony",
+    "google português brasil"
   ];
-  return curiosities[jarvisTurnCount%curiosities.length];
- }
- if(/\b(nao sei|nao tenho certeza|estou em duvida|me ajuda a decidir)\b/.test(t)){
-  jarvisContext.lastIntent="decision";jarvisContext.lastTopic="decisao";
-  return "Podemos organizar isso juntos, senhor. Qual é a decisão que está tentando tomar?";
- }
- if(/\b(e voce|e vc|e ai)\b/.test(t)&&jarvisContext.lastIntent==="support")return "Estou aqui para ouvi-lo, senhor. O importante agora é entender como o senhor está, sem pressa.";
- if(jarvisContext.lastIntent==="support"&&t.length<90)return "Compreendo, senhor. Pode continuar. O que mais está passando pela sua cabeça?";
- if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="automoveis")return "Entendi, senhor. Para não lhe dar uma resposta genérica, conte um pouco mais: qual modelo, ano ou sintoma estamos analisando?";
- if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="alimentacao")return "Certo, senhor. Posso ajudar a organizar as informações, mas não vou inventar calorias ou macros. O que gostaria de avaliar primeiro?";
- if(jarvisContext.lastIntent==="topic"&&jarvisContext.lastTopic==="treinamento")return "Perfeitamente. Qual exercício, grupo muscular ou parte da ficha deseja analisar?";
- if(/\b(boa noite|bom dia|boa tarde|ola|oi|e ai|fala)\b/.test(t))return "Olá, senhor. É um prazer ouvi-lo. Como posso ajudar?";
- return "Entendido, senhor. Ainda não tenho conhecimento suficiente para responder isso com segurança nesta versão local. Se me der um pouco mais de contexto, tentarei ajudá-lo — e, se eu não souber, serei franco.";
+
+  const femaleIndicators = [
+    "female",
+    "femin",
+    "mulher",
+    "luciana",
+    "francisca",
+    "maria",
+    "camila",
+    "helena",
+    "fernanda"
+  ];
+
+  const maleVoice = portugueseVoices.find(voice => {
+    const name = normalizeText(voice.name);
+
+    return maleIndicators.some(indicator =>
+      name.includes(normalizeText(indicator))
+    );
+  });
+
+  if (maleVoice) return maleVoice;
+
+  const notClearlyFemale = portugueseVoices.find(voice => {
+    const name = normalizeText(voice.name);
+
+    return !femaleIndicators.some(indicator =>
+      name.includes(normalizeText(indicator))
+    );
+  });
+
+  return notClearlyFemale || portugueseVoices[0];
 }
-function jarvisLocalResponse(raw){
- const original=String(raw||"").trim();
- raw=original.replace(/^\s*(jarvis|j\.a\.r\.v\.i\.s)[,:\s-]*/i,"");
- const text=normalizeText(raw);
- if(!text)return "Não entendi, senhor. Poderia repetir?";
- jarvisTurnCount++;
- if(/^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala)\b/.test(text))
-  return "Olá, senhor. Estou à sua disposição. O que vamos resolver hoje?";
- if(text.includes("ajuda")||text.includes("comandos")||text.includes("o que voce consegue"))return jarvisHelp();
- if(text.includes("ficha")&&(text.includes("mostr")||text.includes("list")||text.includes("quais")))return "SUAS FICHAS:\n"+listWorkouts();
- if(text.includes("resuma meu treino")||text.includes("resumo do treino")||text.includes("resumo geral")||text.includes("resumo meu treino"))return jarvisWorkoutSummary();
- if(text.includes("alimentacao")&&(text.includes("mostr")||text.includes("resum")||text.includes("ver")))return jarvisFoodSummary();
- /* RENOMEAR FICHA - comando original preservado */
- let match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:a\s+)?ficha\s+(.+?)\s+para\s+(.+)/i);
- if(match){
-  const workout=findWorkout(match[1]);
-  if(!workout)return "Não encontrei a ficha \""+match[1]+"\". Suas fichas são:\n"+listWorkouts();
-  const old=workout.name;workout.name=match[2].trim().toUpperCase();persist();render();
-  if(selected===workout.id)document.getElementById("detailTitle").textContent=workout.name;
-  return "Perfeitamente, senhor. Renomeei a ficha "+old+" para "+workout.name+".";
- }
- /* ADICIONAR EXERCÍCIO - comando original preservado */
- match=raw.match(/(?:adicione|adicionar|inclua|incluir)\s+(.+?)\s+(?:na|no|em)\s+(?:ficha\s+)?(.+)/i);
- if(match){
-  const exerciseName=match[1].trim();const workout=findWorkout(match[2].trim().replace(/[.!?]+$/, ""));
-  if(workout){workout.exercises.push({name:exerciseName,series:"",reps:"",weight:"",image:""});persist();render();if(selected===workout.id)renderExercises();return "Exercício adicionado, senhor.\n\n"+exerciseName+" foi incluído na ficha "+workout.name+".";}
- }
- /* RENOMEAR EXERCÍCIO - comando original preservado */
- match=raw.match(/(?:renomeie|renomear|mude|altere)\s+(?:o\s+)?exercicio\s+(.+?)\s+para\s+(.+?)\s+(?:na|no)\s+(?:ficha\s+)?(.+)/i);
- if(match){
-  const workout=findWorkout(match[3].trim());if(!workout)return "Não encontrei essa ficha. Confira o nome e tente novamente.";
-  const exercise=workout.exercises.find(e=>normalizeText(e.name)===normalizeText(match[1]));
-  if(!exercise)return "Não encontrei o exercício \""+match[1]+"\" na ficha "+workout.name+".";
-  const old=exercise.name;exercise.name=match[2].trim();persist();if(selected===workout.id)renderExercises();
-  return "Concluído, senhor. O exercício "+old+" agora se chama "+exercise.name+".";
- }
- /* ADICIONAR ALIMENTO - comando original preservado */
- match=raw.match(/(?:adicione|adicionar|registre|registrar)\s+(.+?)\s+(?:no|na)\s+(cafe da manha|almoco|cafe da tarde|jantar|ceia)/i);
- if(match){
-  const mealIndex=mealNames.findIndex(n=>normalizeText(n)===normalizeText(match[2]));
-  if(mealIndex>=0){const date=getFoodDate()||dateKey(new Date());if(!foodData[date])foodData[date]={};if(!Array.isArray(foodData[date][mealIndex]))foodData[date][mealIndex]=[];
-   foodData[date][mealIndex].push({name:match[1].trim(),quantity:"",calories:0,protein:0,carbs:0,fat:0});saveFood();renderFood();
-   return "Registrei "+match[1].trim()+" em "+mealNames[mealIndex]+", senhor.\n\nAs calorias e os macros ficaram zerados porque ainda não foram informados.";
+
+function refreshJarvisVoice() {
+  jarvisSelectedVoice = chooseJarvisVoice();
+}
+
+if ("speechSynthesis" in window) {
+  refreshJarvisVoice();
+
+  speechSynthesis.addEventListener(
+    "voiceschanged",
+    refreshJarvisVoice
+  );
+}
+
+function toggleJarvisVoice() {
+  jarvisSettings.voice = !jarvisSettings.voice;
+
+  saveJarvisSettings();
+  updateJarvisVoiceButton();
+
+  if (!jarvisSettings.voice && "speechSynthesis" in window) {
+    speechSynthesis.cancel();
   }
- }
- return jarvisConversationResponse(text,raw);
 }
-/* COMPATIBILIDADE: mantém o nome antigo utilizado pelo restante do SAGA. */
-function jarvisExecute(raw){return jarvisEngine.respond(raw)}
-/* ENVIAR MENSAGEM */
-function sendJarvisMessage(){
- const input=document.getElementById("jarvis-input");
- const message=input.value.trim();if(!message)return;
- jarvisMessage(message,"user");input.value="";
- const response=jarvisExecute(message);setTimeout(()=>jarvisReply(response),180);
+
+function updateJarvisVoiceButton() {
+  const button = document.getElementById("jarvis-voice-toggle");
+
+  button.textContent = jarvisSettings.voice ? "🔊" : "🔇";
+  button.classList.toggle("voice-off", !jarvisSettings.voice);
 }
-document.getElementById("jarvis-input").addEventListener("keydown",e=>{if(e.key==="Enter")sendJarvisMessage()});
+
+function speakJarvis(text) {
+  if (!jarvisSettings.voice) return;
+
+  if (!("speechSynthesis" in window)) return;
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  utterance.lang = "pt-BR";
+  utterance.rate = 0.86;
+  utterance.pitch = 0.68;
+  utterance.volume = 1;
+
+  if (!jarvisSelectedVoice) {
+    refreshJarvisVoice();
+  }
+
+  if (jarvisSelectedVoice) {
+    utterance.voice = jarvisSelectedVoice;
+  }
+
+  speechSynthesis.speak(utterance);
+}
+
 /* ==========================================
-   JARVIS - VOZ E RECONHECIMENTO
+   RECONHECIMENTO DE VOZ
 ========================================== */
-let jarvisVoiceEnabled=true;
-let jarvisVoice=null;
-let jarvisRecognition=null;
-let jarvisListening=false;
-function loadJarvisVoice(){
- if(!("speechSynthesis" in window))return;
- const voices=window.speechSynthesis.getVoices();
- jarvisVoice=
-  voices.find(v=>v.lang.toLowerCase()==="pt-br"&&/male|masculino|daniel|jorge|antonio/i.test(v.name))||
-  voices.find(v=>v.lang.toLowerCase()==="pt-br")||
-  voices.find(v=>v.lang.toLowerCase().startsWith("pt"))||
-  null;
-}
-/* CARREGAR VOZES DISPONÍVEIS */
-if("speechSynthesis" in window){
- loadJarvisVoice();
- window.speechSynthesis.onvoiceschanged=loadJarvisVoice;
-}
-/* FAZER O JARVIS FALAR */
-function speakJarvis(text){
- if(!jarvisVoiceEnabled)return;
- if(!("speechSynthesis" in window))return;
- window.speechSynthesis.cancel();
- const speech=new SpeechSynthesisUtterance(text);
- speech.lang="pt-BR";
- speech.rate=0.86;
- speech.pitch=0.82;
- speech.volume=1;
- if(jarvisVoice){
-  speech.voice=jarvisVoice;
- }
- window.speechSynthesis.speak(speech);
-}
-/* RESPOSTAS DO JARVIS */
-function jarvisReply(text){
- jarvisMessage(text,"bot");
- speakJarvis(text);
-}
-/* ATIVAR OU DESATIVAR VOZ */
-function toggleJarvisVoice(){
- jarvisVoiceEnabled=!jarvisVoiceEnabled;
- const button=document.getElementById("jarvis-voice-toggle");
- if(jarvisVoiceEnabled){
-  button.textContent="🔊";
-  button.classList.remove("voice-off");
-  speakJarvis("Sistema de voz ativado, senhor.");
- }else{
-  button.textContent="🔇";
-  button.classList.add("voice-off");
-  if("speechSynthesis" in window){
-   window.speechSynthesis.cancel();
+
+function toggleJarvisListening() {
+  const Recognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!Recognition) {
+    jarvisAddMessage(
+      "O reconhecimento de voz não está disponível neste navegador. Você ainda pode digitar normalmente, senhor."
+    );
+    return;
   }
- }
-}
-/* CONFIGURAR RECONHECIMENTO DE VOZ */
-function setupJarvisVoice(){
- const SpeechRecognition=
-  window.SpeechRecognition||
-  window.webkitSpeechRecognition;
- const mic=document.getElementById("jarvis-mic");
- if(!SpeechRecognition){
-  mic.title="Reconhecimento de voz não disponível neste navegador";
-  return;
- }
- jarvisRecognition=new SpeechRecognition();
- jarvisRecognition.lang="pt-BR";
- jarvisRecognition.continuous=false;
- jarvisRecognition.interimResults=true;
- jarvisRecognition.maxAlternatives=1;
- jarvisRecognition.onstart=function(){
-  jarvisListening=true;
-  mic.classList.add("listening");
-  mic.textContent="●";
-  document.getElementById("jarvis-input").placeholder="Estou ouvindo, senhor...";
- };
- jarvisRecognition.onresult=function(event){
-  let finalText="";
-  let interimText="";
-  for(let i=event.resultIndex;i<event.results.length;i++){
-   const transcript=event.results[i][0].transcript;
-   if(event.results[i].isFinal){
-    finalText+=transcript;
-   }else{
-    interimText+=transcript;
-   }
+
+  if (jarvisListening && jarvisRecognition) {
+    jarvisRecognition.stop();
+    return;
   }
-  const input=document.getElementById("jarvis-input");
-  if(finalText.trim()){
-   input.value=finalText.trim();
-   sendJarvisMessage();
-  }else if(interimText){
-   input.value=interimText;
+
+  jarvisRecognition = new Recognition();
+
+  jarvisRecognition.lang = "pt-BR";
+  jarvisRecognition.continuous = false;
+  jarvisRecognition.interimResults = false;
+
+  jarvisRecognition.onstart = function() {
+    jarvisListening = true;
+
+    document.getElementById("jarvis-mic")
+      .classList.add("listening");
+  };
+
+  jarvisRecognition.onresult = function(event) {
+    const recognized = event.results[0][0].transcript;
+
+    document.getElementById("jarvis-input").value = recognized;
+
+    sendJarvisMessage();
+  };
+
+  jarvisRecognition.onerror = function() {
+    jarvisListening = false;
+
+    document.getElementById("jarvis-mic")
+      .classList.remove("listening");
+  };
+
+  jarvisRecognition.onend = function() {
+    jarvisListening = false;
+
+    document.getElementById("jarvis-mic")
+      .classList.remove("listening");
+  };
+
+  try {
+    jarvisRecognition.start();
+  } catch (error) {
+    jarvisListening = false;
+    console.error("Erro ao iniciar reconhecimento:", error);
   }
- };
- jarvisRecognition.onerror=function(event){
-  let message="";
-  if(event.error==="not-allowed"){
-   message="Preciso da sua autorização para acessar o microfone, senhor.";
-  }else if(event.error==="no-speech"){
-   message="Não consegui identificar sua fala. Poderia repetir?";
-  }else if(event.error==="network"){
-   message="O reconhecimento de voz apresentou uma falha de conexão.";
-  }else if(event.error!=="aborted"){
-   message="Ocorreu uma falha no sistema de reconhecimento de voz.";
+}
+
+/* ==========================================
+   ATALHOS DE TECLADO
+========================================== */
+
+document.getElementById("jarvis-input")
+  .addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      sendJarvisMessage();
+    }
+  });
+
+/* ==========================================
+   INICIALIZAÇÃO DO J.A.R.V.I.S.
+========================================== */
+
+function initializeJarvis() {
+  updateJarvisTeachingButton();
+  updateJarvisVoiceButton();
+}
+
+initializeJarvis();
+</script>
+
+<script>
+/* ==========================================
+   SAGA — BACKUP E RESTAURAÇÃO
+========================================== */
+
+const SAGA_BACKUP_KEYS = [
+  "sagaDemo",
+  "sagaTrainingDays",
+  "sagaTimer",
+  "sagaFood",
+  "sagaProfile",
+  "sagaPin",
+  "sagaJarvisMemory",
+  "sagaJarvisKnowledge",
+  "sagaJarvisConversation",
+  "sagaJarvisSettings"
+];
+
+/* ==========================================
+   EXPORTAR BACKUP
+========================================== */
+
+function exportBackup() {
+  const backup = {
+    application: "SAGA Workout System",
+    version: 1,
+    createdAt: new Date().toISOString(),
+    data: {}
+  };
+
+  SAGA_BACKUP_KEYS.forEach(key => {
+    const value = localStorage.getItem(key);
+
+    if (value !== null) {
+      backup.data[key] = value;
+    }
+  });
+
+  const file = new Blob(
+    [JSON.stringify(backup, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `SAGA_Backup_${dateKey(new Date())}.json`;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  /* Dá tempo para o navegador iniciar o download */
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+  document.getElementById("menuDropdown")
+    .classList.add("hidden");
+
+  alert("Backup exportado com sucesso, senhor.");
+}
+
+/* ==========================================
+   IMPORTAR BACKUP
+========================================== */
+
+function importBackup(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!file.name.toLowerCase().endsWith(".json")) {
+    alert("Selecione um arquivo de backup JSON válido.");
+    event.target.value = "";
+    return;
   }
-  if(message)jarvisReply(message);
- };
- jarvisRecognition.onend=function(){
-  jarvisListening=false;
-  mic.classList.remove("listening");
-  mic.textContent="🎙";
-  document.getElementById("jarvis-input").placeholder="Fale com o JARVIS...";
- };
+
+  const reader = new FileReader();
+
+  reader.onload = function() {
+    try {
+      const backup = JSON.parse(reader.result);
+
+      if (
+        backup.application !== "SAGA Workout System" ||
+        !backup.data ||
+        typeof backup.data !== "object"
+      ) {
+        throw new Error("Formato de backup inválido.");
+      }
+
+      const validKeys = Object.keys(backup.data).filter(key =>
+        SAGA_BACKUP_KEYS.includes(key)
+      );
+
+      if (!validKeys.length) {
+        throw new Error("Nenhum dado válido encontrado.");
+      }
+
+      validKeys.forEach(key => {
+        const value = backup.data[key];
+
+        if (typeof value !== "string") {
+          throw new Error("Dados incompatíveis no backup.");
+        }
+
+        if (key !== "sagaPin") {
+          JSON.parse(value);
+        }
+      });
+
+      const confirmed = confirm(
+        "Senhor, a importação substituirá os dados atuais do SAGA pelos dados encontrados no backup. Deseja continuar?"
+      );
+
+      if (!confirmed) {
+        event.target.value = "";
+        return;
+      }
+
+      validKeys.forEach(key => {
+        localStorage.setItem(key, backup.data[key]);
+      });
+
+      alert(
+        "Backup restaurado. O SAGA será reiniciado para carregar os dados."
+      );
+
+      location.reload();
+
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Não foi possível importar o backup. Verifique se o arquivo é válido."
+      );
+    }
+
+    event.target.value = "";
+  };
+
+  reader.onerror = function() {
+    alert("Erro ao ler o arquivo.");
+    event.target.value = "";
+  };
+
+  reader.readAsText(file);
 }
-/* LIGAR O MICROFONE */
-function toggleJarvisListening(){
- if(!jarvisRecognition){
-  jarvisReply("Lamento, senhor. Este navegador não oferece suporte ao reconhecimento de voz. A função de resposta falada ainda pode funcionar.");
-  return;
- }
- if(jarvisListening){
-  jarvisRecognition.stop();
-  return;
- }
- if("speechSynthesis" in window){
-  window.speechSynthesis.cancel();
- }
- try{
-  jarvisRecognition.start();
- }catch(error){
-  jarvisReply("O microfone está ocupado. Aguarde um instante, senhor.");
- }
+
+/* ==========================================
+   SISTEMA DE PIN
+========================================== */
+
+const PIN_STORAGE = "sagaPin";
+
+function toggleLock() {
+  const currentPin = localStorage.getItem(PIN_STORAGE);
+
+  if (currentPin) {
+    const action = prompt(
+      "Digite 1 para alterar o PIN ou 2 para remover o bloqueio."
+    );
+
+    if (action === "1") {
+      const oldPin = prompt("Digite seu PIN atual:");
+
+      if (oldPin !== currentPin) {
+        alert("PIN incorreto.");
+        return;
+      }
+
+      const newPin = prompt("Digite um novo PIN de 4 números:");
+
+      if (!/^\d{4}$/.test(newPin || "")) {
+        alert("O PIN deve conter exatamente 4 números.");
+        return;
+      }
+
+      localStorage.setItem(PIN_STORAGE, newPin);
+
+      alert("PIN atualizado com sucesso.");
+      return;
+    }
+
+    if (action === "2") {
+      const oldPin = prompt("Confirme seu PIN atual:");
+
+      if (oldPin !== currentPin) {
+        alert("PIN incorreto.");
+        return;
+      }
+
+      localStorage.removeItem(PIN_STORAGE);
+
+      alert("Bloqueio por PIN removido.");
+      return;
+    }
+
+    return;
+  }
+
+  const newPin = prompt(
+    "Crie um PIN de 4 números para bloquear o SAGA:"
+  );
+
+  if (!/^\d{4}$/.test(newPin || "")) {
+    alert("O PIN deve conter exatamente 4 números.");
+    return;
+  }
+
+  localStorage.setItem(PIN_STORAGE, newPin);
+
+  alert("PIN configurado com sucesso.");
 }
-/* INICIALIZAÇÃO */
-document.getElementById("foodDate").value=dateKey(new Date());
-renderCalendar();
-render();
-updateTimer();
-renderFood();
-updateLockMenu();
-setupJarvisVoice();
-if(startedAt)timerInterval=setInterval(updateTimer,250);
+
+function unlockApp() {
+  const savedPin = localStorage.getItem(PIN_STORAGE);
+  const enteredPin = document.getElementById("pinInput").value;
+
+  if (!savedPin) {
+    document.getElementById("pinScreen")
+      .classList.add("hidden");
+    return;
+  }
+
+  if (enteredPin === savedPin) {
+    document.getElementById("pinScreen")
+      .classList.add("hidden");
+
+    document.getElementById("pinInput").value = "";
+    document.getElementById("pinError").textContent = "";
+
+    return;
+  }
+
+  document.getElementById("pinError").textContent =
+    "PIN incorreto. Tente novamente.";
+
+  document.getElementById("pinInput").value = "";
+}
+
+/* ==========================================
+   ATALHOS DO PIN
+========================================== */
+
+document.getElementById("pinInput")
+  .addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      unlockApp();
+    }
+  });
+
+/* ==========================================
+   INICIALIZAÇÃO FINAL
+========================================== */
+
+function initializeSecurity() {
+  const savedPin = localStorage.getItem(PIN_STORAGE);
+
+  if (savedPin) {
+    document.getElementById("pinScreen")
+      .classList.remove("hidden");
+  }
+}
+
+initializeSecurity();
+
+/* ==========================================
+   FINALIZAÇÃO
+========================================== */
+
+console.log("SAGA Workout System inicializado.");
+console.log("J.A.R.V.I.S. operacional.");
+
 </script>
 </body>
 </html>
