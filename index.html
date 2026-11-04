@@ -1048,5 +1048,329 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 })();
 </script>
 
+<!-- SAGA | SISTEMA DE APRENDIZAGEM DA SEXTA-FEIRA -->
+<style>
+#saga-learning-button {
+    display: block;
+    margin: 8px 0;
+    padding: 9px 14px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    background: #171717;
+    color: #aaa;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+#saga-learning-button.active {
+    color: #fff;
+    border-color: #fff;
+    background: #292929;
+    box-shadow: 0 0 12px #ffffff22;
+}
+
+#saga-learning-status {
+    display: block;
+    margin: 4px 0 8px;
+    color: #888;
+    font-size: 10px;
+}
+</style>
+
+<script>
+(function () {
+    "use strict";
+
+    const STORAGE_KEY = "saga_sexta_feira_learning_v1";
+
+    let learningMode = false;
+    let learnedKnowledge = [];
+
+    // CARREGAR CONHECIMENTOS SALVOS
+    try {
+        learnedKnowledge = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || "[]"
+        );
+
+        if (!Array.isArray(learnedKnowledge)) {
+            learnedKnowledge = [];
+        }
+    } catch (error) {
+        learnedKnowledge = [];
+    }
+
+    function normalize(text) {
+        return String(text)
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^\w\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function saveKnowledge() {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(learnedKnowledge)
+            );
+        } catch (error) {
+            console.error("Não foi possível salvar os aprendizados.", error);
+        }
+    }
+
+    function teach(question, answer) {
+        question = String(question).trim();
+        answer = String(answer).trim();
+
+        if (!question || !answer) {
+            return "Preciso de uma pergunta e uma resposta para aprender.";
+        }
+
+        const normalizedQuestion = normalize(question);
+
+        const existing = learnedKnowledge.find(item =>
+            normalize(item.question) === normalizedQuestion
+        );
+
+        if (existing) {
+            existing.answer = answer;
+            existing.question = question;
+            saveKnowledge();
+
+            return "Conhecimento atualizado. Vou considerar essa nova resposta daqui em diante.";
+        }
+
+        learnedKnowledge.push({
+            question: question,
+            answer: answer,
+            createdAt: new Date().toISOString()
+        });
+
+        saveKnowledge();
+
+        return "Aprendizado registrado e salvo. Não vou perder esse conhecimento ao fechar o site.";
+    }
+
+    function findKnowledge(message) {
+        const query = normalize(message);
+
+        if (!query) return null;
+
+        // Primeiro tenta encontrar a pergunta exata
+        let result = learnedKnowledge.find(item =>
+            normalize(item.question) === query
+        );
+
+        if (result) return result;
+
+        // Depois procura a pergunta ensinada dentro da mensagem
+        result = learnedKnowledge
+            .filter(item => normalize(item.question).length >= 4)
+            .sort((a, b) =>
+                normalize(b.question).length - normalize(a.question).length
+            )
+            .find(item => query.includes(normalize(item.question)));
+
+        return result || null;
+    }
+
+    function parseTeaching(message) {
+        let text = String(message).trim();
+
+        text = text.replace(/^ensinar\s*:\s*/i, "");
+
+        // Formato: Quando eu perguntar X, responda Y
+        const natural = text.match(
+            /^quando eu perguntar\s+(.+?),?\s*(?:responda|diga)\s+(.+)$/i
+        );
+
+        if (natural) {
+            return {
+                question: natural[1],
+                answer: natural[2]
+            };
+        }
+
+        // Formato: Pergunta = Resposta
+        const structured = text.match(
+            /^(?:pergunta\s*:\s*)?(.+?)\s*(?:=>|=|\|)\s*(?:resposta\s*:\s*)?(.+)$/i
+        );
+
+        if (structured) {
+            return {
+                question: structured[1],
+                answer: structured[2]
+            };
+        }
+
+        return null;
+    }
+
+    // CRIAR BOTÃO DE APRENDIZAGEM
+    function createLearningInterface() {
+        const windowElement = document.getElementById("jarvis-window");
+        const input = document.getElementById("jarvis-input");
+
+        if (!windowElement || !input) {
+            console.warn("Interface de aprendizagem: janela do JARVIS não encontrada.");
+            return;
+        }
+
+        if (document.getElementById("saga-learning-button")) return;
+
+        const button = document.createElement("button");
+        button.id = "saga-learning-button";
+        button.type = "button";
+        button.textContent = "ENSINAR: OFF";
+
+        const status = document.createElement("span");
+        status.id = "saga-learning-status";
+        status.textContent = learnedKnowledge.length +
+            " conhecimentos armazenados";
+
+        const inputParent = input.parentElement;
+
+        if (inputParent) {
+            inputParent.parentElement.insertBefore(button, inputParent);
+            button.insertAdjacentElement("afterend", status);
+        } else {
+            windowElement.appendChild(button);
+            windowElement.appendChild(status);
+        }
+
+        button.addEventListener("click", function () {
+            learningMode = !learningMode;
+
+            button.textContent = learningMode
+                ? "ENSINAR: ON"
+                : "ENSINAR: OFF";
+
+            button.classList.toggle("active", learningMode);
+
+            status.textContent = learningMode
+                ? "Modo de aprendizagem ativo. Envie uma pergunta e resposta."
+                : learnedKnowledge.length + " conhecimentos armazenados";
+        });
+    }
+
+    // INTERCEPTAR AS MENSAGENS DO NÚCLEO ORIGINAL
+    if (typeof window.jarvisExecute === "function") {
+
+        const originalExecute = window.jarvisExecute;
+
+        window.jarvisExecute = function (message, ...args) {
+            const text = String(message).trim();
+            const normalized = normalize(text);
+
+            // Atalhos para ativar e desativar o modo
+            if (
+                /^(ativar|ligar|iniciar)\s+(o\s+)?modo\s+(de\s+)?ensinar$/.test(normalized)
+            ) {
+                learningMode = true;
+                updateButton();
+                return "Modo de aprendizagem ativado. Pode me ensinar.";
+            }
+
+            if (
+                /^(desativar|desligar|sair)\s+(do\s+)?modo\s+(de\s+)?ensinar$/.test(normalized)
+            ) {
+                learningMode = false;
+                updateButton();
+                return "Modo de aprendizagem desativado.";
+            }
+
+            // Consultar conhecimentos
+            if (
+                normalized === "meus aprendizados" ||
+                normalized === "listar aprendizados" ||
+                normalized === "o que voce aprendeu"
+            ) {
+                if (!learnedKnowledge.length) {
+                    return "Ainda não tenho conhecimentos personalizados armazenados.";
+                }
+
+                return "Tenho " + learnedKnowledge.length +
+                    " conhecimentos armazenados:\n" +
+                    learnedKnowledge.map((item, index) =>
+                        (index + 1) + ". " + item.question
+                    ).join("\n");
+            }
+
+            // Ensinar diretamente, mesmo com o modo desligado
+            const directTeaching = /^ensinar\s*:/i.test(text);
+
+            if (directTeaching) {
+                const parsed = parseTeaching(text);
+
+                if (!parsed) {
+                    return "Use este formato: ensinar: Pergunta = Resposta";
+                }
+
+                return teach(parsed.question, parsed.answer);
+            }
+
+            // No modo ensinar, as mensagens viram ensinamentos
+            if (learningMode) {
+                const parsed = parseTeaching(text);
+
+                if (!parsed) {
+                    return "Para eu aprender, escreva assim:\nPergunta = Resposta\n\nExemplo:\nQual é meu exercício favorito? = Agachamento.";
+                }
+
+                return teach(parsed.question, parsed.answer);
+            }
+
+            // Consultar primeiro o conhecimento personalizado
+            const learned = findKnowledge(text);
+
+            if (learned) {
+                return learned.answer;
+            }
+
+            // Se não encontrou, usa o cérebro original
+            return originalExecute.call(this, message, ...args);
+        };
+
+    } else {
+        console.error(
+            "Aprendizagem: jarvisExecute não foi encontrado. O núcleo original precisa estar carregado."
+        );
+    }
+
+    function updateButton() {
+        const button = document.getElementById("saga-learning-button");
+        const status = document.getElementById("saga-learning-status");
+
+        if (button) {
+            button.textContent = learningMode
+                ? "ENSINAR: ON"
+                : "ENSINAR: OFF";
+
+            button.classList.toggle("active", learningMode);
+        }
+
+        if (status) {
+            status.textContent = learningMode
+                ? "Modo de aprendizagem ativo."
+                : learnedKnowledge.length + " conhecimentos armazenados";
+        }
+    }
+
+    // INICIALIZAÇÃO
+    createLearningInterface();
+
+    console.log(
+        "SEXTA-FEIRA: sistema de aprendizagem carregado.",
+        learnedKnowledge.length,
+        "conhecimentos."
+    );
+})();
+</script>
+
 </body>
 </html>
