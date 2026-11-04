@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SAGA Workout System</title>
+<!-- CONEXÃO COM O JARVIS -->
+<link rel="stylesheet" href="./jarvis/jarvis.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#080808;color:#fff;font-family:Arial;padding:25px 16px}
@@ -62,7 +64,7 @@ button{cursor:pointer;font-weight:bold}
 .actions{display:flex;justify-content:flex-end;align-items:center;margin-top:15px;gap:6px}
 .open{background:#a8f05a;color:#080808;border:0;border-radius:5px;padding:9px;font-size:9px}
 .last{grid-column:1/-1}
-/* DETALHES DOS EXERCÍCIOS */
+/* EXERCÍCIOS */
 .back{background:transparent;color:#aaa;border:1px solid #333;padding:10px 14px;border-radius:6px;margin-bottom:25px}
 h2{font-size:27px;margin-bottom:8px}
 .sub{color:#777;font-size:10px;letter-spacing:2px;margin-bottom:20px}
@@ -310,7 +312,9 @@ let trainedDays=[];
 try{
   const savedDays=JSON.parse(localStorage.getItem("sagaTrainingDays"));
   trainedDays=Array.isArray(savedDays)?savedDays:[];
-}catch(e){trainedDays=[]}
+}catch(e){
+  trainedDays=[];
+}
 let weekOffset=0;
 function dateKey(date){
   const y=date.getFullYear();
@@ -387,7 +391,10 @@ try{
     startedAt=savedTimer.startedAt||null;
     if(startedAt)elapsed+=Date.now()-startedAt;
   }
-}catch(e){elapsed=0;startedAt=null}
+}catch(e){
+  elapsed=0;
+  startedAt=null;
+}
 function saveTimer(){
   localStorage.setItem("sagaTimer",JSON.stringify({elapsed,startedAt}));
 }
@@ -661,7 +668,9 @@ let foodData={};
 try{
   const savedFood=JSON.parse(localStorage.getItem("sagaFood"));
   if(savedFood&&typeof savedFood==="object")foodData=savedFood;
-}catch(e){foodData={}}
+}catch(e){
+  foodData={};
+}
 function saveFood(){
   try{
     localStorage.setItem("sagaFood",JSON.stringify(foodData));
@@ -693,7 +702,6 @@ function setTodayFood(){
    ADICIONAR ALIMENTOS
 ================================= */
 function addFood(mealIndex){
-  const date=getFoodDate();
   const meals=getDayMeals();
   const meal=document.getElementById("meal-"+mealIndex);
   if(meal.querySelector(".food-form"))return;
@@ -956,5 +964,7 @@ if(startedAt){
   timerInterval=setInterval(updateTimer,250);
 }
 </script>
+<!-- CARREGAMENTO DO JARVIS -->
+<script src="./jarvis/jarvis.js"></script>
 </body>
 </html>
