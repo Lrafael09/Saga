@@ -4932,6 +4932,1101 @@ if(startedAt)timerInterval=setInterval(updateTimer,250);
 </script>  
   
   
+
+<!-- ============================================================
+ SAGA • AJUSTES DE EXPERIÊNCIA E PROGRESSÃO — PATCH APPEND-ONLY
+ Mantém os módulos existentes e reaproveita os dados já salvos.
+============================================================ -->
+<style id="saga-final-ux-style">
+/* Identidade única: somente o botão S permanece visível. */
+#jarvis-launcher{display:none!important}
+#sexta-feira-launcher{right:20px!important;bottom:22px!important;width:62px!important;height:62px!important;border:2px solid #a8f05a!important;background:#101810!important;color:#a8f05a!important;font-size:23px!important;box-shadow:0 0 22px #a8f05555,inset 0 0 15px #a8f02233!important;transition:transform .22s ease,box-shadow .22s ease!important}
+#sexta-feira-launcher:after{content:"";position:absolute;inset:-7px;border:1px solid #a8f05577;border-radius:50%;animation:sagaSOrbit 2.2s infinite}
+#sexta-feira-launcher.saga-s-tap{animation:sagaSPress .48s ease}
+#jarvis-window:not(.hidden){animation:sagaWindowEnter .24s ease-out}
+@keyframes sagaSOrbit{0%{transform:scale(.88);opacity:.8}100%{transform:scale(1.35);opacity:0}}
+@keyframes sagaSPress{0%{transform:scale(1)}35%{transform:scale(.86);box-shadow:0 0 32px #a8f05a}100%{transform:scale(1)}}
+@keyframes sagaWindowEnter{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+#jarvis-window{bottom:96px!important;right:16px!important}
+
+/* Cronômetro e voltas */
+#saga-timer-laps{margin-top:14px;text-align:left;border-top:1px solid #292929;padding-top:12px}
+.saga-lap-actions{display:flex;gap:8px;align-items:center}
+.saga-lap-btn{flex:1;background:#202820;color:#a8f05a;border:1px solid #506845;border-radius:6px;padding:11px;font-size:9px;font-weight:900}
+.saga-lap-clear{background:transparent;color:#888;border:1px solid #333;border-radius:6px;padding:10px;font-size:9px}
+.saga-lap-list{display:grid;gap:6px;margin-top:10px;max-height:170px;overflow:auto}
+.saga-lap-row{display:flex;justify-content:space-between;gap:10px;background:#191919;border-radius:6px;padding:8px 10px;font-size:10px;color:#ccc}
+.saga-lap-row strong{color:#a8f05a;font-variant-numeric:tabular-nums}
+.saga-lap-empty{font-size:9px;color:#666;margin-top:9px}
+
+/* Menu de calendário */
+.saga-calendar-more-wrap{position:relative}
+#saga-calendar-more{width:30px;height:30px;border-radius:5px;background:#202020;color:#a8f05a;border:1px solid #333;font-size:19px;line-height:1}
+#saga-calendar-view-menu{position:absolute;right:0;top:36px;z-index:40;width:155px;padding:6px;background:#151515;border:1px solid #3a3a3a;border-radius:8px;box-shadow:0 8px 24px #000b}
+#saga-calendar-view-menu button{display:block;width:100%;padding:10px;background:transparent;border:0;border-radius:5px;color:#ddd;text-align:left;font-size:10px}
+#saga-calendar-view-menu button:hover{background:#252525;color:#a8f05a}
+#saga-calendar-expanded{margin-top:5px}
+.saga-month-weekdays,.saga-month-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.saga-month-weekdays{margin-bottom:7px}
+.saga-month-weekdays span{text-align:center;color:#777;font-size:8px;padding:3px 0}
+.saga-month-day{min-height:35px;border:1px solid #282828;border-radius:6px;background:#1a1a1a;color:#aaa;font-size:10px;display:flex;align-items:center;justify-content:center;position:relative}
+.saga-month-day.trained{background:#a8f05a;color:#080808;border-color:#a8f05a;font-weight:900}
+.saga-month-day.today{outline:1px solid #fff;outline-offset:1px}
+.saga-month-day.empty{background:transparent;border-color:transparent}
+.saga-year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.saga-year-month{background:#151515;border:1px solid #292929;border-radius:8px;padding:8px;min-width:0}
+.saga-year-month-title{font-size:9px;letter-spacing:.8px;color:#a8f05a;font-weight:900;margin-bottom:7px;text-align:center}
+.saga-year-weekdays,.saga-year-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.saga-year-weekdays span{text-align:center;color:#666;font-size:6px;padding-bottom:3px}
+.saga-year-day{border:0;border-radius:3px;background:#242424;color:#aaa;aspect-ratio:1;min-width:0;padding:0;font-size:7px}
+.saga-year-day.trained{background:#a8f05a;color:#080808;font-weight:900}
+.saga-year-day.today{outline:1px solid #fff}
+.saga-year-day.empty{visibility:hidden}
+@media(max-width:390px){.saga-year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.saga-month-day{min-height:31px}}
+
+/* Painel de treino reduzido: apenas frequência e peso corporal. */
+#saga-v2-open-builder{display:none!important}
+#sagaNutritionAddon .sn-card.saga-final-hidden{display:none!important}
+#saga-v2-cta-row{grid-template-columns:1fr!important}
+#saga-v2-builder{display:none!important}
+#sagaWorkoutDashboard .saga-v2-goal-row,
+#sagaWorkoutDashboard .saga-v2-progress-track{display:none!important}
+#saga-v2-session-total,#saga-v2-total-volume{display:none!important}
+#sagaWorkoutDashboard .saga-v2-stat:has(#saga-v2-session-total),
+#sagaWorkoutDashboard .saga-v2-stat:has(#saga-v2-total-volume){display:none!important}
+#sagaWorkoutDashboard .saga-v2-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#saga-v2-load-chart,#saga-v2-load-caption,#saga-v2-exercise-select,
+#saga-v2-volume-chart,#saga-v2-insight{display:none!important}
+#saga-v2-weight-chart,#saga-v2-weight-history{display:none!important}
+.saga-v2-card.saga-final-hidden{display:none!important}
+#saga-v2-weight-change{display:none!important}
+#saga-v2-weight-date,#saga-v2-weight-input,#saga-v2-save-weight{display:block}
+
+/* Acompanhamento visual fica logo abaixo das fichas. */
+#saga-v2-visual-card{margin:22px 0 0!important}
+#saga-goal-progress-card{margin:12px 0 28px;background:#111;border:1px solid #30352d;border-radius:12px;padding:16px;color:#fff}
+.saga-goal-head{font-size:10px;letter-spacing:1.5px;color:#a8f05a;font-weight:900}
+.saga-goal-title{font-size:19px;font-weight:900;margin:7px 0 5px}
+.saga-goal-sub{font-size:10px;color:#888;line-height:1.5}
+.saga-goal-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.saga-goal-stat{background:#1b1b1b;border-radius:8px;padding:11px}
+.saga-goal-stat strong{display:block;font-size:20px;color:#a8f05a;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.saga-goal-stat span{font-size:8px;color:#888;letter-spacing:.6px}
+.saga-goal-bar{height:8px;background:#292929;border-radius:10px;overflow:hidden;margin:10px 0}
+.saga-goal-bar i{height:100%;display:block;width:0;background:#a8f05a;transition:width .35s ease}
+#saga-body-weight-chart{width:100%;height:180px;display:block;margin-top:8px;overflow:visible}
+.saga-goal-chart-labels{display:flex;justify-content:space-between;color:#777;font-size:8px;margin-top:3px}
+.saga-goal-note{font-size:9px;color:#777;line-height:1.55;margin-top:10px}
+.saga-goal-positive{color:#a8f05a!important}.saga-goal-warning{color:#ffd36a!important}
+
+/* Perfil nutricional, velocímetro sem números e nutrição simplificada. */
+#sagaNutritionAddon .sn-card{padding:14px!important;margin-bottom:10px!important}
+#sagaNutritionAddon .sn-title{font-size:12px!important}
+#sagaNutritionAddon .sn-caption{font-size:10px!important;line-height:1.5}
+#sagaNutritionAddon .sn-field label{font-size:9px!important}
+#sagaNutritionAddon .sn-btn{padding:11px!important}
+#saga-nutrition-gauge-card{margin:0 0 10px;background:#111;border:1px solid #292929;border-radius:12px;padding:15px;color:#fff}
+.saga-nutrition-gauge-title{font-size:10px;letter-spacing:1.3px;font-weight:900;color:#a8f05a}
+.saga-gauge-wrap{width:210px;height:112px;position:relative;margin:14px auto 7px;overflow:hidden}
+.saga-gauge-arc{position:absolute;inset:0;border-radius:120px 120px 0 0;background:conic-gradient(from 270deg,#a8f05a calc(var(--saga-gauge-progress,0)*1.8deg),#292929 0);}
+.saga-gauge-inner{position:absolute;left:17px;right:17px;top:17px;bottom:-1px;border-radius:100px 100px 0 0;background:#111}
+.saga-gauge-needle{position:absolute;bottom:0;left:calc(50% - 2px);width:4px;height:83px;background:#e8f5df;border-radius:5px;transform-origin:50% 100%;transform:rotate(calc(-90deg + var(--saga-gauge-progress,0)*1.8deg));box-shadow:0 0 7px #a8f05a77;transition:transform .35s ease}
+.saga-gauge-hub{position:absolute;bottom:-5px;left:calc(50% - 7px);width:14px;height:14px;border-radius:50%;background:#a8f05a;border:3px solid #111}
+.saga-gauge-ends{display:flex;justify-content:space-between;color:#777;font-size:8px;margin-top:-2px}
+.saga-gauge-caption{text-align:center;color:#999;font-size:9px;line-height:1.55;margin-top:9px}
+#saga-water-meal-plan{margin-top:13px;border-top:1px solid #303030;padding-top:12px}
+.saga-water-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center;margin:7px 0}
+.saga-water-row strong{font-size:9px;color:#ddd}
+.saga-water-row label{display:block;font-size:7px;color:#777;margin-bottom:3px}
+.saga-water-row input{padding:8px!important;font-size:10px!important}
+.saga-water-progress{height:4px;background:#292929;border-radius:9px;overflow:hidden;margin:3px 0 7px}
+.saga-water-progress i{height:100%;display:block;width:0;background:#a8f05a}
+.saga-product-query{border-top:1px solid #303030;margin-top:14px;padding-top:12px}
+.saga-product-query textarea,.saga-product-query input{width:100%;min-width:0;background:#202020;border:1px solid #383838;border-radius:6px;color:#fff;padding:10px;font-size:11px;margin:5px 0;color-scheme:dark}
+.saga-product-query textarea{min-height:75px;resize:vertical}
+.saga-product-result{white-space:pre-line;color:#ccc;font-size:10px;line-height:1.55;margin-top:10px}
+@media(max-width:380px){.saga-water-row{grid-template-columns:1fr 1fr 1fr;gap:4px}.saga-water-row input{padding:7px 4px!important}.saga-gauge-wrap{transform:scale(.92);transform-origin:top center;margin-bottom:-2px}}
+.saga-final-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:10020;background:#172316;border:1px solid #a8f05a;color:#e9f6e1;padding:13px 17px;border-radius:9px;box-shadow:0 10px 35px #000c;font-size:11px;font-weight:800;max-width:calc(100vw - 30px);text-align:center;transition:opacity .2s ease,transform .2s ease}
+.saga-final-toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+
+<script id="saga-final-ux-script">
+(function(){
+ 'use strict';
+ if(window.SAGA_FINAL_UX_PATCH_V1)return;
+ window.SAGA_FINAL_UX_PATCH_V1=true;
+ const $=id=>document.getElementById(id);
+ const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v===null?fallback:v;}catch(e){return fallback;}};
+ const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(e){console.warn('SAGA: não foi possível salvar',key,e);return false;}};
+ const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ const fmt=(n,d=1)=>Number(n).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:d});
+ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+ const keyDate=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ const fromKey=k=>{const p=String(k||'').split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);};
+ const monday=d=>{const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()+(x.getDay()===0?-6:1-x.getDay()));return x;};
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+ /* ---------- Preferências da SEXTA-FEIRA ---------- */
+ const PREF_KEY='saga_sexta_preferences_v1';
+ let prefs=read(PREF_KEY,{preferredName:'',motivationMode:false,avoidProfanity:true});
+ if(!prefs||typeof prefs!=='object')prefs={preferredName:'',motivationMode:false,avoidProfanity:true};
+ function savePrefs(){write(PREF_KEY,prefs);}
+ function toast(message){
+  let el=$('saga-final-toast');if(!el){el=document.createElement('div');el.id='saga-final-toast';el.className='saga-final-toast';document.body.append(el);}
+  el.textContent=message;el.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>el.classList.remove('show'),3200);
+ }
+ function preferenceCommand(raw){
+  const text=String(raw||'').trim();let m=text.match(/^(?:me\s+)?(?:chame|chama|trate)\s+(?:de\s+)?(.+)$/i);
+  if(m&&normalize(m[1])!=='senhor'&&m[1].trim().length<=32){prefs.preferredName=m[1].trim().replace(/[.!?]+$/,'');savePrefs();return 'Combinado. A partir de agora vou chamar você de '+prefs.preferredName+'.';}
+  if(/\b(evite|evitar|nao use|não use|sem)\s+(?:os?\s+)?palavr(?:ao|oes|ões)\b/i.test(text)){prefs.avoidProfanity=true;savePrefs();return 'Preferência salva. Vou manter uma linguagem respeitosa e sem palavrões.';}
+  if(/\b(pode usar|nao precisa evitar|não precisa evitar)\s+palavr(?:ao|oes|ões)\b/i.test(text)){prefs.avoidProfanity=false;savePrefs();return 'Entendido. Atualizei essa preferência de linguagem.';}
+  if(/\b(ativar|ligar|iniciar)\s+(?:o\s+)?modo\s+(?:de\s+)?motiva[cç][aã]o\b|\bmodo motiva[cç][aã]o\s*(?:on|ativado)?\b/i.test(text)){prefs.motivationMode=true;savePrefs();return 'Modo de motivação ativado. Vou acompanhar seus registros e usar seus próprios avanços como referência, sem frases vazias.';}
+  if(/\b(desativar|desligar|parar)\s+(?:o\s+)?modo\s+(?:de\s+)?motiva[cç][aã]o\b|\bmodo motiva[cç][aã]o\s*(?:off|desativado)\b/i.test(text)){prefs.motivationMode=false;savePrefs();return 'Modo de motivação desativado. Continuo acompanhando seus dados normalmente.';}
+  return null;
+ }
+
+ /* ---------- Fonte única para peso e frequência ---------- */
+ function getWeights(){
+  const map=new Map();
+  const nutrition=read('saga_nutrition_addon_v1',{});
+  const workout=read('saga_workout_progress_v2',{});
+  [...(Array.isArray(workout.weights)?workout.weights:[]),...(Array.isArray(nutrition.weights)?nutrition.weights:[])].forEach(x=>{
+   const w=Number(String(x.weight??'').replace(',','.'));if(x.date&&Number.isFinite(w)&&w>0)map.set(x.date,{date:x.date,weight:w});
+  });
+  const profileWeight=Number(nutrition.profile?.weight);
+  if(!map.size&&profileWeight>0)map.set(today(),{date:today(),weight:profileWeight});
+  return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date));
+ }
+ function getDays(){const arr=read('sagaTrainingDays',[]);return [...new Set(Array.isArray(arr)?arr.filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)):[])].sort();}
+ function weekDays(){const start=monday(new Date()),end=new Date(start);end.setDate(end.getDate()+6);return getDays().filter(k=>k>=keyDate(start)&&k<=keyDate(end));}
+ function getNutritionState(){const s=read('saga_nutrition_addon_v1',{});return s&&typeof s==='object'?s:{};}
+ function getGoalProgress(){
+  const weights=getWeights(),nut=getNutritionState(),profile=nut.profile||{};
+  const target=Number(profile.targetWeight);const current=weights.length?weights[weights.length-1].weight:Number(profile.weight)||null;
+  const targetValid=Number.isFinite(target)&&target>0&&current>0;
+  if(!targetValid)return {weights,current,target:null,baseline:null,percent:null,diff:null,rate:null,weeks:null,weekly:null};
+  const key='saga_goal_progress_v1';let base=read(key,null);
+  const signature=String(target)+'|'+String(profile.goal||'');
+  if(!base||base.signature!==signature){
+   const initial=weights[weights.length-1]||{date:today(),weight:current};
+   base={signature,target,weight:initial.weight,date:initial.date};write(key,base);
+  }
+  if(!Number.isFinite(Number(base.weight))||Number(base.weight)<=0){base={signature,target,weight:current,date:weights[weights.length-1]?.date||today()};write(key,base);}
+  const baseline=Number(base.weight),span=target-baseline;
+  let percent=span===0?100:((current-baseline)/span)*100;percent=Math.max(-100,Math.min(100,percent));
+  const last=weights[weights.length-1];let rate=null,weeks=null;
+  const goalWeights=weights.filter(x=>x.date>=String(base.date||''));const first=goalWeights[0]||last;
+  if(first&&last&&first.date!==last.date){const days=Math.round((fromKey(last.date)-fromKey(first.date))/86400000);if(days>=7){rate=(last.weight-first.weight)*7/days;const remaining=target-last.weight;if(rate!==0&&remaining/rate>0)weeks=remaining/rate;}}
+  const weekMap=new Map();
+  weights.forEach(x=>{const wk=keyDate(monday(fromKey(x.date)));if(!weekMap.has(wk))weekMap.set(wk,[]);weekMap.get(wk).push(x.weight);});
+  const weekly=[...weekMap.entries()].map(([date,values])=>({date,average:values.reduce((a,b)=>a+b,0)/values.length,count:values.length})).sort((a,b)=>a.date.localeCompare(b.date));
+  return {weights,current,target,baseline,percent,diff:Math.abs(target-current),rate,weeks,weekly};
+ }
+ function dietLoggedDays(){
+  const food=read('sagaFood',{}),d=new Date();let count=0;
+  for(let i=0;i<7;i++){const date=keyDate(d);const day=food[date]||{};const used=Object.values(day).some(v=>Array.isArray(v)&&v.length>0);if(used)count++;d.setDate(d.getDate()-1);}
+  return count;
+ }
+ function renderGauge(){
+  const gauge=$('saga-nutrition-gauge-card');if(!gauge)return;
+  const p=getGoalProgress();const diet=dietLoggedDays();
+  const score=p.percent===null?diet/7*100:(p.percent*.8)+(diet/7*100*.2);
+  const safe=Math.max(0,Math.min(100,score));
+  const arc=gauge.querySelector('.saga-gauge-arc'),needle=gauge.querySelector('.saga-gauge-needle');
+  if(arc)arc.style.setProperty('--saga-gauge-progress',safe);
+  if(needle)needle.style.setProperty('--saga-gauge-progress',safe);
+  const caption=$('saga-nutrition-gauge-caption');
+  if(caption)caption.textContent=p.percent===null?'Defina o peso desejado no perfil nutricional e registre suas pesagens. O indicador também considera em quantos dos últimos 7 dias houve alimentação registrada.':'Indicador visual integrado: progresso do peso em direção à meta + regularidade do diário alimentar nos últimos 7 dias. Não é uma avaliação clínica.';
+ }
+ function weekChartMarkup(progress){
+  const weeks=progress.weekly.slice(-8);if(!weeks.length)return '<div class="saga-goal-note">Registre seu peso para começar o gráfico.</div>';
+  const width=340,height=150,left=27,right=10,top=12,bottom=24;
+  const values=weeks.map(x=>x.average);if(progress.target)values.push(progress.target);
+  let min=Math.min(...values),max=Math.max(...values);if(max-min<1){min-=.5;max+=.5;}const y=v=>top+(max-v)/(max-min)*(height-top-bottom);
+  const x=i=>weeks.length===1?(left+right+width-left-right)/2:left+i*(width-left-right)/Math.max(1,weeks.length-1);
+  const points=weeks.map((w,i)=>x(i)+','+y(w.average)).join(' ');
+  let svg='<svg id="saga-body-weight-chart" viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Gráfico de evolução do peso corporal por semana">';
+  [0,1,2].forEach(i=>{const yy=top+i*(height-top-bottom)/2;svg+='<line x1="'+left+'" y1="'+yy+'" x2="'+(width-right)+'" y2="'+yy+'" stroke="#292929" stroke-width="1"/>';});
+  if(progress.target){const ty=y(progress.target);svg+='<line x1="'+left+'" y1="'+ty+'" x2="'+(width-right)+'" y2="'+ty+'" stroke="#a8f05a" stroke-width="1.2" stroke-dasharray="4 4"/><text x="'+(width-right)+'" y="'+Math.max(9,ty-5)+'" text-anchor="end" fill="#a8f05a" font-size="8">META '+fmt(progress.target)+' kg</text>';}
+  if(weeks.length>1)svg+='<polyline points="'+points+'" fill="none" stroke="#d9efc8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  weeks.forEach((w,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(w.average)+'" r="3.8" fill="#a8f05a"/><text x="'+x(i)+'" y="'+(height-7)+'" text-anchor="middle" fill="#888" font-size="8">'+fromKey(w.date).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+'</text>';});
+  svg+='</svg>';
+  return svg;
+ }
+ function renderEvolution(){
+  const count=$('saga-v2-week-count');if(count)count.textContent=String(weekDays().length);
+  const weight=$('saga-v2-weight-current');const p=getGoalProgress();if(weight)weight.textContent=p.current?fmt(p.current)+' kg':'—';
+  const card=$('saga-goal-progress-card');if(!card)return;
+  const percent=p.percent;
+  const pct=percent===null?0:Math.max(0,Math.min(100,percent));
+  const pctEl=$('saga-goal-percent');if(pctEl)pctEl.textContent=percent===null?'—':fmt(percent,0)+'%';
+  const bar=$('saga-goal-progress-fill');if(bar)bar.style.width=pct+'%';
+  const now=$('saga-goal-current');if(now)now.textContent=p.current?fmt(p.current)+' kg':'—';
+  const target=$('saga-goal-target');if(target)target.textContent=p.target?fmt(p.target)+' kg':'Não definida';
+  const diff=$('saga-goal-distance');if(diff)diff.textContent=p.diff!==null?fmt(p.diff)+' kg':'Defina sua meta no perfil';
+  const rate=$('saga-goal-rate');if(rate)rate.textContent=p.rate===null?'Aguardando ao menos 7 dias entre registros':(p.rate>0?'+':'')+fmt(p.rate)+' kg/semana';
+  const estimate=$('saga-goal-estimate');if(estimate)estimate.textContent=p.weeks!==null?'Ritmo atual: cerca de '+fmt(p.weeks,0)+' semana(s) até a meta, se a tendência continuar.':'Ainda não há dados suficientes para estimar o prazo com segurança.';
+  const weekSummary=$('saga-goal-week-comparison');if(weekSummary){const w=p.weekly;const thisStart=keyDate(monday(new Date()));const lastStart=keyDate(new Date(monday(new Date()).getTime()-7*86400000));const cw=w.find(x=>x.date===thisStart),lw=w.find(x=>x.date===lastStart);weekSummary.textContent='Semana passada: '+(lw?fmt(lw.average)+' kg':'sem pesagem')+'  •  Esta semana: '+(cw?fmt(cw.average)+' kg':'sem pesagem');}
+  const chart=$('saga-goal-chart');if(chart)chart.innerHTML=weekChartMarkup(p);
+  const note=$('saga-goal-note');if(note)note.textContent=percent===null?'Salve um peso desejado no Perfil Nutricional. A primeira pesagem será a referência inicial do acompanhamento.':p.baseline!==null?'Progresso calculado desde '+fmt(p.baseline)+' kg (referência inicial) até '+fmt(p.target)+' kg. O percentual mostra quanto do caminho entre o peso inicial e a meta foi percorrido.':'Registre o peso ao longo das semanas.';
+  renderGauge();
+ }
+ function addEvolutionPanel(){
+  const home=$('home'),grid=$('grid'),dashboard=$('sagaWorkoutDashboard');if(!home||!grid||!dashboard)return;
+  const visual=[...dashboard.querySelectorAll('.saga-v2-card')].find(card=>card.textContent.includes('ACOMPANHAMENTO VISUAL'));
+  if(visual){visual.id='saga-v2-visual-card';dashboard.insertAdjacentElement('afterend',visual);}
+  const stats=dashboard.querySelector('.saga-v2-stats');
+  if(stats){[...stats.children].forEach(stat=>{if(stat.querySelector('#saga-v2-session-total')||stat.querySelector('#saga-v2-total-volume'))stat.remove();});}
+  [...dashboard.querySelectorAll('.saga-v2-card')].forEach(card=>{
+   if(card.querySelector('#saga-v2-load-chart')||card.querySelector('#saga-v2-volume-chart')||card.querySelector('#saga-v2-insight'))card.classList.add('saga-final-hidden');
+   if(card.querySelector('#saga-v2-weight-chart'))card.querySelector('#saga-v2-weight-chart').style.display='none';
+  });
+  if(!$('saga-goal-progress-card')){
+   const card=document.createElement('section');card.id='saga-goal-progress-card';card.innerHTML=`
+    <div class="saga-goal-head">SAGA • EVOLUÇÃO CORPORAL</div>
+    <div class="saga-goal-title">Seu caminho até a meta</div>
+    <div class="saga-goal-sub">Acompanhamento semanal do peso corporal, com referência da semana passada e da meta cadastrada no Perfil Nutricional.</div>
+    <div class="saga-goal-stats">
+     <div class="saga-goal-stat"><strong id="saga-goal-current">—</strong><span>PESO ATUAL</span></div>
+     <div class="saga-goal-stat"><strong id="saga-goal-target">—</strong><span>PESO DESEJADO</span></div>
+     <div class="saga-goal-stat"><strong id="saga-goal-percent">—</strong><span>PROGRESSO DA META</span></div>
+     <div class="saga-goal-stat"><strong id="saga-goal-distance">—</strong><span>DISTÂNCIA ATÉ A META</span></div>
+    </div>
+    <div class="saga-goal-bar"><i id="saga-goal-progress-fill"></i></div>
+    <div id="saga-goal-chart"></div>
+    <div class="saga-goal-chart-labels"><span>MAIS ANTIGA</span><span>SEMANA ATUAL</span></div>
+    <div id="saga-goal-week-comparison" class="saga-goal-note"></div>
+    <div class="saga-goal-stats" style="margin-top:10px">
+     <div class="saga-goal-stat"><strong id="saga-goal-rate">—</strong><span>RITMO MÉDIO</span></div>
+     <div class="saga-goal-stat"><strong id="saga-goal-estimate">—</strong><span>PREVISÃO</span></div>
+    </div>
+    <div id="saga-goal-note" class="saga-goal-note"></div>`;
+   if(visual)visual.insertAdjacentElement('afterend',card);else grid.insertAdjacentElement('afterend',card);
+  }
+ }
+ function refreshAll(){
+  try{
+   if($('saga-v2-week-count'))$('saga-v2-week-count').textContent=String(weekDays().length);
+   renderEvolution();
+  }catch(e){console.warn('SAGA evolução:',e);}
+ }
+
+ /* ---------- Calendário semanal, mensal e anual ---------- */
+ let calendarMode='week',monthCursor=new Date(),yearCursor=new Date().getFullYear();
+ const monthNames=['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+ function calendarDays(key){return getDays().includes(key);}
+ function addCalendarMenu(){
+  const calendar=document.querySelector('.calendar');const nav=document.querySelector('.calendar-nav');if(!calendar||!nav||$('saga-calendar-more'))return;
+  const wrap=document.createElement('div');wrap.className='saga-calendar-more-wrap';
+  const btn=document.createElement('button');btn.type='button';btn.id='saga-calendar-more';btn.textContent='⋯';btn.title='Mais visualizações do calendário';
+  const menu=document.createElement('div');menu.id='saga-calendar-view-menu';menu.hidden=true;
+  [['week','Visão semanal'],['month','Calendário mensal'],['year','Calendário anual']].forEach(([mode,label])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>{menu.hidden=true;setCalendarMode(mode);});menu.append(b);});
+  btn.addEventListener('click',e=>{e.stopPropagation();menu.hidden=!menu.hidden;});wrap.append(btn,menu);nav.append(wrap);
+  document.addEventListener('click',e=>{if(!wrap.contains(e.target))menu.hidden=true;});
+  const navButtons=[...nav.querySelectorAll('.nav-btn')];if(navButtons[0])navButtons[0].onclick=()=>calendarStep(-1);if(navButtons[1])navButtons[1].onclick=()=>calendarStep(1);
+  const week=$('week');if(week){const expanded=document.createElement('div');expanded.id='saga-calendar-expanded';expanded.hidden=true;week.insertAdjacentElement('afterend',expanded);}
+ }
+ function calendarStep(delta){
+  if(calendarMode==='week'){
+   try{weekOffset+=delta;}catch(e){}
+   if(typeof window.renderCalendar==='function')window.renderCalendar();
+  }else if(calendarMode==='month'){
+   monthCursor.setMonth(monthCursor.getMonth()+delta);renderExtendedCalendar();
+  }else{yearCursor+=delta;renderExtendedCalendar();}
+ }
+ function setCalendarMode(mode){
+  calendarMode=mode;
+  if(mode==='month')monthCursor=new Date();if(mode==='year')yearCursor=new Date().getFullYear();
+  if(mode==='week'){
+   const w=$('week'),expanded=$('saga-calendar-expanded'),footer=document.querySelector('.calendar-footer');if(w)w.hidden=false;if(expanded)expanded.hidden=true;if(footer)footer.hidden=false;
+   const title=$('calendarTitle');if(title&&typeof window.renderCalendar==='function')window.renderCalendar();
+  }else renderExtendedCalendar();
+ }
+ function openWeekForDate(key){
+  const target=fromKey(key),base=monday(new Date()),dest=monday(target);
+  try{weekOffset=Math.round((dest-base)/604800000);}catch(e){}
+  setCalendarMode('week');
+  if(typeof window.toggleDay==='function')window.toggleDay(key);
+  else toast('Data selecionada: '+fromKey(key).toLocaleDateString('pt-BR'));
+ }
+ function monthMarkup(year,month,mini){
+  const first=new Date(year,month,1),days=new Date(year,month+1,0).getDate(),offset=(first.getDay()+6)%7;
+  const labels=['S','T','Q','Q','S','S','D'];let html='<div class="'+(mini?'saga-year-month':'saga-calendar-month')+'">';
+  if(mini)html+='<div class="saga-year-month-title">'+monthNames[month].slice(0,3)+'</div>';
+  html+='<div class="'+(mini?'saga-year-weekdays':'saga-month-weekdays')+'">'+labels.map(x=>'<span>'+x+'</span>').join('')+'</div><div class="'+(mini?'saga-year-days':'saga-month-days')+'">';
+  for(let i=0;i<offset;i++)html+='<span class="'+(mini?'saga-year-day':'saga-month-day')+' empty"></span>';
+  for(let day=1;day<=days;day++){
+   const key=keyDate(new Date(year,month,day)),classes=(mini?'saga-year-day':'saga-month-day')+(calendarDays(key)?' trained':'')+(key===today()?' today':'');
+   html+='<button type="button" class="'+classes+'" data-saga-calendar-date="'+key+'" title="'+key+'">'+day+'</button>';
+  }
+  html+='</div></div>';
+  return html;
+ }
+ function renderExtendedCalendar(){
+  const week=$('week'),expanded=$('saga-calendar-expanded'),footer=document.querySelector('.calendar-footer'),title=$('calendarTitle');if(!week||!expanded)return;
+  week.hidden=true;expanded.hidden=false;if(footer)footer.hidden=true;
+  if(calendarMode==='month'){
+   const y=monthCursor.getFullYear(),m=monthCursor.getMonth();if(title)title.textContent=monthNames[m]+' '+y;
+   expanded.innerHTML=monthMarkup(y,m,false);
+  }else{
+   if(title)title.textContent='ANO '+yearCursor;
+   expanded.innerHTML='<div class="saga-year-grid">'+monthNames.map((_,m)=>monthMarkup(yearCursor,m,true)).join('')+'</div>';
+  }
+  expanded.querySelectorAll('[data-saga-calendar-date]').forEach(btn=>btn.addEventListener('click',()=>openWeekForDate(btn.dataset.sagaCalendarDate)));
+ }
+ function wrapCalendar(){
+  if(typeof window.renderCalendar==='function'&&!window.SAGA_FINAL_CALENDAR_WRAPPED){
+   const previous=window.renderCalendar;
+   window.renderCalendar=function(...args){const result=previous.apply(this,args);if(calendarMode!=='week')renderExtendedCalendar();setTimeout(refreshAll,0);return result;};
+   window.SAGA_FINAL_CALENDAR_WRAPPED=true;
+  }
+ }
+
+ /* ---------- Cronômetro com voltas independentes ---------- */
+ let laps=read('sagaTimerLapsV1',[]);if(!Array.isArray(laps))laps=[];
+ function elapsedNow(){
+  try{return Math.max(0,(Number(elapsed)||0)+(startedAt?Date.now()-Number(startedAt):0));}
+  catch(e){const t=$('timerDisplay')?.textContent||'00:00:00';const a=t.split(':').map(Number);return ((a[0]||0)*3600+(a[1]||0)*60+(a[2]||0))*1000;}
+ }
+ function duration(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;return [h,m,sec].map(x=>String(x).padStart(2,'0')).join(':');}
+ function renderLaps(){
+  const list=$('saga-lap-list');if(!list)return;list.innerHTML='';
+  if(!laps.length){list.innerHTML='<div class="saga-lap-empty">Nenhuma volta marcada ainda. O tempo total continua correndo enquanto você registra as voltas.</div>';return;}
+  laps.slice().reverse().forEach(lap=>{const row=document.createElement('div');row.className='saga-lap-row';const left=document.createElement('span');left.textContent='VOLTA '+lap.number+' · TOTAL '+duration(lap.total);const right=document.createElement('strong');right.textContent='+'+duration(lap.split);row.append(left,right);list.append(row);});
+ }
+ function addLap(){const total=elapsedNow();if(total<=0){toast('Inicie o cronômetro antes de marcar uma volta.');return;}const previous=laps.length?laps[laps.length-1].total:0;if(total<=previous){toast('Espere o tempo avançar para registrar a próxima volta.');return;}laps.push({number:laps.length+1,total,split:total-previous,at:Date.now()});write('sagaTimerLapsV1',laps);renderLaps();}
+ function mountLaps(){
+  const timer=document.querySelector('.timer');if(!timer||$('saga-timer-laps'))return;
+  const panel=document.createElement('div');panel.id='saga-timer-laps';panel.innerHTML='<div class="saga-lap-actions"><button type="button" class="saga-lap-btn" id="saga-lap-mark">MARCAR VOLTA</button><button type="button" class="saga-lap-clear" id="saga-lap-clear">LIMPAR VOLTAS</button></div><div id="saga-lap-list" class="saga-lap-list"></div>';
+  timer.append(panel);$('saga-lap-mark').addEventListener('click',addLap);$('saga-lap-clear').addEventListener('click',()=>{if(!laps.length)return;if(!confirm('Limpar apenas as voltas registradas? O cronômetro continuará rodando.'))return;laps=[];write('sagaTimerLapsV1',laps);renderLaps();});renderLaps();
+  if(typeof window.resetTimer==='function'&&!window.SAGA_FINAL_TIMER_WRAPPED){const original=window.resetTimer;window.resetTimer=function(...args){const before=elapsedNow();const result=original.apply(this,args);const after=elapsedNow();if(before>0&&after===0){laps=[];write('sagaTimerLapsV1',laps);renderLaps();}return result;};window.SAGA_FINAL_TIMER_WRAPPED=true;}
+ }
+
+ /* ---------- Base local de alimentos ampliada ---------- */
+ const EXTRA_FOODS=[
+  {name:'Patinho bovino sem gordura cru',aliases:['patinho cru','carne patinho crua'],state:'cru',unit:'g',kcal:133,p:21.7,c:0,f:4.5,fiber:null,sodium:null},
+  {name:'Patinho bovino sem gordura grelhado',aliases:['patinho grelhado','carne patinho grelhada'],state:'grelhado',unit:'g',kcal:219,p:35.9,c:0,f:7.3,fiber:null,sodium:null},
+  {name:'Lentilha cozida',aliases:['lentilha','lentilha cozida'],state:'cozida',unit:'g',kcal:93,p:6.3,c:16.3,f:0.5,fiber:7.9,sodium:null},
+  {name:'Feijão preto cozido',aliases:['feijao preto','feijao preto cozido'],state:'cozido',unit:'g',kcal:77,p:4.5,c:14,f:0.5,fiber:8.4,sodium:null},
+  {name:'Tofu',aliases:['queijo de soja'],state:'in natura',unit:'g',kcal:64,p:6.6,c:2.1,f:4,fiber:0.8,sodium:null},
+  {name:'Amendoim torrado',aliases:['amendoim','amendoim torrado salgado'],state:'torrado',unit:'g',kcal:606,p:22.5,c:18.7,f:54,fiber:7.8,sodium:null},
+  {name:'Castanha de caju torrada',aliases:['castanha de caju','castanha caju'],state:'torrada',unit:'g',kcal:570,p:18.5,c:29.1,f:46.3,fiber:3.7,sodium:null},
+  {name:'Castanha-do-pará crua',aliases:['castanha do para','castanha do brasil'],state:'crua',unit:'g',kcal:643,p:14.5,c:15.1,f:63.5,fiber:7.9,sodium:null},
+  {name:'Abacate',aliases:['abacate'],state:'in natura',unit:'g',kcal:96,p:1.2,c:6,f:8.4,fiber:6.3,sodium:null},
+  {name:'Maçã com casca',aliases:['maca','maca com casca'],state:'in natura',unit:'g',kcal:56,p:0.3,c:15.2,f:0.1,fiber:1.3,sodium:null},
+  {name:'Laranja pera',aliases:['laranja','laranja pera'],state:'in natura',unit:'g',kcal:37,p:0.8,c:8.9,f:0.1,fiber:0.8,sodium:null},
+  {name:'Abacaxi',aliases:['abacaxi'],state:'in natura',unit:'g',kcal:48,p:0.9,c:12.3,f:0.1,fiber:1,sodium:null},
+  {name:'Mamão papaia',aliases:['mamao','mamao papaia'],state:'in natura',unit:'g',kcal:40,p:0.5,c:10.4,f:0.1,fiber:1,sodium:null},
+  {name:'Morango',aliases:['morango'],state:'in natura',unit:'g',kcal:30,p:0.9,c:6.8,f:0.3,fiber:1.7,sodium:null},
+  {name:'Queijo minas frescal',aliases:['queijo minas','minas frescal'],state:'fresco',unit:'g',kcal:264,p:17.4,c:3.2,f:20.2,fiber:null,sodium:null},
+  {name:'Queijo muçarela',aliases:['mucarela','mussarela','queijo mussarela','mozzarella'],state:'fresco',unit:'g',kcal:330,p:22.6,c:3,f:25.2,fiber:null,sodium:null},
+  {name:'Iogurte natural desnatado',aliases:['iogurte desnatado'],state:'líquido/cremoso',unit:'g',kcal:41,p:3.8,c:5.8,f:0.3,fiber:null,sodium:null},
+  {name:'Pão integral',aliases:['pao integral','pao de forma integral'],state:'assado',unit:'g',kcal:253,p:9.4,c:49.9,f:3.7,fiber:6.9,sodium:null},
+  {name:'Cuscuz de milho cozido',aliases:['cuscuz','cuscuz de milho'],state:'cozido',unit:'g',kcal:113,p:2.2,c:25.3,f:0.7,fiber:2.1,sodium:null},
+  {name:'Mandioca cozida',aliases:['mandioca','aipim','macaxeira'],state:'cozida',unit:'g',kcal:125,p:0.6,c:30.1,f:0.3,fiber:1.6,sodium:null},
+  {name:'Brócolis cozido',aliases:['brocolis','brocolis cozido'],state:'cozido',unit:'g',kcal:25,p:2.1,c:4.4,f:0.5,fiber:3.4,sodium:null},
+  {name:'Cenoura cozida',aliases:['cenoura','cenoura cozida'],state:'cozida',unit:'g',kcal:30,p:0.8,c:6.7,f:0.2,fiber:2.6,sodium:null},
+  {name:'Abóbora cabotian cozida',aliases:['abobora','abobora cabotian'],state:'cozida',unit:'g',kcal:48,p:1.4,c:10.8,f:0.7,fiber:2.5,sodium:null},
+  {name:'Sardinha assada',aliases:['sardinha','sardinha assada'],state:'assada',unit:'g',kcal:164,p:32.2,c:0,f:3.0,fiber:null,sodium:null}
+ ];
+ function findExtraFood(query){const q=normalize(query);if(!q)return null;return EXTRA_FOODS.find(f=>[f.name,...f.aliases].some(n=>{const x=normalize(n);return x===q||q.includes(x)||x.includes(q);} ))||null;}
+ function calculateFood(food,amount){const factor=amount/100;return {name:food.name,amount,unit:food.unit,state:food.state,kcal:food.kcal*factor,p:food.p*factor,c:food.c*factor,f:food.f*factor,fiber:food.fiber===null?null:food.fiber*factor,sodium:food.sodium===null?null:food.sodium*factor,source:'TACO/NEPA-Unicamp (valores médios de referência)'};}
+ function addFoodToDiary(item,mealIndex){
+  if(!item||![0,1,2,3,4].includes(mealIndex))return;
+  const date=$('foodDate')?.value||today();const all=read('sagaFood',{});if(!all[date]||typeof all[date]!=='object')all[date]={};if(!Array.isArray(all[date][mealIndex]))all[date][mealIndex]=[];
+  all[date][mealIndex].push({name:item.name,quantity:fmt(item.amount)+' '+item.unit,calories:item.kcal,protein:item.p,carbs:item.c,fat:item.f});
+  if(!write('sagaFood',all)){toast('Não foi possível salvar no diário.');return;}
+  if(typeof window.renderFood==='function')window.renderFood();toast(item.name+' adicionado à refeição.');refreshAll();
+ }
+ function setupFoodCatalog(){
+  const api=window.SAGA_NUTRITION;if(!api)return;
+  const originalFind=api.findFood,originalCalculate=api.calculate;
+  api.findFood=function(q){return originalFind(q)||findExtraFood(q);};
+  api.calculate=function(name,amount){const food=findExtraFood(name);if(food&&Number(amount)>0)return calculateFood(food,Number(amount));return originalCalculate(name,amount);};
+  api.foods=[...(api.foods||[]),...EXTRA_FOODS.map(x=>({...x,aliases:[...x.aliases]}))];
+  const list=$('snFoodOptions');if(list)EXTRA_FOODS.forEach(f=>{if(![...list.options].some(o=>normalize(o.value)===normalize(f.name))){const o=document.createElement('option');o.value=f.name;list.append(o);}});
+  const desc=$('snFoodSearch')?.closest('.sn-field')?.querySelector('.sn-caption');
+  const caption=$('snFoodSearch')?.parentElement?.parentElement?.querySelector('.sn-caption');if(caption)caption.textContent='Base local ampliada: '+api.foods.length+' alimentos de referência. Digite o nome, a quantidade e escolha a refeição depois de calcular.';
+  const button=$('snCalculateFood');if(button&&!button.dataset.sagaFinalFood){
+   button.addEventListener('click',function(event){
+    const query=$('snFoodSearch')?.value||'',amount=Number(String($('snFoodAmount')?.value||'').replace(',','.'));
+    const food=api.findFood(query);
+    if(!food)return;
+    event.preventDefault();event.stopImmediatePropagation();
+    const result=api.calculate(food.name,amount);
+    if(!result||!Number.isFinite(amount)||amount<=0){$('snFoodResult').textContent='Informe uma quantidade válida.';return;}
+    const fiber=result.fiber===null?'não informado':fmt(result.fiber)+' g';const sodium=result.sodium===null?'não informado':fmt(result.sodium)+' mg';
+    $('snFoodResult').innerHTML='<div class="sn-result"><b>'+esc(result.name)+'</b> — '+fmt(amount)+' '+result.unit+' ('+esc(result.state||food.state||'referência')+')<br>Energia: <b>'+fmt(result.kcal,0)+' kcal</b> • Proteína: <b>'+fmt(result.p)+' g</b> • Carboidratos: <b>'+fmt(result.c)+' g</b> • Gorduras: <b>'+fmt(result.f)+' g</b><br>Fibras: '+fiber+' • Sódio: '+sodium+'<br><span class="sn-muted">Valores médios por tabela de composição. O preparo e a marca podem alterar os números; nutrientes não informados não são tratados como zero.</span></div><div class="sn-grid" style="margin-top:9px"><div class="sn-field"><label>ADICIONAR EM QUAL REFEIÇÃO?</label><select id="saga-extra-food-meal"><option value="0">Café da manhã</option><option value="1">Almoço</option><option value="2">Café da tarde / lanche</option><option value="3">Jantar</option><option value="4">Ceia</option></select></div><div class="sn-field" style="display:flex;justify-content:flex-end"><button id="saga-extra-food-add" class="sn-btn secondary" type="button">＋ ADICIONAR À REFEIÇÃO</button></div></div>';
+    const selector=$('saga-extra-food-meal');if(selector&&$('snFoodMeal'))selector.value=$('snFoodMeal').value;
+    $('saga-extra-food-add').addEventListener('click',()=>addFoodToDiary(result,Number($('saga-extra-food-meal').value)));
+   },true);
+   button.dataset.sagaFinalFood='1';
+  }
+ }
+
+ /* ---------- Metas de água por refeição ---------- */
+ const waterMealNames=['Café da manhã','Almoço','Café da tarde / lanche','Jantar','Ceia'];
+ function mountWaterGoals(){
+  const amount=$('snWaterAmount');if(!amount)return;
+  const card=amount.closest('.sn-card');if(!card||$('saga-water-meal-plan'))return;
+  const grid=amount.closest('.sn-grid'),oldButton=$('snAddWater'),summary=$('snWaterSummary');
+  if(grid)grid.style.display='none';if(oldButton)oldButton.style.display='none';if(summary)summary.style.display='none';
+  const box=document.createElement('div');box.id='saga-water-meal-plan';
+  box.innerHTML='<div class="sn-caption">Defina sua meta de água e registre quanto pretende beber em cada horário. Os valores ficam salvos por dia.</div><div id="saga-water-rows"></div><button type="button" class="sn-btn" id="saga-water-save">SALVAR METAS E CONSUMO</button><div id="saga-water-total" class="sn-caption" style="margin-top:9px"></div>';
+  (summary||oldButton||card.lastElementChild).insertAdjacentElement('afterend',box);
+  $('saga-water-save').addEventListener('click',saveWaterGoals);
+  renderWaterGoals();
+ }
+ function renderWaterGoals(){
+  const host=$('saga-water-rows');if(!host)return;const date=$('foodDate')?.value||today();const s=getNutritionState();const record=s.water?.[date]||{};const goals=record.mealGoals||{},consumed=record.mealConsumed||{};
+  host.innerHTML='';let totalGoal=0,totalConsumed=0;
+  waterMealNames.forEach((name,i)=>{
+   const g=Number(goals[i])||0,c=Number(consumed[i])||0;totalGoal+=g;totalConsumed+=c;
+   const row=document.createElement('div');row.className='saga-water-row';row.innerHTML='<strong>'+name+'</strong><div><label>META ML</label><input type="number" min="0" step="50" data-water-goal="'+i+'" value="'+(g||'')+'" placeholder="Ex. 300"></div><div><label>BEBIDO ML</label><input type="number" min="0" step="50" data-water-consumed="'+i+'" value="'+(c||'')+'" placeholder="Ex. 250"></div>';
+   const progress=document.createElement('div');progress.className='saga-water-progress';progress.style.gridColumn='1/-1';const fill=document.createElement('i');fill.style.width=(g>0?Math.min(100,c/g*100):0)+'%';progress.append(fill);row.append(progress);host.append(row);
+  });
+  const summary=$('saga-water-total');if(summary)summary.textContent='Total diário: '+fmt(totalConsumed,0)+' ml registrados de '+fmt(totalGoal,0)+' ml de metas distribuídas.';
+ }
+ function saveWaterGoals(){
+  const date=$('foodDate')?.value||today();const s=getNutritionState();s.water=s.water||{};s.water[date]=s.water[date]||{total:0,target:null};const rec=s.water[date];rec.mealGoals=rec.mealGoals||{};rec.mealConsumed=rec.mealConsumed||{};
+  document.querySelectorAll('[data-water-goal]').forEach(el=>{const i=el.dataset.waterGoal,n=Number(el.value);if(Number.isFinite(n)&&n>=0)rec.mealGoals[i]=n;});
+  document.querySelectorAll('[data-water-consumed]').forEach(el=>{const i=el.dataset.waterConsumed,n=Number(el.value);if(Number.isFinite(n)&&n>=0)rec.mealConsumed[i]=n;});
+  rec.total=Object.values(rec.mealConsumed).reduce((sum,n)=>sum+(Number(n)||0),0);rec.target=Object.values(rec.mealGoals).reduce((sum,n)=>sum+(Number(n)||0),0);
+  if(write('saga_nutrition_addon_v1',s)){toast('Metas de água salvas para '+fromKey(date).toLocaleDateString('pt-BR')+'.');renderWaterGoals();}
+ }
+
+ /* ---------- Consulta local de produtos e ingredientes ---------- */
+ function mountProductQuery(){
+  const name=$('snProduct');if(!name)return;const card=name.closest('.sn-card');if(!card||$('saga-product-query'))return;
+  const section=document.createElement('div');section.id='saga-product-query';section.className='saga-product-query';
+  section.innerHTML='<div class="sn-title">CONSULTA DE OUTROS PRODUTOS</div><div class="sn-caption">Informe o nome e a lista de ingredientes do rótulo. A análise é local e procura substâncias relevantes para sono, estímulo e desempenho; não consulta preços, marcas ou bancos online.</div><input id="saga-product-name" placeholder="Nome do produto (ex.: energético, pré-treino)"><textarea id="saga-product-ingredients" placeholder="Cole os ingredientes e, se houver, a quantidade de cafeína ou outros ativos por porção."></textarea><button type="button" class="sn-btn secondary" id="saga-product-check">VERIFICAR POSSÍVEIS IMPACTOS NO TREINO</button><div id="saga-product-result" class="saga-product-result" aria-live="polite"></div>';
+  const legal=card.querySelector('.sn-legal');(legal||card.lastElementChild).insertAdjacentElement('afterend',section);
+  $('saga-product-check').addEventListener('click',analyzeProduct);
+ }
+ function analyzeProduct(){
+  const name=$('saga-product-name').value.trim()||'Produto informado';const raw=$('saga-product-ingredients').value.trim();const text=normalize(raw);
+  if(!raw){$('saga-product-result').textContent='Cole os ingredientes ou a composição do rótulo para fazer a verificação.';return;}
+  const findings=[];
+  const add=(title,detail)=>findings.push('• '+title+': '+detail);
+  if(/cafeina|guarana|cafe verde|cha verde|mate|yerba mate|caffeine/.test(text))add('Estimulantes / cafeína','Podem aumentar estado de alerta, mas dose total e horário importam. Doses próximas do sono podem prejudicar a qualidade do descanso. Some café, energético, pré-treino e outras fontes; sem a quantidade em mg não dá para estimar a exposição.');
+  if(/sinefrina|synephrine|laranja amarga|yohimbina|ioimbina|rauwolscina|dma(a|e)|dmha|octodrina|higenamina/.test(text))add('Estimulantes de maior cautela','A composição contém ou parece mencionar um ativo estimulante que merece avaliação cuidadosa, principalmente em combinações com cafeína, pressão alta, palpitações ou medicamentos. Não recomendo testar sem orientação profissional.');
+  if(/alcool|etanol|alcohol/.test(text))add('Álcool','Pode prejudicar coordenação, sono, hidratação e recuperação. Não é uma boa combinação com treino, e nunca deve ser associado a direção ou operação de máquinas.');
+  if(/nicotina|nicotine|tabaco/.test(text))add('Nicotina','Pode elevar frequência cardíaca e pressão e não melhora a capacidade aeróbica. Não é um ingrediente para melhorar rendimento.');
+  if(/melatonina|melatonin|valeriana|passiflora/.test(text))add('Ingredientes associados à sonolência','Podem causar sonolência em algumas pessoas; não são adequados para usar antes de atividades que exigem atenção.');
+  if(/creatina|creatine/.test(text))add('Creatina','É usada para apoiar desempenho em esforços repetidos de alta intensidade; não é um estimulante. Confira a quantidade por porção e a regularidade de uso, não apenas o nome na frente da embalagem.');
+  if(/beta alanina|beta alanine/.test(text))add('Beta-alanina','Pode causar formigamento passageiro. Isso não significa necessariamente alergia, mas a dose e a tolerância individual devem ser consideradas.');
+  if(/medicamento|remedio|prescri|antidepressivo|ansiolitico|antihipertensivo/.test(text))add('Possível interação com medicamentos','Esta verificação local não consegue avaliar interações individuais. Confirme com médico ou farmacêutico antes de combinar produtos.');
+  const header='ANÁLISE LOCAL — '+name+'\n';
+  const result=findings.length?findings.join('\n\n'):'Não identifiquei, nas palavras informadas, um dos ingredientes de atenção desta lista. Isso não prova que o produto seja seguro: confira a lista completa, a dose por porção, a procedência e as advertências do rótulo.';
+  $('saga-product-result').textContent=header+result+'\n\nLimite: a SAGA está usando regras locais e o texto que você colou. Não é uma busca online, avaliação laboratorial nem verificador completo de interações. Se usa medicamentos, tem condição de saúde ou o produto mistura estimulantes, consulte profissional habilitado.';
+ }
+
+ /* ---------- Reorganização do painel nutricional ---------- */
+ function simplifyNutrition(){
+  const panel=$('sagaNutritionAddon');if(!panel)return;
+  const cards=[...panel.querySelectorAll(':scope > .sn-card')];
+  const findCard=id=>$(id)?.closest('.sn-card');
+  const summary=findCard('snKcalNow'),profile=findCard('snAge'),food=findCard('snFoodSearch'),plan=findCard('snPlanGoal'),weight=findCard('snWeightCheckin'),water=findCard('snWaterAmount'),product=findCard('snProduct');
+  const order=[summary,profile,food,plan,water,product].filter(Boolean);order.forEach(card=>panel.append(card));
+  if(weight)weight.classList.add('saga-final-hidden');
+  if(profile&&!$('saga-nutrition-gauge-card')){
+   const gauge=document.createElement('section');gauge.id='saga-nutrition-gauge-card';gauge.innerHTML='<div class="saga-nutrition-gauge-title">INDICADOR DE META</div><div class="saga-gauge-wrap"><div class="saga-gauge-arc"></div><div class="saga-gauge-inner"></div><div class="saga-gauge-needle"></div><div class="saga-gauge-hub"></div></div><div class="saga-gauge-ends"><span>INÍCIO</span><span>OBJETIVO</span></div><div id="saga-nutrition-gauge-caption" class="saga-gauge-caption">Atualize seu peso e registre sua alimentação para acompanhar o indicador.</div>';
+   profile.insertAdjacentElement('afterend',gauge);
+  }
+  if(profile){const desc=profile.querySelector('.sn-caption');if(desc)desc.textContent='Salve seus dados e peso desejado uma vez. O SAGA usa esses dados no indicador visual e na evolução corporal.';}
+  const search=findCard('snFoodSearch');if(search){const desc=search.querySelector('.sn-caption');if(desc)desc.textContent='Consulte a base local, informe a quantidade e depois escolha em qual refeição quer adicionar.';}
+  const label=product;if(label){const title=label.querySelector('.sn-title');if(title)title.textContent='ÚLTIMO / RÓTULOS E PRODUTOS';}
+  const waterCard=water;if(waterCard){const desc=waterCard.querySelector('.sn-caption');if(desc)desc.textContent='Crie uma meta em ml para cada refeição e registre o que bebeu ao longo do dia.';}
+  mountWaterGoals();mountProductQuery();setupFoodCatalog();
+ }
+
+ /* ---------- SEXTA-FEIRA: dados reais + modo motivação ---------- */
+ function progressAnswer(kind){
+  const p=getGoalProgress(),days=weekDays().length,diet=dietLoggedDays();
+  const weeks=p.weekly.slice(-2);const weekText=weeks.length===2?'Média semanal: '+fmt(weeks[0].average)+' kg → '+fmt(weeks[1].average)+' kg.':'Ainda não há duas médias semanais para comparar.';
+  if(kind==='evolution'){
+   if(!p.weights.length)return 'Ainda não tenho pesagens salvas. Registre seu peso em Treino para começar a medir sua evolução corporal.';
+   const first=p.weights[0],last=p.weights[p.weights.length-1],diff=last.weight-first.weight,daysElapsed=Math.max(0,Math.round((fromKey(last.date)-fromKey(first.date))/86400000));
+   return 'SUA EVOLUÇÃO CORPORAL\nPeso inicial registrado: '+fmt(first.weight)+' kg ('+fromKey(first.date).toLocaleDateString('pt-BR')+')\nÚltimo peso: '+fmt(last.weight)+' kg ('+fromKey(last.date).toLocaleDateString('pt-BR')+')\nVariação: '+(diff>0?'+':'')+fmt(diff)+' kg em '+daysElapsed+' dia(s).\n'+weekText+'\nDias treinados nesta semana: '+days+'/7. Dias com alimentação registrada nos últimos 7 dias: '+diet+'/7.';
+  }
+  if(kind==='target'){
+   if(p.percent===null)return 'Ainda não há uma meta de peso válida salva no Perfil Nutricional. Defina seu peso desejado e mantenha as pesagens atualizadas.';
+   return 'SUA META CORPORAL\nPeso atual: '+fmt(p.current)+' kg\nPeso desejado: '+fmt(p.target)+' kg\nDistância: '+fmt(p.diff)+' kg\nCaminho percorrido desde a referência inicial: '+fmt(p.percent,0)+'%.\n'+weekText+'\nA regularidade alimentar registrada aparece no indicador integrado da Nutrição: '+diet+' de 7 dias com alimentos lançados.';
+  }
+  if(kind==='rate'){
+   if(p.rate===null)return 'Ainda não consigo calcular sua velocidade com segurança. Preciso de pelo menos duas pesagens separadas por 7 dias ou mais. Registre o peso uma vez por semana, em condições parecidas.';
+   return 'RITMO DE EVOLUÇÃO\nVariação média: '+(p.rate>0?'+':'')+fmt(p.rate)+' kg por semana.\n'+(p.weeks!==null?'Mantido esse ritmo, a estimativa matemática é de cerca de '+fmt(p.weeks,0)+' semana(s) até '+fmt(p.target)+' kg.':'O ritmo atual ainda não está levando diretamente à meta; vale observar as próximas semanas antes de projetar uma data.')+'\n'+weekText+'\nEssa é uma projeção simples dos registros, não uma promessa. O peso oscila e a tendência precisa ser reavaliada.';
+  }
+  return null;
+ }
+ function motivationAnswer(){
+  const count=weekDays().length,p=getGoalProgress();
+  const base=count?('Você já marcou '+count+' dia(s) de treino nesta semana.'): 'Ainda não há treinos marcados nesta semana.';
+  const weight=p.current&&p.target?(' Seu peso atual está em '+fmt(p.current)+' kg, com meta de '+fmt(p.target)+' kg.'):'';
+  return 'MODO DE MOTIVAÇÃO\n'+base+weight+'\n\nNão precisa transformar todo treino em um recorde. Faça o que está planejado, respeite sua recuperação e mantenha a constância. Uma semana consistente vale mais do que um dia perfeito seguido de abandono.';
+ }
+ function wrapAssistant(){
+  if(typeof window.jarvisExecute==='function'&&!window.SAGA_FINAL_ASSISTANT_WRAPPED){
+   const previous=window.jarvisExecute;
+   window.jarvisExecute=function(message,...args){
+    const raw=String(message||'').trim(),n=normalize(raw);
+    const preference=preferenceCommand(raw);if(preference)return preference;
+    if(/(quanto eu evolui|como eu evolui|minha evolucao corporal|meu progresso corporal|quanto evolui)/.test(n))return progressAnswer('evolution');
+    if(/(quao proximo|quanto falta|perto da meta|proximo da minha meta|percentual da meta|porcentagem da meta)/.test(n))return progressAnswer('target');
+    if(/(quao rapido|qual rapido|velocidade da meta|ritmo estou|quanto tempo ate a meta|quando alcanco a meta)/.test(n))return progressAnswer('rate');
+    if(/(me motive|preciso de motivacao|estou desanimado|modo motivacao)/.test(n))return motivationAnswer();
+    if(/\b(monte|montar|crie|criar|gere|gerar)\b/.test(n)&&/(treino|ficha|divisao)/.test(n)&&$('saga-workout-builder')){
+     $('saga-workout-builder').classList.add('open');return 'Abri o montador de treino. Preencha as etapas e, ao concluir, vou confirmar quando as fichas estiverem realmente salvas.';
+    }
+    if(/(dias treinados nesta semana|quantos dias treinei essa semana|frequencia desta semana)/.test(n))return 'Você marcou '+weekDays().length+' dia(s) de treino nesta semana. Considerei os dias confirmados no calendário SAGA.';
+    let answer=previous.call(this,message,...args);
+    if(/treino registrado/i.test(String(answer))){
+     const dateMatch=String(raw).match(/(\d{4}-\d{2}-\d{2})/);const date=dateMatch?dateMatch[1]:today();const days=getDays();if(!days.includes(date)){days.push(date);days.sort();write('sagaTrainingDays',days);}
+     setTimeout(()=>{const selector='.day[data-saga-date=\"'+date+'\"] .saga-ficha-cancel';const cancel=document.querySelector(selector);if(cancel)cancel.click();else if(typeof window.renderCalendar==='function')window.renderCalendar();refreshAll();},0);
+    }
+    if(prefs.motivationMode&&/(treino|ficha|academia|peso|meta|evolucao|exercicio)/.test(n)&&!normalize(answer).includes('modo de motivacao')){answer=String(answer)+'\n\nModo de motivação: continue no ritmo possível, sem sacrificar técnica ou recuperação. Seu histórico é construído pelas sessões que você realmente registra.';}
+    return answer;
+   };
+   window.SAGA_FINAL_ASSISTANT_WRAPPED=true;
+  }
+  if(typeof window.jarvisReply==='function'&&!window.SAGA_FINAL_REPLY_WRAPPED){
+   const previousReply=window.jarvisReply;
+   window.jarvisReply=function(message,...args){let text=String(message??'');if(prefs.preferredName)text=text.replace(/\bsenhor(?:a)?\b/gi,prefs.preferredName);if(prefs.avoidProfanity)text=text.replace(/\b(caralho|porra|puta merda|bosta|foda-se)\b/gi,'[expressão removida]');return previousReply.call(this,text,...args);};
+   window.SAGA_FINAL_REPLY_WRAPPED=true;
+  }
+  const mic=$('jarvis-mic'),input=$('jarvis-input');if(mic)mic.title='Falar com a SEXTA-FEIRA';if(input)input.placeholder='Fale com a SEXTA-FEIRA...';
+  const title=document.querySelector('.jarvis-title');if(title)title.textContent='SEXTA-FEIRA';const orb=document.querySelector('.jarvis-orb');if(orb)orb.textContent='S';
+ }
+
+ /* ---------- Confirmação real de treino gerado ---------- */
+ function confirmWorkoutGeneration(){
+  const api=window.SAGA_WORKOUT_INTELLIGENCE;if(!api||typeof api.generatePlan!=='function'||api._sagaConfirmWrapped)return;
+  const original=api.generatePlan;
+  api.generatePlan=function(...args){
+   const before=read('sagaDemo',[]);const beforeCount=Array.isArray(before)?before.length:0;
+   const answer=original.apply(this,args);
+   const after=read('sagaDemo',[]);const saved=Array.isArray(after)&&after.length>beforeCount&&/salvei|salv|montei|fichas/i.test(String(answer));
+   if(saved){const success='\n\n✓ CONFIRMADO: treino criado e fichas salvas no SAGA. Você já pode abrir suas fichas na tela inicial.';toast('Treino criado e salvo com sucesso.');return String(answer)+success;}
+   return answer;
+  };
+  api._sagaConfirmWrapped=true;
+ }
+ function animateLauncher(){
+  const s=$('sexta-feira-launcher');if(!s)return;s.setAttribute('aria-label','Abrir SEXTA-FEIRA');s.title='Abrir SEXTA-FEIRA';
+  s.addEventListener('click',()=>{s.classList.remove('saga-s-tap');void s.offsetWidth;s.classList.add('saga-s-tap');setTimeout(()=>s.classList.remove('saga-s-tap'),520);});
+ }
+
+ /* ---------- Atualizações após ações em outras áreas ---------- */
+ function wrapRenderers(){
+  ['renderCalendar','renderFood','render'].forEach(name=>{
+   if(typeof window[name]!=='function'||window['SAGA_FINAL_'+name.toUpperCase()+'_WRAPPED'])return;
+   const prev=window[name];window[name]=function(...args){const result=prev.apply(this,args);setTimeout(refreshAll,0);if(name==='renderFood')setTimeout(renderWaterGoals,0);return result;};window['SAGA_FINAL_'+name.toUpperCase()+'_WRAPPED']=true;
+  });
+  document.addEventListener('click',event=>{
+   const id=event.target?.id;
+   if(['snAddWeight','snSaveProfile','saga-v2-save-weight','saga-v2-save-log','snAddAnalyzed','snAddFoodCalc','saga-water-save'].includes(id))setTimeout(refreshAll,40);
+   if(event.target?.closest?.('.saga-ficha-actions')||event.target?.closest?.('.saga-ficha-select'))setTimeout(refreshAll,40);
+  },true);
+  document.addEventListener('change',event=>{
+   if(event.target?.id==='foodDate')setTimeout(()=>{renderWaterGoals();refreshAll();},0);
+   if(event.target?.classList?.contains('saga-ficha-select'))setTimeout(refreshAll,40);
+  },true);
+ }
+
+ function init(){
+  try{
+   addEvolutionPanel();addCalendarMenu();wrapCalendar();mountLaps();simplifyNutrition();wrapAssistant();confirmWorkoutGeneration();animateLauncher();wrapRenderers();
+   if($('saga-workout-builder')){
+    $('saga-workout-builder').addEventListener('click',event=>{if(event.target===$('saga-workout-builder'))$('saga-workout-builder').classList.remove('open');});
+   }
+   refreshAll();renderWaterGoals();
+   const weeklyButton=$('saga-open-workout-builder');if(weeklyButton){weeklyButton.textContent='✦ MONTAR TREINO COM A SEXTA-FEIRA';weeklyButton.classList.add('saga-workout-cta');}
+   const originalCalendarTitle=$('calendarTitle');if(originalCalendarTitle&&calendarMode==='week')originalCalendarTitle.textContent=originalCalendarTitle.textContent||'SEMANA';
+   console.log('SAGA: ajustes finais carregados; dados anteriores preservados.');
+  }catch(error){console.error('SAGA final UX patch:',error);}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,0),{once:true});else setTimeout(init,0);
+})();
+</script>
+<!-- FIM SAGA • AJUSTES DE EXPERIÊNCIA E PROGRESSÃO -->
+
+<script id="saga-emotional-support-script">
+/* ============================================================
+   SAGA • SEXTA-FEIRA — CONVERSA ACOLHEDORA E APOIO EMOCIONAL
+   Complemento append-only. Não substitui psicoterapia.
+   O estado da conversa fica somente na memória desta página;
+   relatos emocionais não são gravados no localStorage.
+============================================================ */
+(function () {
+  'use strict';
+
+  if (window.SAGA_EMOTIONAL_SUPPORT_ACTIVE) return;
+  if (typeof window.jarvisExecute !== 'function') {
+    console.error('SEXTA-FEIRA Apoio: núcleo conversacional não encontrado.');
+    return;
+  }
+
+  let wrappedExecute = null;
+  const state = {
+    active: false,
+    listeningOnly: false,
+    riskCheck: false,
+    emergencyPending: false,
+    riskRaised: false,
+    emotion: 'indefinida',
+    turn: 0,
+    pendingTechnique: null,
+    lastPrompt: '',
+    lastUserText: ''
+  };
+
+  const normalize = value => String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const preferredName = () => {
+    try {
+      const p = JSON.parse(localStorage.getItem('saga_sexta_preferences_v1') || '{}');
+      return p && typeof p.preferredName === 'string' ? p.preferredName.trim() : '';
+    } catch (_) { return ''; }
+  };
+
+  function address() {
+    const name = preferredName();
+    return name ? name : 'você';
+  }
+
+  function detectEmotion(n) {
+    if (/\b(ansios[oa]|ansiedade|angustiad[oa]|panico|medo|preocupad[oa]|sobrecarregad[oa])\b/.test(n)) return 'ansiedade';
+    if (/\b(solitar[oa]|sozinh[oa]|isolad[oa]|ninguem me entende|sem ninguem)\b/.test(n)) return 'solidão';
+    if (/\b(culpad[oa]|vergonha|me odeio|me sinto um lixo|sou um fracasso|inutil)\b/.test(n)) return 'autocobrança';
+    if (/\b(irritad[oa]|com raiva|revoltad[oa]|frustrad[oa])\b/.test(n)) return 'frustração';
+    if (/\b(luto|perdi alguem|morreu|saudade de quem|terminou comigo|terminamos)\b/.test(n)) return 'perda';
+    if (/\b(exaust[oa]|esgotad[oa]|sem energia|cansad[oa] de tudo|no limite)\b/.test(n)) return 'exaustão';
+    if (/\b(desmotivad[oa]|sem motivacao|sem vontade|procrastinando|nao consigo comecar)\b/.test(n)) return 'desânimo';
+    if (/\b(triste|pra baixo|para baixo|vazio|vazia|chorando|mal hoje|nao estou bem)\b/.test(n)) return 'tristeza';
+    return 'indefinida';
+  }
+
+  function isEmotionalOpening(n) {
+    return /\b(estou triste|to triste|meio triste|um pouco triste|desanimad[oa]|meio desanimad[oa]|sem motivacao|sem vontade|sem animo|na bad|ansios[oa]|angustiad[oa]|sozinh[oa]|me sinto mal|nao estou bem|nao to bem|me sinto vazio|me sinto culpado|estou sobrecarregad[oa]|preciso desabafar|quero desabafar|queria conversar|preciso conversar|quero conversar um pouco|meu dia foi pessimo|meu dia foi horrivel|minha cabeca nao para)\b/.test(n);
+  }
+
+  function isExplicitTask(n) {
+    return /\b(mostre minhas fichas|listar fichas|resuma meu treino|montar treino|criar treino|gere uma ficha|adicionar exercicio|adicione .* ficha|resumo nutricional|calcule .* kcal|consultar alimento|abrir nutricao|abrir alimentacao|vamos falar de carro|mudar de assunto)\b/.test(n);
+  }
+
+  function beginSupport(n) {
+    state.active = true;
+    state.listeningOnly = false;
+    state.riskCheck = false;
+    state.riskRaised = false;
+    state.emotion = detectEmotion(n);
+    state.turn = 0;
+    state.pendingTechnique = null;
+    state.lastPrompt = 'opening';
+    state.lastUserText = '';
+    const opening = {
+      'ansiedade': 'Parece que sua cabeça não está encontrando espaço para descansar. Não vou minimizar isso nem te apressar. O que está trazendo mais preocupação agora?',
+      'solidão': 'Sentir-se só mesmo quando existem pessoas por perto pode doer bastante. Quero entender como isso está sendo para você. Em que momentos essa solidão pesa mais?',
+      'autocobrança': 'Sinto muito que você esteja se tratando com tanta dureza. O que aconteceu para você chegar a essa conclusão sobre si mesmo?',
+      'frustração': 'Dá para perceber que isso mexeu com você. Antes de procurar uma solução, quero entender: o que nessa situação mais te frustrou?',
+      'perda': 'Sinto muito. Perdas e despedidas podem mexer com a gente de formas muito diferentes, e não existe um prazo certo para sentir. O que você sente mais falta neste momento?',
+      'exaustão': 'Parece que você está carregando mais do que está conseguindo recuperar. Isso vem se acumulando há algum tempo ou aconteceu algo específico hoje?',
+      'desânimo': 'Não vou te responder com um “levanta e vai” como se fosse simples. Quero entender o que está por trás desse desânimo: é falta de energia, frustração por não ver resultado, ou a sensação de que nada está valendo a pena?',
+      'tristeza': 'Sinto muito que esteja assim. Não vou tentar consertar tudo com uma frase pronta. Podemos conversar com calma. O que aconteceu, ou o que está pesando mais ultimamente?',
+      'indefinida': 'Claro. Podemos conversar sem pressa e sem julgamento. Como você está de verdade hoje? O que tem ocupado sua cabeça?'
+    };
+    const message = opening[state.emotion] || opening.indefinida;
+    const name = preferredName();
+    if (name) return message.replace(/^([^.!?]+)([.!?])/, (_, first, punctuation) => first + ', ' + name + punctuation);
+    return message;
+  }
+
+  function reflection(n) {
+    if (/\b(ninguem|sozinh[oa]|isolad[oa]|nao tenho amigos|nao tenho com quem)\b/.test(n)) return 'Parece que não é só estar sem companhia: é sentir falta de alguém com quem você possa ser você mesmo e ser ouvido. Isso pode ser muito pesado.';
+    if (/\b(fracasso|inutil|lixo|me odeio|nunca sou bom|nada que faco)\b/.test(n)) return 'Você está transformando uma situação dolorosa em uma sentença sobre quem você é. Eu não vou invalidar o que sente, mas um momento difícil não define seu valor inteiro.';
+    if (/\b(nao consigo|falhei|errei|estraguei|decepcionei)\b/.test(n)) return 'Parece que você está sentindo o peso do que aconteceu e talvez também o peso da cobrança que veio depois. São duas coisas diferentes, e podemos olhar para elas separadamente.';
+    if (/\b(trabalho|chefe|emprego|dinheiro|conta|divida)\b/.test(n)) return 'Quando a pressão vem de trabalho ou dinheiro, ela pode invadir várias partes da vida e dar a sensação de que não existe pausa. Faz sentido isso estar te consumindo.';
+    if (/\b(familia|mae|pai|irmao|parente|relacionamento|namorad[oa]|casamento)\b/.test(n)) return 'Quando a dor envolve alguém importante, ela costuma vir misturada com carinho, raiva, expectativa e decepção. Não precisa organizar tudo perfeitamente para me contar.';
+    if (/\b(treino|academia|corpo|peso|musculo|resultado)\b/.test(n)) return 'Quando a gente liga tanto esforço a uma meta física, não ver o resultado esperado pode atingir a autoestima. Seu valor não depende do ritmo da sua evolução corporal.';
+    return 'Estou entendendo que isso está pesando de verdade para você. Não quero tirar conclusões antes de conhecer melhor o que aconteceu.';
+  }
+
+  function techniqueForEmotion() {
+    if (state.emotion === 'ansiedade') return 'grounding';
+    if (state.emotion === 'desânimo' || state.emotion === 'exaustão') return 'activation';
+    if (state.emotion === 'autocobrança' || state.emotion === 'frustração') return 'thought';
+    return 'problem';
+  }
+
+  function techniqueOffer() {
+    const technique = techniqueForEmotion();
+    state.pendingTechnique = technique;
+    const offers = {
+      grounding: 'Quando a ansiedade sobe, uma técnica de aterramento pode ajudar a trazer a atenção para o presente. Quer experimentar comigo um exercício curto dos sentidos?',
+      activation: 'Quando a motivação some, esperar a vontade voltar pode deixar tudo parado. Uma ideia usada em ativação comportamental é começar por uma ação pequena, sem exigir que o humor melhore primeiro. Quer escolher comigo um passo de cinco minutos?',
+      thought: 'Podemos olhar para o pensamento que está te machucando sem fingir que está tudo bem. Uma ferramenta inspirada na terapia cognitivo-comportamental é separar o que aconteceu da conclusão que sua mente tirou. Quer tentar?',
+      problem: 'Podemos separar o que está ao seu alcance do que não está, sem tentar resolver sua vida inteira agora. Quer organizar isso comigo em um passo pequeno?'
+    };
+    return offers[technique];
+  }
+
+  function deliverTechnique() {
+    const technique = state.pendingTechnique;
+    state.pendingTechnique = null;
+    if (technique === 'grounding') {
+      return 'Vamos devagar. Sem precisar fazer perfeitamente:\n\n1. Olhe ao redor e nomeie 5 coisas que consegue ver.\n2. Perceba 4 coisas que consegue sentir pelo toque.\n3. Identifique 3 sons.\n4. Note 2 cheiros.\n5. Perceba 1 gosto ou sensação na boca.\n\nRespire naturalmente enquanto faz isso; não force a respiração. Quando terminar, me diga se a intensidade da ansiedade mudou, mesmo que só um pouco.';
+    }
+    if (technique === 'activation') {
+      return 'Vamos diminuir o tamanho da tarefa. Escolha uma ação que leve no máximo cinco minutos: tomar banho, lavar o rosto, comer algo, abrir a janela, arrumar só uma pequena parte do espaço ou mandar uma mensagem para alguém de confiança. Não é para resolver tudo nem provar produtividade. Qual dessas parece menos difícil agora?';
+    }
+    if (technique === 'thought') {
+      return 'Vamos separar quatro partes, sem discutir com o que você sente:\n\n1. O que aconteceu, de forma observável?\n2. Qual foi a frase ou conclusão que apareceu na sua cabeça?\n3. Que fatos parecem apoiar essa conclusão e que fatos não combinam com ela?\n4. Qual seria uma leitura mais equilibrada, que reconheça a dificuldade sem te condenar?\n\nPodemos começar só pela primeira: o que aconteceu?';
+    }
+    return 'Pegue a situação que está te preocupando e divida mentalmente em duas partes: o que está sob seu controle e o que não está. Não precisa aceitar o que é injusto; é só para não gastar toda a sua energia tentando controlar o impossível. Qual é uma coisa pequena que está ao seu alcance nas próximas 24 horas?';
+  }
+
+  function isYes(n) { return /^(sim|s|quero|pode|vamos|claro|bora|pode ser|vamos tentar|acho que sim)$/.test(n); }
+  function isNo(n) { return /^(nao|n|prefiro nao|agora nao|nao quero|deixa|melhor nao)$/.test(n); }
+
+  function crisisKind(n) {
+    const negated = /\bnao (?:estou|to|tenho|penso|quero)\b.{0,42}\b(?:pensando em suicidio|me matar|tirar minha vida|me machucar|cometer suicidio)\b/.test(n);
+    const acute = /\b(ja tomei (?:um monte|varios|muitos)|tomei (?:varios|muitos) remedios|acabei de me cortar|acabei de me ferir|estou tentando me matar|vou me matar agora|vou tirar minha vida agora|tenho um plano para me matar|vou me machucar agora|estou prestes a me matar)\b/.test(n);
+    const ideation = /\b(pensando em suicidio|penso em suicidio|penso em me matar|pensando em me matar|queria morrer|nao quero mais viver|nao aguento mais viver|queria tirar minha vida|queria me machucar|vou acabar com tudo|seria melhor estar morto|seria melhor estar morta)\b/.test(n);
+    if (acute) return 'acute';
+    if (ideation && (!negated || /\bmas\b/.test(n))) return 'ideation';
+    return null;
+  }
+
+  function emergencyResponse(immediate) {
+    state.active = true;
+    state.riskCheck = !immediate;
+    state.emergencyPending = !!immediate;
+    state.riskRaised = true;
+    const guidance = 'Se você já tomou alguma coisa, se feriu ou sente que pode agir nesse momento, ligue para o SAMU 192 ou vá a uma UPA/pronto-socorro agora. Não fique sozinho: chame alguém de confiança para estar com você presencialmente. Peça ajuda para se afastar de medicamentos ou objetos que possam ser usados para se ferir.\n\nO CVV atende gratuitamente pelo 188, 24 horas, para conversar e oferecer apoio emocional — mas, em perigo imediato, procure o 192 ou uma emergência.';
+    if (immediate) return 'Obrigado por me contar. Isso precisa de ajuda presencial agora. ' + guidance + '\n\nVocê consegue ligar para o 192 ou chamar alguém de confiança para ficar com você neste momento?';
+    return 'Obrigado por confiar isso a mim. Quero levar a sério e focar na sua segurança. ' + guidance + '\n\nVocê está em perigo imediato ou já fez algo para se machucar?';
+  }
+
+  function riskCheckAnswer(n) {
+    if (/^(sim|s|estou em perigo|estou em risco|tenho um plano|tenho plano|ja fiz algo|me feri|me machuquei|nao consigo me manter seguro|nao consigo me manter segura|nao sei se consigo me manter seguro|nao sei se consigo me manter segura)$/.test(n) || /\b(ja tomei remedios|acabei de me ferir|acabei de me cortar|vou agir agora)\b/.test(n)) {
+      return emergencyResponse(true);
+    }
+    if (/^(nao|nao estou em perigo|nao estou em risco|nao fiz nada|nao tenho plano|nao pretendo me machucar|estou seguro|estou segura)$/.test(n)) {
+      state.riskCheck = false;
+      state.riskRaised = false;
+      state.emotion = 'tristeza';
+      state.turn = 1;
+      return 'Obrigado por me esclarecer. Mesmo sem perigo imediato, você não precisa carregar isso sozinho. Seria importante falar com alguém de confiança e, se esses pensamentos voltarem ou persistirem, procurar um psicólogo, uma UBS ou um CAPS.\n\nEu continuo aqui para te ouvir também. O que está tornando esses dias tão difíceis?';
+    }
+    return 'Não precisa encontrar as palavras perfeitas. Quero entender apenas uma coisa para cuidar da sua segurança: você sente que pode se machucar ou tirar a própria vida hoje?';
+  }
+
+  function continueSupport(raw, n) {
+    if (state.emergencyPending) {
+      state.emergencyPending = false;
+      if (/\b(sim|vou ligar|estou ligando|chamei|ja chamei|tem alguem comigo)\b/.test(n)) {
+        return 'Que bom que você está acionando ajuda. Faça a ligação para o SAMU 192 ou mantenha a pessoa de confiança ao seu lado e vá para uma UPA/pronto-socorro. Se ainda estiver em risco, não fique sozinho. O CVV 188 também pode conversar com você enquanto a ajuda presencial é organizada.';
+      }
+      return 'Tudo bem se estiver difícil fazer isso sozinho. Mande agora uma mensagem simples para alguém de confiança: “Não estou seguro sozinho e preciso que você venha ficar comigo e me ajude a buscar atendimento”. Se o risco for imediato, ligue 192 ou vá a uma UPA/pronto-socorro. Você consegue chamar alguém próximo neste instante?';
+    }
+    if (/\b(sair do modo apoio|encerrar conversa|parar de falar disso|mudar de assunto|vamos mudar de assunto|quero falar de outra coisa)\b/.test(n)) {
+      state.active = false; state.listeningOnly = false; state.pendingTechnique = null; state.riskCheck = false; state.emergencyPending = false;
+      return 'Claro. Não precisamos continuar nesse assunto. Sobre o que você prefere conversar agora?';
+    }
+    if (state.riskCheck) return riskCheckAnswer(n);
+
+    const risk = crisisKind(n);
+    if (risk) return emergencyResponse(risk === 'acute');
+
+    if (/\b(so quero desabafar|so quero falar|nao quero conselho|nao quero solucoes|so me escuta|apenas me escuta)\b/.test(n)) {
+      state.listeningOnly = true; state.pendingTechnique = null;
+      return 'Tudo bem. Não vou tentar consertar nem te empurrar conselhos. Vou te acompanhar e fazer perguntas só para entender melhor. Pode falar do seu jeito, até se estiver tudo confuso.';
+    }
+    if (/\b(quero um conselho|me ajuda a resolver|o que eu faco|me ajuda a pensar|quero uma solucao|quero tentar algo)\b/.test(n)) {
+      state.listeningOnly = false;
+      if (state.pendingTechnique) return deliverTechnique();
+      return techniqueOffer();
+    }
+
+    if (state.pendingTechnique) {
+      if (isYes(n)) return deliverTechnique();
+      if (isNo(n)) { state.pendingTechnique = null; state.listeningOnly = true; return 'Sem problema. Não precisamos fazer exercício nenhum. Posso continuar te ouvindo. O que você queria que alguém entendesse sobre o que está vivendo?'; }
+    }
+
+    if (/\b(melhorou|estou melhor|to melhor|me sinto um pouco melhor|aliviad[oa])\b/.test(n)) {
+      state.turn++;
+      return 'Fico contente que tenha surgido um pouco de alívio. Não precisa estar tudo resolvido para esse pequeno respiro importar. O que você acha que ajudou, mesmo que tenha sido só um detalhe?';
+    }
+
+    if (/\b(nao sei|sei la|não sei explicar|nao consigo explicar|tudo junto|tudo ao mesmo tempo)\b/.test(n)) {
+      state.turn++;
+      return 'Tudo bem não saber explicar. Às vezes a gente sente primeiro e só entende depois. Se tivesse que escolher o que está mais forte agora — tristeza, ansiedade, raiva, cansaço ou solidão — qual chega mais perto?';
+    }
+
+    state.lastUserText = raw.slice(0, 500);
+    state.turn++;
+
+    if (state.listeningOnly) {
+      const prompts = [
+        'O que você gostaria que alguém percebesse nessa situação, sem você precisar pedir?',
+        'Qual parte disso tem sido mais difícil de carregar sozinho?',
+        'Tem algo que você ainda não conseguiu dizer para ninguém sobre isso?',
+        'O que você sente que está precisando mais agora: acolhimento, descanso, companhia ou um pouco de clareza?'
+      ];
+      return reflection(n) + '\n\n' + prompts[(state.turn - 1) % prompts.length];
+    }
+
+    if (state.turn === 1) {
+      return reflection(n) + '\n\nO que mais te machucou ou te preocupou nessa situação?';
+    }
+    if (state.turn === 2) {
+      return reflection(n) + '\n\nIsso tem afetado mais seu sono, sua energia, sua vontade de fazer as coisas ou seus relacionamentos?';
+    }
+    if (state.turn === 3) {
+      return reflection(n) + '\n\nVocê prefere que eu continue só te ouvindo ou quer que a gente pense em um passo pequeno para hoje?';
+    }
+
+    if (/\b(nao consigo|nao adianta|nada muda|nao tem jeito|sempre estrago|nunca vou conseguir)\b/.test(n)) {
+      state.pendingTechnique = 'thought';
+      return 'Quando a dor está alta, a mente pode transformar o momento em palavras como “sempre”, “nunca” ou “nada”. Não vou dizer que é só pensamento positivo. Podemos olhar para o que aconteceu e procurar uma leitura mais justa com você. Quer tentar separar o fato da conclusão?';
+    }
+
+    if (state.turn % 3 === 1) return reflection(n) + '\n\nO que você gostaria que mudasse primeiro, mesmo que fosse só um pouco?';
+    if (state.turn % 3 === 2) return 'Estou acompanhando. Não quero presumir o que você deveria fazer. O que você já tentou até agora, e como isso funcionou para você?';
+    return 'Obrigado por continuar me contando. Tem alguém com quem você se sinta minimamente seguro para dividir uma parte disso fora daqui também?';
+  }
+
+  function supportRespond(raw, n) {
+    if (state.riskCheck) return riskCheckAnswer(n);
+    if (state.emergencyPending) return continueSupport(raw, n);
+    const risk = crisisKind(n);
+    if (risk) return emergencyResponse(risk === 'acute');
+    if (state.active) return continueSupport(raw, n);
+    if (/\b(quero conversar|vamos conversar|preciso conversar|quero desabafar|preciso desabafar)\b/.test(n)) return beginSupport(n);
+    if (isEmotionalOpening(n)) return beginSupport(n);
+    return null;
+  }
+
+  function installAssistantWrapper() {
+    const current = window.jarvisExecute;
+    if (typeof current !== 'function' || current === wrappedExecute) return;
+    const previousExecute = current;
+    const wrapped = function (message, ...args) {
+      const raw = String(message || '').trim();
+      const n = normalize(raw);
+      try {
+        if (n) {
+          const answer = supportRespond(raw, n);
+          if (answer) return answer;
+          if (state.active && isExplicitTask(n)) {
+            state.active = false;
+            state.listeningOnly = false;
+            state.pendingTechnique = null;
+          }
+        }
+      } catch (error) {
+        console.warn('SEXTA-FEIRA apoio emocional:', error);
+      }
+      return previousExecute.call(this, message, ...args);
+    };
+    window.jarvisExecute = wrapped;
+    wrappedExecute = wrapped;
+  }
+
+  installAssistantWrapper();
+
+  window.SAGA_EMOTIONAL_SUPPORT = {
+    version: '1.0.0',
+    getState: () => ({ active: state.active, listeningOnly: state.listeningOnly, turn: state.turn, emotion: state.emotion, riskCheck: state.riskCheck }),
+    end: () => { state.active = false; state.listeningOnly = false; state.pendingTechnique = null; state.riskCheck = false; state.emergencyPending = false; },
+    start: () => beginSupport('quero conversar um pouco')
+  };
+
+  function addQuickConversation() {
+    const suggestions = document.querySelector('.jarvis-suggestions');
+    if (!suggestions || document.getElementById('saga-support-quick')) return;
+    const button = document.createElement('button');
+    button.id = 'saga-support-quick';
+    button.type = 'button';
+    button.textContent = 'Quero conversar';
+    button.addEventListener('click', function () {
+      const input = document.getElementById('jarvis-input');
+      if (!input) return;
+      input.value = 'Quero conversar um pouco. Preciso desabafar.';
+      if (typeof window.sendJarvisMessage === 'function') window.sendJarvisMessage();
+    });
+    suggestions.appendChild(button);
+  }
+
+  function updateDisclaimer() {
+    const note = document.querySelector('.jarvis-disclaimer');
+    if (note) note.textContent = 'Conversa acolhedora • não substitui apoio psicológico profissional';
+  }
+
+  /* ---------- Meta diária de hidratação calculada pelo perfil ---------- */
+  const WATER_STORAGE = 'saga_nutrition_addon_v1';
+  const readJSON = (key, fallback) => {
+    try { const value = JSON.parse(localStorage.getItem(key) || 'null'); return value && typeof value === 'object' ? value : fallback; }
+    catch (_) { return fallback; }
+  };
+  const dateKey = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+  const selectedDate = () => document.getElementById('foodDate')?.value || dateKey();
+
+  function hydrationProfile() {
+    const nutrition = readJSON(WATER_STORAGE, {});
+    const workout = readJSON('saga_workout_progress_v2', {});
+    const profile = nutrition.profile || {};
+    const records = new Map();
+    [...(Array.isArray(nutrition.weights) ? nutrition.weights : []), ...(Array.isArray(workout.weights) ? workout.weights : [])].forEach(item => {
+      const weight = Number(String(item.weight ?? '').replace(',', '.'));
+      if (item.date && Number.isFinite(weight) && weight > 0) records.set(item.date, { date: item.date, weight });
+    });
+    const latest = [...records.values()].sort((a, b) => a.date.localeCompare(b.date)).pop();
+    const weight = latest?.weight || Number(profile.weight) || 0;
+    return {
+      age: Number(profile.age) || 0,
+      height: Number(profile.height) || 0,
+      weight,
+      goal: String(profile.goal || ''),
+      profile
+    };
+  }
+
+  function calculatedWaterTarget() {
+    const p = hydrationProfile();
+    if (!p.weight || !p.age || !p.height || p.age < 18) return { target: null, profile: p };
+    // Referência inicial simplificada: aproximadamente 35 ml/kg/dia para adultos.
+    // Não substitui ajuste por calor, suor, treino, dieta ou condição clínica.
+    const target = Math.round((p.weight * 35) / 50) * 50;
+    return { target, profile: p };
+  }
+
+  function hydrationRecord(date) {
+    const store = readJSON(WATER_STORAGE, {});
+    store.water = store.water || {};
+    store.water[date] = store.water[date] || { total: 0, target: null };
+    const record = store.water[date];
+    const legacyConsumed = Object.values(record.mealConsumed || {}).reduce((sum, value) => sum + (Number(value) || 0), 0);
+    const total = Number(record.total) || legacyConsumed;
+    return { store, record, total };
+  }
+
+  function mountSmartHydration() {
+    const panel = document.getElementById('sagaNutritionAddon');
+    if (!panel) return;
+    const legacy = document.getElementById('snWaterAmount')?.closest('.sn-card');
+    if (legacy) legacy.remove(); // remove a antiga meta manual por refeição, sem apagar os registros
+    let card = document.getElementById('saga-smart-hydration');
+    if (!card) {
+      card = document.createElement('section');
+      card.id = 'saga-smart-hydration';
+      card.className = 'sn-card';
+      card.innerHTML = '<div class="sn-title">PAINEL DO DIA • HIDRATAÇÃO</div>' +
+        '<div class="sn-caption" id="saga-water-profile-note">A meta será estimada com os dados do Perfil Nutricional.</div>' +
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:12px 0 7px"><strong id="saga-water-target-value" style="font-size:24px;color:#a8f05a">— ml</strong><span id="saga-water-total-value" style="font-size:10px;color:#aaa">0 ml registrados</span></div>' +
+        '<div style="height:8px;background:#292929;border-radius:10px;overflow:hidden"><i id="saga-water-progress-fill" style="display:block;width:0;height:100%;background:#a8f05a;transition:width .3s"></i></div>' +
+        '<div class="sn-grid" style="margin-top:12px"><div class="sn-field"><label>ÁGUA CONSUMIDA (ML)</label><input id="saga-water-add-amount" type="number" min="1" step="50" placeholder="Ex.: 300"></div><div class="sn-field" style="align-self:end"><button class="sn-btn" type="button" id="saga-water-add-button">REGISTRAR ÁGUA</button></div></div>' +
+        '<div class="sn-caption" id="saga-water-status" aria-live="polite"></div>' +
+        '<div class="sn-legal">Estimativa inicial de cerca de 35 ml por kg de peso corporal. Idade, altura e objetivo ficam no contexto do perfil, mas não alteram arbitrariamente essa conta. Calor, suor, exercício, alimentação e condições de saúde podem mudar a necessidade. Pessoas com restrição de líquidos ou condições renais/cardíacas devem seguir orientação profissional.</div>';
+      const summary = document.getElementById('snKcalNow')?.closest('.sn-card');
+      if (summary && summary.parentNode === panel) summary.insertAdjacentElement('afterend', card);
+      else panel.insertBefore(card, panel.firstChild);
+      document.getElementById('saga-water-add-button').addEventListener('click', registerSmartWater);
+    }
+    renderSmartHydration();
+  }
+
+  function renderSmartHydration() {
+    const card = document.getElementById('saga-smart-hydration');
+    if (!card) return;
+    const { target, profile } = calculatedWaterTarget();
+    const date = selectedDate();
+    const { store, record, total } = hydrationRecord(date);
+    const targetEl = document.getElementById('saga-water-target-value');
+    const totalEl = document.getElementById('saga-water-total-value');
+    const fill = document.getElementById('saga-water-progress-fill');
+    const note = document.getElementById('saga-water-profile-note');
+    const status = document.getElementById('saga-water-status');
+    const goalNames = { gain: 'ganho de massa', maintain: 'manutenção', loss: 'perda de gordura' };
+    if (target) {
+      record.target = target;
+      try { localStorage.setItem(WATER_STORAGE, JSON.stringify(store)); } catch (error) { console.warn('SAGA hidratação: não foi possível atualizar a meta.', error); }
+      targetEl.textContent = target.toLocaleString('pt-BR') + ' ml';
+      totalEl.textContent = Math.round(total).toLocaleString('pt-BR') + ' ml registrados';
+      fill.style.width = Math.min(100, total / target * 100) + '%';
+      note.textContent = 'Perfil considerado: ' + profile.age + ' anos • ' + profile.height + ' cm • ' + profile.weight.toLocaleString('pt-BR') + ' kg • objetivo: ' + (goalNames[profile.goal] || 'não informado') + '. Meta diária estimada pelo peso atual.';
+      status.textContent = total >= target ? 'Meta estimada alcançada. Continue respeitando a sede e seu conforto.' : 'Faltam aproximadamente ' + Math.max(0, Math.round(target - total)).toLocaleString('pt-BR') + ' ml para a referência diária.';
+    } else {
+      targetEl.textContent = '— ml';
+      totalEl.textContent = Math.round(total).toLocaleString('pt-BR') + ' ml registrados';
+      fill.style.width = '0%';
+      note.textContent = profile.age && profile.age < 18
+        ? 'Para menores de 18 anos, a meta precisa ser individualizada; não vou aplicar automaticamente uma fórmula adulta.'
+        : 'Complete idade, altura e peso no Perfil Nutricional para a SEXTA-FEIRA estimar a meta diária.';
+      status.textContent = 'A meta será exibida assim que o perfil estiver completo.';
+    }
+  }
+
+  function registerSmartWater() {
+    const input = document.getElementById('saga-water-add-amount');
+    const amount = Number(String(input?.value || '').replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 5000) {
+      alert('Informe uma quantidade de água válida em ml (até 5.000 ml por registro).');
+      return;
+    }
+    const { target } = calculatedWaterTarget();
+    const date = selectedDate();
+    const { store, record, total } = hydrationRecord(date);
+    record.total = total + amount;
+    record.target = target || record.target || null;
+    try {
+      localStorage.setItem(WATER_STORAGE, JSON.stringify(store));
+      if (input) input.value = '';
+      renderSmartHydration();
+    } catch (error) {
+      alert('Não foi possível salvar o consumo de água neste dispositivo.');
+    }
+  }
+
+  function bindSmartHydrationUpdates() {
+    document.addEventListener('click', function (event) {
+      const id = event.target?.id;
+      if (['snSaveProfile', 'snAddWeight', 'saga-v2-save-weight'].includes(id)) setTimeout(renderSmartHydration, 80);
+    }, true);
+    document.getElementById('foodDate')?.addEventListener('change', renderSmartHydration);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      // A camada de UX do SAGA pode envolver jarvisExecute durante a inicialização.
+      // Reinstala este roteador por último para que apoio emocional tenha prioridade.
+      setTimeout(function () { installAssistantWrapper(); addQuickConversation(); updateDisclaimer(); mountSmartHydration(); bindSmartHydrationUpdates(); }, 0);
+    }, { once: true });
+  } else {
+    setTimeout(function () { installAssistantWrapper(); addQuickConversation(); updateDisclaimer(); mountSmartHydration(); bindSmartHydrationUpdates(); }, 0);
+  }
+
+  window.SAGA_HYDRATION = {
+    version: '1.0.0',
+    getTarget: calculatedWaterTarget,
+    refresh: renderSmartHydration,
+    register: registerSmartWater
+  };
+
+  window.SAGA_EMOTIONAL_SUPPORT_ACTIVE = true;
+  console.log('SEXTA-FEIRA: modo de conversa acolhedora carregado.');
+})();
+
+</script>
+
 </body>  
-</html>  
-  
+</html>
